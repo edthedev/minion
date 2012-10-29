@@ -1,0 +1,53 @@
+#!/usr/bin/python
+"""logit - append a line to an existing file in one of the notes boxes"""
+# Copyright 2011 Edward Delaporte <edthedev@gmail.com>
+# Licensed under the University of Illinois / NCSA Open Source License 
+# http://www.opensource.org/licenses/UoI-NCSA 
+# Created: 2011-08-01
+
+import optparse
+import os
+import sys
+import shutil
+import subprocess
+import datetime
+
+import edthedev.io 
+import edthedev.text
+import edthedev.org
+
+parser = optparse.OptionParser()
+# parser.add_option("-l", "--list", action="store_true", default=False, help="List the    items in the inbox and then exit.")
+# parser.add_option("-f", "--file", action="store", help="Append the file to another file...")
+parser.add_option('-p', '--project', help='Log to a specific project.')
+parser.add_option('-q', '--quiet', action='store_false', help='Do not add date and timestamp.', default='true', dest='timestamp')
+parser.add_option('-c', '--csv', action='store_true', help='Require CSV format.')
+(options, args) = parser.parse_args()
+
+argstring = ' '.join(args)
+def cleanArugmentString(string):
+	return string.replace('\n', '')
+
+tags = edthedev.org.getTags(argstring)
+all_tags = tags
+
+file_list = edthedev.org.getAllFiles()
+
+content_string = argstring
+if options.project == None:
+	filename = edthedev.org.chooseFileByTagsInteractive(file_list, tags)
+	for tag in all_tags:
+		content_string = content_string.replace(tag, '')
+else:
+	filename = edthedev.org.getProject(options.project)
+
+if not options.csv:
+	edthedev.io.appendToFile(filename, content_string, options.timestamp)
+else:
+	if ',' not in content_string:
+		print 'At least one , is required when called with --csv.'
+		sys.exit(2)
+	updated_string = edthedev.text.getUpdatedString()
+	content_string = "%s,%s" % (updated_string, content_string)	
+	edthedev.io.appendToFile(filename, content_string, options.timestamp)
+	

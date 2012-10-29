@@ -1,0 +1,46 @@
+#:kivy 1.0
+
+<Controller>:
+
+# Some bits need to be available to the source code. 
+# Declare them here.
+	search_label: search_label_id
+    search_results: search_results_id
+    search_title: search_results_title
+    search_button: search_button_id
+    search_box: search_box_id
+
+    BoxLayout:
+        orientation: 'vertical'
+
+        BoxLayout:
+            orientation: 'horizontal'
+            padding: 10
+            height: 25
+            size_hint: (1, .1)
+            
+            Label:
+                id: search_label_id
+                text: 'Search'
+                size_hint: (.2, 1)
+
+            TextInput:
+                id: search_box_id
+                text: ''
+                size_hint: (.7, 1)
+
+            Button:
+                id: search_button_id
+                text: 'Search'
+                size_hint: (.1, 1)
+
+        Label:
+            id: search_results_title
+            text: 'Here are your results.'
+            size_hint: (1, .1)
+        
+# This is where we will add our search results.
+        BoxLayout:
+            orientation: 'vertical'
+            id: search_results_id
+

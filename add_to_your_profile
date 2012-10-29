@@ -1,0 +1,25 @@
+#!/bin/bash
+# To add all of the Ed The Dev scripts to your path, 
+#  you can copy the bits below that you want to your profile...
+#    ...or...
+# Just add the following line in your profile (but remove the '#' form the begining):
+# source $HOME/edthedev/add_to_your_profile
+# 
+# Your profile is typically at ~/.profile or ~/.zshrc or ~/.bashrc or ~/.bash_profile
+
+# Org(anizer) scripts allow you to set reminders, sort them, and see summaries of them.
+# --------------------------------------------------------------------------------
+# Variables for convenience. 
+export MINION_INSTALL=$HOME/minion
+export NOTES_HOME=$HOME/Dropbox/notes
+export INBOX=$NOTES_HOME/inbox
+
+# The location you installed the edthedev package to.
+# export PYTHONPATH=$HOME/edthedev:$PYTHONPATH
+
+# Include the scripts on your path.
+if [ -d "$MINION_INSTALL" ] ; then
+	export PATH="$MINION_INSTALL:$PATH"
+fi
+# Include some handy aliases in your profile.
+source $MINION_INSTALL/aliases_for_minion

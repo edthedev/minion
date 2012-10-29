@@ -1,0 +1,312 @@
+#!/usr/bin/env python2.7
+"""Creates and manages a folder full of reminder files."""
+
+# #babyTeddySays: m'0']..p p j\[ ''
+
+# Copyright 2011 Edward Delaporte <edthedev@gmail.com>
+# Licensed under the University of Illinois / NCSA Open Source License 
+# http://www.opensource.org/licenses/UoI-NCSA 
+# Created: 2011-04-28
+
+import os
+import optparse
+import shutil
+import random
+
+import brain_of_minion
+import sys
+
+CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
+ Clean Inbox
+*~*~*~*~*~*~*
+'''
+
+def get_options():
+    "Parse the arguments and options from the command line."
+    option_parser = optparse.OptionParser()
+    option_parser.add_option('-a', '--archive', 
+        action='store_true', default=None)
+    option_parser.add_option('-A', '--action', default=None)
+    option_parser.add_option('-C', '--add-date', default=False)
+    option_parser.add_option("-c", "--count", 
+        action="store_true", help="Display count of items in box.")
+    option_parser.add_option('-d', '--directory', action='store')
+    option_parser.add_option('-D', '--dump', action='store_true')
+    option_parser.add_option('-e', '--editor', action='store', default=None)
+    option_parser.add_option('-f', '--full', action='store', default=None)
+    option_parser.add_option('-F', '--filename', action='store', default=None)
+    option_parser.add_option("-i", "--ignore", action="append", default=[], 
+        help="Ignore any item with this term.")
+    option_parser.add_option("-l", "--list", action="store_true", 
+            default=False, 
+        help="List the items in the inbox and then exit.")
+    option_parser.add_option('-L', '--silent', action='store_true')
+    # option_parser.add_option('-m', '--main-file', 
+    #     action='store_true', default=False)
+    option_parser.add_option('-m', '--max', default=20)
+    option_parser.add_option('-M', '--sample', action='store_true')
+    option_parser.add_option('-n', '--new-note', 
+        action='store_true', default=False)
+    option_parser.add_option('-S', '--filter', action='append', default=[])
+    option_parser.add_option('-s', '--search', action='append', default=[])
+    option_parser.add_option('-t', '--show-tags', default=True)
+    option_parser.add_option('-T', '--notags', action='store_true')
+    option_parser.add_option("-q", "--quick", action="store_true")
+    option_parser.add_option("-r", "--remind", action="store_true")
+    option_parser.add_option("-R", "--raw", action="store_true", 
+        default=None, 
+        help="Display raw filenames rather than human readable.")
+    option_parser.add_option('-o', '--open', action='store_true')
+    option_parser.add_option("-O", "--open-all", 
+        action="store_true", default=None, 
+        help="Open all files...")
+    option_parser.add_option('-v', '--review', action='store_true')
+    option_parser.add_option("-w", "--weekend", action="store_true", 
+        help="Reverse weekend setting from current default.")
+
+    return option_parser.parse_args()
+
+(options, ARGS) = get_options()
+
+# Certain options logically imply other options as well.
+#    This limits how the user can use this app, but 
+#        steers the user toward better user experiences.
+
+options.main_file = False
+
+if options.raw == True:
+    options.show_tags = False
+
+if len(ARGS) == 0:
+    options.silent = True
+
+if options.remind:
+    options.new_note = True
+    options.quick = True
+
+if options.new_note:
+    brain_of_minion.new_note(ARGS, options.quick)
+    sys.exit(0)
+
+if options.search: 
+    options.full = True
+
+if options.count: 
+    options.silent = True
+if options.main_file: 
+    options.silent = True
+
+if options.sample: 
+    options.quick = True 
+if options.review: 
+    options.quick = True
+if options.filename != None: 
+    options.quick = True
+
+if options.quick: 
+    options.archive = False
+    options.full = False
+
+if options.list:
+    options.silent = True
+
+# If they didn't ask for a non-interactive session, 
+#   prompt for the options they forgot to specify.
+# options.quick overrides this behavior 
+#   by setting these options before we get here.
+# Quite a few other options set options.quick=True 
+#   in order to enforce their intended user experience.
+#if not options.silent:
+    #if options.archive == None:
+        #answer = raw_input('Search archives?')
+        #if 'y' in answer.lower():
+            #options.archive = True
+        #else:
+            #options.archive = False
+    #if options.full == None:
+        #answer = raw_input('Full text search?')
+        #if 'y' in answer.lower():
+            #options.full = True
+        #else:
+            #options.full = False
+
+
+weekend = not brain_of_minion.is_work_time()
+if options.weekend:
+    weekend = not weekend
+
+# Single box or all boxes...
+
+def choose_files(minion_options):
+    """Return a set of files to search within, 
+        based on the options given on the command line."""
+    if minion_options.filename != None:
+        return [minion_options.filename]
+    else:
+        return brain_of_minion.find_files(directory=minion_options.directory,
+            archives=minion_options.archive, 
+            filter=minion_options.filter, 
+            full_text=minion_options.full, 
+            weekend=weekend)
+
+if options.directory == None:
+    options.directory = brain_of_minion.get_notes_home()
+    if len(ARGS) == 0:
+        options.directory = brain_of_minion.get_inbox()
+
+if len(ARGS) > 0:
+    options.filter.extend(ARGS)
+
+inbox_files = []
+inbox_files = choose_files(options)
+
+# If we are along looking for orphaned files...
+if options.notags:
+    updated_inbox_files = []
+    for item in inbox_files:
+        if len(brain_of_minion.getTags(item)) < 2:
+            updated_inbox_files.append(item)
+    inbox_files = updated_inbox_files
+
+if not options.silent: 
+    total_files = brain_of_minion.find_files(directory=options.directory, 
+        archives=options.archive, 
+        full_text=False, 
+        weekend=weekend)
+    match_template = \
+    "{matching} of {total} files match search {search} in directory {directory}"
+    print match_template.format( \
+        directory=options.directory, 
+        matching=len(inbox_files), 
+        search=','.join(options.filter), 
+        total=len(total_files))
+    # print "Searching directory %s." % (options.directory)
+
+ignore_tags = brain_of_minion.get_ignore_tags(worktime=not weekend)
+
+if len(options.ignore) > 0:
+    search_terms = [item.lower() for item in options.ignore]
+    ignore_tags.extend(search_terms)
+if not options.silent: 
+    print "Ignoring %s" % ','.join(ignore_tags)
+
+choice_path = ''
+if options.open:
+    choice = ''
+    while len(inbox_files) > 1:
+        print "Notes:\n"
+        if len(inbox_files) > options.max:
+            print "%d matches." % len(inbox_files)
+        else:
+            print "\n".join(inbox_files)
+        choice = raw_input('Selection? ')
+        if '!' in choice:
+            break    
+        choice_path += '-' + choice
+        inbox_files = brain_of_minion.limitNotes(choice, inbox_files, True)
+
+    # Merge the selected files.
+    if choice == '!merge':
+        trash_dir = os.path.expanduser("~/.trash")
+        if not os.path.exists(trash_dir):
+            os.mkdir(trash_dir)
+        new_contents = ''
+        for f in inbox_files:
+            new_contents += open(f, 'r').read()
+            shutil.move(f, trash_dir)
+            print "%s move to %s." % (f, trash_dir)
+        clean_name = brain_of_minion.createFileName(choice_path)
+        inbox_dir = brain_of_minion.get_inbox()
+        new_file_name = '%s/%s' % (inbox_dir, clean_name)
+        new_file = open(new_file_name, 'a')
+        new_file.write(new_contents)
+        new_file.close()
+        filename = new_file_name
+    elif choice == '!open':
+        for f in inbox_files:
+            brain_of_minion.openFile(f, editor=options.editor)
+    elif choice == '!list':
+        brain_of_minion.displayOutput('Matching', \
+                                    '\n'.join(inbox_files), \
+                                        by_tag=options.show_tags)
+
+# Display list of results
+if options.list or options.dump:
+    if not options.raw and not options.dump:
+        inbox_files = [brain_of_minion.cleanOutput(item) \
+                    for item in inbox_files]
+    title = ' '.join(options.filter) 
+    if options.list:
+        brain_of_minion.displayOutput(title,
+                inbox_files, options.show_tags)
+    if options.dump:
+        for item in inbox_files:
+            # print item
+            f = open(item,'r')
+            lines = f.readlines()
+            f.close()
+            brain_of_minion.displayOutput(item, lines, False)
+            # print '\n'.join(lines)
+    sys.exit()
+
+# Open all results
+if options.open_all:
+    for item in inbox_files:
+        brain_of_minion.openFile(item, multiple=True, editor=options.editor)
+    sys.exit() 
+
+# Count instead of processing.
+if options.count:
+    search_terms = "%s: %s" % ( \
+        os.path.basename(options.directory), ','.join(options.filter))
+    count = len(inbox_files)
+    print "%d - %s" % (count, search_terms)
+    sys.exit()
+
+total = len(inbox_files)
+count = 0
+
+# Process inbox...
+if total == 0:
+    print CLEAN_INBOX_MESSAGE
+else:
+    if options.sample:
+        inbox_files = random.sample(inbox_files, 5)
+
+    
+    print brain_of_minion.getOutput('cal')
+    print brain_of_minion.get_inbox_menu()
+    to_open = []
+
+# ----------------------------------
+# Main interactive loop...
+# ----------------------------------
+    for item in inbox_files:
+        count += 1
+# Show progress...
+        # print "-- %d/%d" % (count, total)
+        print brain_of_minion.to_bar(count, total)
+        if options.open:
+            to_open.extend([item])
+        else:
+# The main call...
+            if options.action != None:
+                files_to_open = brain_of_minion.applyCommandToFile(item, action)
+                to_open.extend( files_to_open )
+            else: 
+                files_to_open = brain_of_minion.doInboxInteractive(item)
+                to_open.extend( files_to_open )
+
+    if len(to_open) > 0:
+        print "Files to open: %s" % '\n'.join(to_open)
+        for item in to_open:
+            brain_of_minion.openFile(item, multiple=True, editor=options.editor)
+
+def open_main():
+    "Open the main organizer file, for users who are using such a file."
+    main_org_file = "%s/projects/main.org" % brain_of_minion.get_notes_home()
+    print main_org_file
+    brain_of_minion.openFile(main_org_file, editor=options.editor)
+
+if options.main_file:
+    open_main()

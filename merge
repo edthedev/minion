@@ -1,0 +1,80 @@
+#!/usr/bin/python
+"""Merges inbox notes.
+
+Creates a new note in the inbox.
+Creates a list of the merged files in the inbox.
+
+"""
+
+# Copyright 2011 Edward Delaporte <edthedev@gmail.com>
+# Licensed under the University of Illinois / NCSA Open Source License 
+# http://www.opensource.org/licenses/UoI-NCSA 
+# Created: 2011-04-28
+
+import os
+import sys
+import optparse
+
+# import edthedev.shell
+import brain_of_minion
+
+max_display_results = 20
+
+use_summary = "merge [options] search terms"
+parser = optparse.OptionParser(usage=use_summary)
+
+# parser.add_option('-d', '--dir', action='store', dest='directory', 
+# 	default='~/Dropbox/notes')
+parser.add_option('-a', '--include-archives', action='store_true') 
+
+try:
+	(options, args) = parser.parse_args()
+except optparse.OptionError:
+	parser.print_help()
+	sys.exit(2)
+
+inbox_dir = brain_of_minion.getInbox()
+
+merged_file_name = '-'.join(args)
+
+merged_list_file_name = "%s/remove_merged_%s_notes" % (inbox_dir, merged_file_name) 
+merged_file_name = "%s/%s.txt" % (inbox_dir, merged_file_name)
+
+
+if os.path.exists(merged_file_name):
+	print "%s already exists." % merged_file_name
+	sys.exit(2)
+
+notes_files = brain_of_minion.getTaggedFiles(args, options.include_archives)
+
+def getCreatedDate(filename):
+	return os.stat(filename).st_ctime 
+
+sorted_files = sorted(notes_files, key=getCreatedDate)
+
+inbox_dir = brain_of_minion.getInbox()
+
+merged_list_file = open(merged_list_file_name, 'a')
+merged_file = open(merged_file_name, 'a')
+
+header = """#!/bin/bash
+# This file was generated to clean up the merged files.
+# Once you're done inspecting %s,
+# you can remove the original merged files by typing:
+# >source %s
+""" % (merged_file_name, merged_list_file_name)
+merged_list_file.write(header)
+
+for filename in sorted_files:
+	print "Merging %s. Created %s." % (filename, getCreatedDate(filename))
+	merged_list_file.write('rm ' + filename + '\n')
+	f = open(filename, 'r')
+	content = f.read()
+	merged_file.write(filename + '\n')
+	merged_file.write(content + '\n')
+	f.close()
+
+merged_file.close()
+merged_list_file.close()
+print "Created %s and %s" % (merged_file_name, merged_list_file_name)
+

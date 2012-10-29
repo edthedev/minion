@@ -1,0 +1,59 @@
+#!/usr/bin/python
+"""Count the keywords in the inbox filenames."""
+# Copyright 2011 Edward Delaporte <edthedev@gmail.com>
+# Licensed under the University of Illinois / NCSA Open Source License 
+# http://www.opensource.org/licenses/UoI-NCSA 
+# Created: 2011-06-27
+
+import optparse
+import os
+
+import brain_of_minion 
+
+parser = optparse.OptionParser()
+# parser.add_option("-d", "--directory", action="store", default="~/Dropbox/notes")
+parser.add_option("-m", "--minimum", action="store", type='int', default=2, help="Minimum number of hits to list in results.")
+(options, args) = parser.parse_args()
+
+# options.directory = os.path.expanduser(options.directory)
+class TagCloud():
+	def __init__(self, minimum):
+		self.Terms = {}
+		self.Min = minimum
+		
+	def addFile(self, filename):
+		tags = brain_of_minion.getTags(filename)
+		for t in tags:
+			if brain_of_minion.isValidTag(t):
+				if self.Terms.has_key(t):
+					self.Terms[t] += 1
+				else:
+					self.Terms[t] = 1
+
+	def __str__(self):
+		results = []
+		for key in self.Terms.keys():
+			value = self.Terms[key]
+			if value >= self.Min:
+				results.append((value, key))
+		results.sort(reverse=True)
+		output = ""
+		for value, key in results:
+			command = "textbar %s %d" % (key, value)
+			output += brain_of_minion.getOutput(command)
+		return output
+
+
+terms = {}
+tc = TagCloud(options.minimum)
+# files = brain_of_minion.getFiles(options.directory)
+
+list_of_files = brain_of_minion.getOutput('inbox --all -l')
+files = list_of_files.split('\n')
+
+for f in files:
+	short = os.path.basename(f)
+	clean = short.replace(' ', '').replace('\n', '')
+	tc.addFile(clean)
+
+print tc
