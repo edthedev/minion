@@ -13,6 +13,9 @@ import optparse
 import shutil
 import random
 
+# DocOpt is awesome. https://github.com/docopt/docopt
+from docopt import docopt
+
 import brain_of_minion
 import sys
 
@@ -20,6 +23,12 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
  Clean Inbox
 *~*~*~*~*~*~*
 '''
+
+DOC = """Usage: minion COMMAND SEARCH-TERMS  
+
+
+
+"""
 
 def get_options():
     "Parse the arguments and options from the command line."
