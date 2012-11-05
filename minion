@@ -1,5 +1,14 @@
 #!/usr/bin/env python2.7
-"""Creates and manages a folder full of reminder files."""
+"""Creates and manages a folder full of reminder files.
+Usage: 
+    minion note <title> ...  
+    minion remind <title> ...
+
+Options:
+    -h --help   Show this help.
+    --version   Show version.
+
+"""
 
 # #babyTeddySays: m'0']..p p j\[ ''
 
@@ -24,11 +33,8 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 *~*~*~*~*~*~*
 '''
 
-DOC = """Usage: minion COMMAND SEARCH-TERMS  
-
-
-
-"""
+arguments = docopt(__doc__, version='1.0')
+print arguments
 
 def get_options():
     "Parse the arguments and options from the command line."
