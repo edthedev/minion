@@ -6,6 +6,7 @@ Usage:
     minion list <text> ...
     minion note <text> ...  
     minion remind <text> ...
+    minion sample <text> ...
     minion sort <text> ...
 
 Options:
@@ -99,31 +100,86 @@ if args['note'] or args['remind']:
     brain_of_minion.new_note(args['<text>'], quick=args['remind'])
     sys.exit(0)
 
+# Everything after this point requires searching for matches...
+match_files = brain_of_minion.find_files(filter=args['<text>'])
+
 inbox_files = []
 
 # Search verbs...
-if args['list'] or args['count']:
-    match_files = brain_of_minion.find_files(filter=args['<text>'])
+# if args['list'] or args['count']:
 
-    total_files = brain_of_minion.find_files()
-
-    if args['list']:
+# List the results
+if args['list']:
+     total_files = brain_of_minion.find_files()
      match_template = \
-    "{matching} of {total} files match search {search} in directory {directory}"
+"{matching} of {total} files match search {search} in directory {directory}"
     print match_template.format( \
-        directory = brain_of_minion.get_notes_home(),
-        matching=len(match_files), 
-        search=','.join(args['<text>']), 
-        total=len(total_files))
+    directory = brain_of_minion.get_notes_home(),
+    matching=len(match_files), 
+    search=','.join(args['<text>']), 
+    total=len(total_files))
     brain_of_minion.display_output(title=filter, output=match_files)
 
-# Count instead of processing.
-    if args['count']:
-        search_terms = "%s: %s" % ( \
-        os.path.basename(directory), ','.join(filter))
-        count = len(match_files)
-        print "%d - %s" % (count, search_terms)
+# Display a count of the matches 
+if args['count']:
+    search_terms = "%s: %s" % ( \
+    os.path.basename(directory), ','.join(filter))
+    count = len(match_files)
+    print "%d - %s" % (count, search_terms)
+    sys.exit()
+
+# List just a sample of the matches 
+if args['sample']:
+    match_files = random.sample(match_files, 5)
+    brain_of_minion.display_output(title=filter, output=match_files)
+
+# Interactively sort the matches.
+if args['sort']:
+    total = len(match_files)
+    if total == 0:
+        print CLEAN_INBOX_MESSAGE
         sys.exit()
+    else:
+
+
+# Process inbox...
+    if options.sample:
+
+    
+    print brain_of_minion.getOutput('cal')
+    print brain_of_minion.get_inbox_menu()
+    to_open = []
+
+# ----------------------------------
+# Main interactive loop...
+# ----------------------------------
+    for item in inbox_files:
+        count += 1
+# Show progress...
+        # print "-- %d/%d" % (count, total)
+        print brain_of_minion.to_bar(count, total)
+        if options.open:
+            to_open.extend([item])
+        else:
+# The main call...
+            if options.action != None:
+                files_to_open = brain_of_minion.applyCommandToFile(item, action)
+                to_open.extend( files_to_open )
+            else: 
+                files_to_open = brain_of_minion.doInboxInteractive(item)
+                to_open.extend( files_to_open )
+
+    if len(to_open) > 0:
+        print "Files to open: %s" % '\n'.join(to_open)
+        for item in to_open:
+            brain_of_minion.openFile(item, multiple=True, editor=options.editor)
+
+def open_main():
+    "Open the main organizer file, for users who are using such a file."
+    main_org_file = "%s/projects/main.org" % brain_of_minion.get_notes_home()
+    print main_org_file
+    brain_of_minion.openFile(main_org_file, editor=options.editor)
+
 
 
 
@@ -303,50 +359,7 @@ if options.open_all:
         brain_of_minion.openFile(item, multiple=True, editor=options.editor)
     sys.exit() 
 
-total = len(inbox_files)
 count = 0
-
-# Process inbox...
-if total == 0:
-    print CLEAN_INBOX_MESSAGE
-else:
-    if options.sample:
-        inbox_files = random.sample(inbox_files, 5)
-
-    
-    print brain_of_minion.getOutput('cal')
-    print brain_of_minion.get_inbox_menu()
-    to_open = []
-
-# ----------------------------------
-# Main interactive loop...
-# ----------------------------------
-    for item in inbox_files:
-        count += 1
-# Show progress...
-        # print "-- %d/%d" % (count, total)
-        print brain_of_minion.to_bar(count, total)
-        if options.open:
-            to_open.extend([item])
-        else:
-# The main call...
-            if options.action != None:
-                files_to_open = brain_of_minion.applyCommandToFile(item, action)
-                to_open.extend( files_to_open )
-            else: 
-                files_to_open = brain_of_minion.doInboxInteractive(item)
-                to_open.extend( files_to_open )
-
-    if len(to_open) > 0:
-        print "Files to open: %s" % '\n'.join(to_open)
-        for item in to_open:
-            brain_of_minion.openFile(item, multiple=True, editor=options.editor)
-
-def open_main():
-    "Open the main organizer file, for users who are using such a file."
-    main_org_file = "%s/projects/main.org" % brain_of_minion.get_notes_home()
-    print main_org_file
-    brain_of_minion.openFile(main_org_file, editor=options.editor)
 
 if options.main_file:
     open_main()
