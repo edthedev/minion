@@ -90,57 +90,81 @@ def get_options():
 
 
 # Interim code: Convert docopt args into options format from before.
-class OptionHolder():
-    def __init__(self):
-        pass
-options = OptionHolder()
+
+directory = brain_of_minion.get_notes_home()
+filter = args['<text>']
+
 # note and remind verbs
 if args['note'] or args['remind']:
-    options.new_note = True
-if args['remind']:
-    options.quick = True
+    brain_of_minion.new_note(args['<text>'], quick=args['remind'])
+    sys.exit(0)
+
+inbox_files = []
+
+# Search verbs...
+if args['list'] or args['count']:
+    match_files = brain_of_minion.find_files(filter=args['<text>'])
+
+    total_files = brain_of_minion.find_files()
+
+    if args['list']:
+     match_template = \
+    "{matching} of {total} files match search {search} in directory {directory}"
+    print match_template.format( \
+        directory = brain_of_minion.get_notes_home(),
+        matching=len(match_files), 
+        search=','.join(args['<text>']), 
+        total=len(total_files))
+    brain_of_minion.display_output(title=filter, output=match_files)
+
+# Count instead of processing.
+    if args['count']:
+        search_terms = "%s: %s" % ( \
+        os.path.basename(directory), ','.join(filter))
+        count = len(match_files)
+        print "%d - %s" % (count, search_terms)
+        sys.exit()
+
+
+
 
 # Certain options logically imply other options as well.
 #    This limits how the user can use this app, but 
 #        steers the user toward better user experiences.
 
-options.main_file = False
+# options.main_file = False
 
-if options.raw == True:
-    options.show_tags = False
+# if options.raw == True:
+#     options.show_tags = False
 
-if len(ARGS) == 0:
-    options.silent = True
+# if len(ARGS) == 0:
+#     options.silent = True
 
 # if options.remind:
 #     options.new_note = True
 #     options.quick = True
 
-if options.new_note:
-    brain_of_minion.new_note(ARGS, options.quick)
-    sys.exit(0)
+# if options.search: 
+#     options.full = True
 
-if options.search: 
-    options.full = True
+# if options.count: 
+#     options.silent = True
+# if options.main_file: 
+#     options.silent = True
 
-if options.count: 
-    options.silent = True
-if options.main_file: 
-    options.silent = True
+# if options.sample: 
+#     options.quick = True 
+# if options.review: 
+#     options.quick = True
+# if options.filename != None: 
+#     options.quick = True
 
-if options.sample: 
-    options.quick = True 
-if options.review: 
-    options.quick = True
-if options.filename != None: 
-    options.quick = True
+# if options.quick: 
+#     options.archive = False
+#     options.full = False
 
-if options.quick: 
-    options.archive = False
-    options.full = False
-
-if options.list:
-    options.silent = True
+# if options.list:
+#     options.silent = True
 
 # If they didn't ask for a non-interactive session, 
 #   prompt for the options they forgot to specify.
@@ -164,8 +188,8 @@ if options.list:
 
 
 weekend = not brain_of_minion.is_work_time()
-if options.weekend:
-    weekend = not weekend
+# if options.weekend:
+#     weekend = not weekend
 
 # Single box or all boxes...
 
@@ -181,46 +205,38 @@ def choose_files(minion_options):
             full_text=minion_options.full, 
             weekend=weekend)
 
-if options.directory == None:
-    options.directory = brain_of_minion.get_notes_home()
-    if len(ARGS) == 0:
-        options.directory = brain_of_minion.get_inbox()
+# if options.directory == None:
+#     options.directory = brain_of_minion.get_notes_home()
+#     if len(ARGS) == 0:
+#         options.directory = brain_of_minion.get_inbox()
+# options.directory = brain_of_minion.get_notes_home()
 
-if len(ARGS) > 0:
-    options.filter.extend(ARGS)
+# if len(ARGS) > 0:
+#     options.filter.extend(ARGS)
 
-inbox_files = []
-inbox_files = choose_files(options)
+# options.filter = args['text']
+
+# inbox_files = []
+# inbox_files = choose_files(options)
 
 # If we are along looking for orphaned files...
-if options.notags:
-    updated_inbox_files = []
-    for item in inbox_files:
-        if len(brain_of_minion.getTags(item)) < 2:
-            updated_inbox_files.append(item)
-    inbox_files = updated_inbox_files
-
-if not options.silent: 
-    total_files = brain_of_minion.find_files(directory=options.directory, 
-        archives=options.archive, 
-        full_text=False, 
-        weekend=weekend)
-    match_template = \
-    "{matching} of {total} files match search {search} in directory {directory}"
-    print match_template.format( \
-        directory=options.directory, 
-        matching=len(inbox_files), 
-        search=','.join(options.filter), 
-        total=len(total_files))
-    # print "Searching directory %s." % (options.directory)
+# if options.notags:
+#    updated_inbox_files = []
+#    for item in inbox_files:
+#        if len(brain_of_minion.getTags(item)) < 2:
+#            updated_inbox_files.append(item)
+#    inbox_files = updated_inbox_files
+#
+# if not options.silent: 
+#     print "Searching directory %s." % (options.directory)
 
 ignore_tags = brain_of_minion.get_ignore_tags(worktime=not weekend)
 
-if len(options.ignore) > 0:
-    search_terms = [item.lower() for item in options.ignore]
-    ignore_tags.extend(search_terms)
-if not options.silent: 
-    print "Ignoring %s" % ','.join(ignore_tags)
+# if len(options.ignore) > 0:
+#     search_terms = [item.lower() for item in options.ignore]
+#     ignore_tags.extend(search_terms)
+# if not options.silent: 
+#     print "Ignoring %s" % ','.join(ignore_tags)
 
 choice_path = ''
 if options.open:
@@ -286,14 +302,6 @@ if options.open_all:
     for item in inbox_files:
         brain_of_minion.openFile(item, multiple=True, editor=options.editor)
     sys.exit() 
-
-# Count instead of processing.
-if options.count:
-    search_terms = "%s: %s" % ( \
-        os.path.basename(options.directory), ','.join(options.filter))
-    count = len(inbox_files)
-    print "%d - %s" % (count, search_terms)
-    sys.exit()
 
 total = len(inbox_files)
 count = 0

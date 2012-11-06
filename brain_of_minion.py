@@ -267,7 +267,7 @@ def sort_by_tag(file_list):
                 #length_by_key[key] = len(tagged_dict[key])
                 
 
-def displayOutput(title, output, by_tag=True):
+def display_output(title, output, by_tag=True):
         if output == None:
                 print "No %s tasks." % title
         elif len(output) == 0:
@@ -297,7 +297,7 @@ def chooseFileByTagsInteractive(file_list, tags=[]):
     file_list = chooseFileByTags(file_list, tags)
     all_tags = tags
     while len(file_list) > 1:
-        displayOutput('Matches', '\n'.join(file_list))
+        display_output('Matches', '\n'.join(file_list))
         more_tags = getTags(raw_input("More tags?"))
         all_tags.extend(more_tags)
         file_list = chooseFileByTags(file_list, more_tags)
@@ -464,7 +464,7 @@ def chooseFileByTagsInteractive(file_list, tags=[]):
     file_list = chooseFileByTags(file_list, tags)
     all_tags = tags
     while len(file_list) > 1:
-        displayOutput('Matches', '\n'.join(file_list))
+        display_output('Matches', '\n'.join(file_list))
         more_tags = getTags(raw_input("More tags?"))
         all_tags.extend(more_tags)
         file_list = chooseFileByTags(file_list, more_tags)
@@ -619,7 +619,7 @@ def newNote(name, ext='txt'):
 
 def limitNotesInteractive(notes):
     while len(notes) > 1:
-        displayOutput('Multiple Matches', notes)
+        display_output('Multiple Matches', notes)
         choice = raw_input('Choice? ')
         notes = limitNotes(choice, notes)
     return notes[0]
@@ -798,7 +798,7 @@ def reviewProjectInteractive(filename):
         current_line +=1
         if 'TODO' in line: 
             percentage = '%d/%d' % (current_line, total_lines)
-            displayOutput(percentage, line, by_tag=False)
+            display_output(percentage, line, by_tag=False)
             choice = raw_input('Action? ')
             if len(choice) > 0:
                 applyCommandToLine(filename, current_line, choice)
@@ -806,7 +806,7 @@ def reviewProjectInteractive(filename):
 def doInboxInteractive(item):
     to_open = []
     # print get_inbox_menu()
-    displayOutput('Selected', item, by_tag=False)
+    display_output('Selected', item, by_tag=False)
     choice = raw_input('Action? ')
     if len(choice) > 0:
         applyCommandToFile(item, choice)
