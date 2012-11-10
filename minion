@@ -50,7 +50,7 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 '''
 
 args = docopt(__doc__, version='1.0')
-print args
+# print args
 
 def get_options():
     "Parse the arguments and options from the command line."
@@ -121,12 +121,8 @@ if args['count']:
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
-if args['find']:
-    raise "Not yet implemented."
-    pass
-
 # List the results
-if args['list']:
+if args['list'] or args['find']:
     total_files = brain_of_minion.find_files()
     match_template = \
 "{matching} of {total} files match search {search} in directory {directory}"
@@ -166,7 +162,6 @@ if args['sample']:
 
 # Interactively sort the matches.
 if args['sort']:
-    raise "Not yet implemented."
     total = len(match_files)
     if total == 0:
         print CLEAN_INBOX_MESSAGE
@@ -177,22 +172,16 @@ if args['sort']:
         to_open = []
         weekend = not brain_of_minion.is_work_time()
         ignore_tags = brain_of_minion.get_ignore_tags(worktime=not weekend)
-
+        count = 0
+        to_open = []
         for item in match_files:
             count += 1
 # Show progress...
             # print "-- %d/%d" % (count, total)
             print brain_of_minion.to_bar(count, total)
-            if options.open:
-                to_open.extend([item])
-            else:
 # The main call...
-                if options.action != None:
-                    files_to_open = brain_of_minion.applyCommandToFile(item, action)
-                    to_open.extend( files_to_open )
-                else: 
-                    files_to_open = brain_of_minion.doInboxInteractive(item)
-                    to_open.extend( files_to_open )
+            files_to_open = brain_of_minion.doInboxInteractive(item)
+            to_open.extend( files_to_open )
 
         if len(to_open) > 0:
             print "Files to open: %s" % '\n'.join(to_open)
