@@ -486,7 +486,7 @@ def parseTags(input_string):
     #    if 
     return tags
 
-def openFile(filename, line=0, multiple=False, editor=None):
+def open_file(filename, line=0, multiple=False, editor=None):
     print "Opening %s" % filename
     programs = {
         '.pdf':'evince',
@@ -1059,7 +1059,7 @@ def new_note(args, quick):
     f.close()
 
     if not quick:
-        openFile(filename)
+        open_file(filename)
     print summary
 
 def to_bar(number, total=10):

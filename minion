@@ -12,9 +12,11 @@ Usage:
     minion summary 
 
 Options:
-    -h --help   Show this help.
-    --version   Show version.
-    --raw       Display raw file names when listing files.
+    -e --editor=<editor>    Open files with the specified editor. [default: vim]
+    -h --help               Show this help.
+    --max=<max>          Maximum results to display. [default: 10]
+    --version               Show version.
+    --raw                   Display raw file names when listing files.
 
 Command descriptions:
     count - display a count of the results.
@@ -187,49 +189,52 @@ if args['sort']:
         if len(to_open) > 0:
             print "Files to open: %s" % '\n'.join(to_open)
             for item in to_open:
-                brain_of_minion.openFile(item, multiple=True, editor=options.editor)
+                brain_of_minion.open_file(item, multiple=True, editor=options.editor)
 
 if args['open']:
     choice_path = ''
-    if options.open:
-        choice = ''
-        while len(inbox_files) > 1:
-            print "Notes:\n"
-            if len(inbox_files) > options.max:
-                print "%d matches." % len(inbox_files)
-            else:
-                print "\n".join(inbox_files)
-            choice = raw_input('Selection? ')
-            if '!' in choice:
-                break    
-            choice_path += '-' + choice
-            inbox_files = brain_of_minion.limitNotes(choice, inbox_files, True)
+    choice = ''
+    while len(match_files) > 1:
+        print "Notes:\n"
+        if len(match_files) > args['--max']:
+            print "%d matches." % len(match_files)
+        else:
+            print "\n".join(match_files)
+        choice = raw_input('Selection? ')
+        if '!' in choice:
+            break    
+        choice_path += '-' + choice
+        prev_matches = match_files
+        match_files = brain_of_minion.limitNotes(choice, match_files, True)
 
-        # Merge the selected files.
-        if choice == '!merge':
-            trash_dir = os.path.expanduser("~/.trash")
-            if not os.path.exists(trash_dir):
-                os.mkdir(trash_dir)
-            new_contents = ''
-            for f in inbox_files:
-                new_contents += open(f, 'r').read()
-                shutil.move(f, trash_dir)
-                print "%s move to %s." % (f, trash_dir)
-            clean_name = brain_of_minion.createFileName(choice_path)
-            inbox_dir = brain_of_minion.get_inbox()
-            new_file_name = '%s/%s' % (inbox_dir, clean_name)
-            new_file = open(new_file_name, 'a')
-            new_file.write(new_contents)
-            new_file.close()
-            filename = new_file_name
-        elif choice == '!open':
-            for f in inbox_files:
-                brain_of_minion.openFile(f, editor=options.editor)
-        elif choice == '!list':
-            brain_of_minion.displayOutput('Matching', \
-                                        '\n'.join(inbox_files), \
-                                            by_tag=options.show_tags)
+    filename = match_files[0]
+    brain_of_minion.open_file(filename, editor = args['--editor'])
 
+    # Merge the selected files.
+#    if choice == '!merge':
+#        trash_dir = os.path.expanduser("~/.trash")
+#        if not os.path.exists(trash_dir):
+#            os.mkdir(trash_dir)
+#        new_contents = ''
+#        for f in inbox_files:
+#            new_contents += open(f, 'r').read()
+#            shutil.move(f, trash_dir)
+#            print "%s move to %s." % (f, trash_dir)
+#        clean_name = brain_of_minion.createFileName(choice_path)
+#        inbox_dir = brain_of_minion.get_inbox()
+#        new_file_name = '%s/%s' % (inbox_dir, clean_name)
+#        new_file = open(new_file_name, 'a')
+#        new_file.write(new_contents)
+#        new_file.close()
+#        filename = new_file_name
+#    elif choice == '!open':
+#        for f in inbox_files:
+#            brain_of_minion.open_file(f, editor=options.editor)
+#    elif choice == '!list':
+#        brain_of_minion.displayOutput('Matching', \
+#                                    '\n'.join(inbox_files), \
+#                                        by_tag=options.show_tags)
+#
 
 if args['summary']:
     notes_home = brain_of_minion.get_notes_home()
@@ -252,7 +257,7 @@ if args['summary']:
 #     "Open the main organizer file, for users who are using such a file."
 #     main_org_file = "%s/projects/main.org" % brain_of_minion.get_notes_home()
 #     print main_org_file
-#     brain_of_minion.openFile(main_org_file, editor=options.editor)
+#     brain_of_minion.open_file(main_org_file, editor=options.editor)
 
 # Certain options logically imply other options as well.
 #    This limits how the user can use this app, but 
@@ -365,5 +370,5 @@ def choose_files(minion_options):
 # Open all results
 # if options.open_all:
 #     for item in inbox_files:
-#         brain_of_minion.openFile(item, multiple=True, editor=options.editor)
+#         brain_of_minion.open_file(item, multiple=True, editor=options.editor)
 #     sys.exit() 
