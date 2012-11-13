@@ -958,7 +958,7 @@ def getDateString():
 def getUpdatedString():
         return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
 
-def new_note(args, quick):
+def new_note(args, quick, editor):
     notes_dir = get_inbox()
 
     if not os.path.exists(notes_dir):
@@ -982,7 +982,7 @@ def new_note(args, quick):
     f.close()
 
     if not quick:
-        open_file(filename)
+        open_file(filename, editor=editor)
     print summary
 
 def to_bar(number, total=10):
