@@ -12,6 +12,7 @@ Usage:
     minion summary 
 
 Options:
+    -a --archives           Search archive folders for matches.
     -e --editor=<editor>    Open files with the specified editor. [default: vim]
     -h --help               Show this help.
     --max=<max>          Maximum results to display. [default: 10]
@@ -109,7 +110,8 @@ directory = brain_of_minion.get_notes_home()
 filter = args['<text>']
 
 # Everything after this point requires searching for matches...
-match_files = brain_of_minion.find_files(filter=args['<text>'])
+match_files = brain_of_minion.find_files(filter=args['<text>'], 
+        archives=args['--archives'])
 
 inbox_files = []
 
@@ -126,7 +128,15 @@ if args['count']:
 
 # List the results
 if args['list'] or args['find']:
-    total_files = brain_of_minion.find_files()
+    total_files = []
+    if len(match_files) == 0:
+        print "Found no matches. Searching archives..."
+        match_files = brain_of_minion.find_files(filter=args['<text>'], 
+                archives=True)
+        total_files = brain_of_minion.find_files(archives=True)
+    else:
+        total_files = brain_of_minion.find_files()
+
     match_template = \
 "{matching} of {total} files match search {search} in directory {directory}"
     print match_template.format( \

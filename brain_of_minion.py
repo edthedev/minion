@@ -148,7 +148,7 @@ def getTaggedLines(tags, filename):
 def getTaggedFiles(tags, full=False):
     all_files = getAllFiles(archives=False)
     for tag in tags:
-        all_files = limitNotes(tag, all_files, full)
+        all_files = limit_notes(tag, all_files, full)
     return all_files
 
 def getTodayTags():
@@ -232,17 +232,6 @@ def isValidTag(tag):
         return False
     return True
 
-def chooseFileByTags(file_list, tags):
-    new_array = []
-    for note in file_list:
-        match = True
-        for tag in tags:
-            if not tag in note:
-                match = False
-        if match:
-            new_array.append(note)
-    return new_array
-
 def sort_by_tag(file_list):
         all_tags = {'no tags':[]}
         for item in file_list:
@@ -293,32 +282,14 @@ def cleanOutput(output):
         no_extensions = no_dashes.replace('.txt', '')
         return no_extensions
 
-def chooseFileByTagsInteractive(file_list, tags=[]):
-    file_list = chooseFileByTags(file_list, tags)
-    all_tags = tags
-    while len(file_list) > 1:
-        display_output('Matches', '\n'.join(file_list))
-        more_tags = getTags(raw_input("More tags?"))
-        all_tags.extend(more_tags)
-        file_list = chooseFileByTags(file_list, more_tags)
-
-    if len(file_list) < 1:
-        new_file = '%s/%s.txt' % (get_inbox(),'-'.join(all_tags))
-        open(new_file, 'w').close() 
-        print "Created a new file in inbox called: %s" % new_file
-        filename = new_file
-    else:
-        filename = file_list[0]    
-    return filename    
-
-def parseTags(input_string):
-    input_string = input_string.replace('\n' ,' ')
-    tags = input_string.split(' ')
-    #proper_tags = []
-    #for tag in tags:
-    #    if 
-    return tags
-
+#def parseTags(input_string):
+#    input_string = input_string.replace('\n' ,' ')
+#    tags = input_string.split(' ')
+#    #proper_tags = []
+#    #for tag in tags:
+#    #    if 
+#    return tags
+#
 #!/bin/python2.5
 
 def getMatchingFiles(search_terms, file_list):
@@ -342,7 +313,7 @@ def getProject(project_name):
     if len(matching) == 1:
         return matching[0]
     else:
-        return limitNotesInteractive(matching)
+        return limit_notesInteractive(matching)
 
 def getTaggedLines(tags, filename):
     f = open(filename)
@@ -376,7 +347,7 @@ def sampleTagged(tags):
 def getTaggedFiles(tags, full=False):
     all_files = getAllFiles(archives=False)
     for tag in tags:
-        all_files = limitNotes(tag, all_files, full)
+        all_files = limit_notes(tag, all_files, full)
     return all_files
 
 def getCurrentProjects(): 
@@ -390,7 +361,7 @@ def isProject(filename):
             return True
     return False
 
-def limitNotes(choice, notes, full=False):
+def limit_notes(choice, notes, full=False):
     new_array = []
     for note in notes:
         choice = choice.lower()
@@ -449,43 +420,35 @@ def isValidTag(tag):
         return False
     return True
 
-def chooseFileByTags(file_list, tags):
-    new_array = []
-    for note in file_list:
-        match = True
-        for tag in tags:
-            if not tag in note:
-                match = False
-        if match:
-            new_array.append(note)
-    return new_array
-
-def chooseFileByTagsInteractive(file_list, tags=[]):
-    file_list = chooseFileByTags(file_list, tags)
-    all_tags = tags
-    while len(file_list) > 1:
-        display_output('Matches', '\n'.join(file_list))
-        more_tags = getTags(raw_input("More tags?"))
-        all_tags.extend(more_tags)
-        file_list = chooseFileByTags(file_list, more_tags)
-
-    if len(file_list) < 1:
-        new_file = '%s/%s.txt' % (get_inbox(),'-'.join(all_tags))
-        open(new_file, 'w').close() 
-        print "Created a new file in inbox called: %s" % new_file
-        filename = new_file
-    else:
-        filename = file_list[0]    
-    return filename    
-
-def parseTags(input_string):
-    input_string = input_string.replace('\n' ,' ')
-    tags = input_string.split(' ')
-    #proper_tags = []
-    #for tag in tags:
-    #    if 
-    return tags
-
+#def chooseFileByTags(file_list, tags):
+#    new_array = []
+#    for note in file_list:
+#        match = True
+#        for tag in tags:
+#            if not tag in note:
+#                match = False
+#        if match:
+#            new_array.append(note)
+#    return new_array
+#
+#def chooseFileByTagsInteractive(file_list, tags=[]):
+#    file_list = chooseFileByTags(file_list, tags)
+#    all_tags = tags
+#    while len(file_list) > 1:
+#        display_output('Matches', '\n'.join(file_list))
+#        more_tags = getTags(raw_input("More tags?"))
+#        all_tags.extend(more_tags)
+#        file_list = chooseFileByTags(file_list, more_tags)
+#
+#    if len(file_list) < 1:
+#        new_file = '%s/%s.txt' % (get_inbox(),'-'.join(all_tags))
+#        open(new_file, 'w').close() 
+#        print "Created a new file in inbox called: %s" % new_file
+#        filename = new_file
+#    else:
+#        filename = file_list[0]    
+#    return filename    
+#
 def open_file(filename, line=0, multiple=False, editor=None):
     print "Opening %s" % filename
     programs = {
@@ -617,11 +580,11 @@ def newNote(name, ext='txt'):
     full_name = "%s/%s" % (inbox, clean_name)
     return full_name    
 
-def limitNotesInteractive(notes):
+def limit_notes_interactive(notes):
     while len(notes) > 1:
         display_output('Multiple Matches', notes)
         choice = raw_input('Choice? ')
-        notes = limitNotes(choice, notes)
+        notes = limit_notes(choice, notes)
     return notes[0]
 
 def getCurrentMonth():
@@ -644,7 +607,7 @@ def getUpcoming(full=False):
     current_month = getCurrentMonth()
     this_month = getTaggedFiles([current_month])
     results.extend(this_month)
-    this_month_project_cal = limitNotes(choice=current_month, notes=project_calendar)
+    this_month_project_cal = limit_notes(choice=current_month, notes=project_calendar)
     results.extend(this_month_project_cal)
     
 # Get results for next month.
@@ -652,7 +615,7 @@ def getUpcoming(full=False):
         next_month_tag = getNextMonth()
         next_month = getTaggedFiles([next_month_tag])
         results.extend(next_month)
-        next_month_project_cal = limitNotes(choice=next_month_tag, notes=project_calendar)
+        next_month_project_cal = limit_notes(choice=next_month_tag, notes=project_calendar)
         results.extend(next_month_project_cal)
     if full:
         return results
@@ -664,30 +627,6 @@ def getCurrentProjects():
     current_projects.extend(getTaggedFiles(['.org']))
     return current_projects
     
-
-def limitNotes(choice, notes, full=False):
-    new_array = []
-    for note in notes:
-        choice = choice.lower()
-        low_note = note.lower()
-        if choice in low_note:
-            if 'swp' not in note:
-                new_array.append(note)
-        else:
-            if full or isProject(low_note):
-                content = ''
-                try:
-                    f = open(note, 'r')
-                    content = f.readlines()
-                # print content
-                    f.close()
-                except:
-                    pass
-                content = ' '.join(content)
-                content = content.lower()
-                if choice in content:
-                    new_array.append(note)
-    return new_array
 
 def makeProject(filename):
     basename, extension = os.path.splitext(filename) 
@@ -824,7 +763,7 @@ def hasCalendarTag(text):
             return True
     return False
 
-def find_files(directory=None, archives=True, filter=[], full_text=False, weekend=None):
+def find_files(directory=None, archives=False, filter=[], full_text=False, weekend=None):
     if directory == None:
         directory = get_notes_home()
 
@@ -843,7 +782,7 @@ def find_files(directory=None, archives=True, filter=[], full_text=False, weeken
         files = removeArchives(files)
 
     for tag in filter:
-        files = limitNotes(tag, files, full=full_text)
+        files = limit_notes(tag, files, full=full_text)
 
     if weekend is not None:
         ignore_tags = get_ignore_tags(worktime=not weekend)
