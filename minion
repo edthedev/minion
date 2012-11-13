@@ -12,7 +12,7 @@ Usage:
     minion summary 
 
 Options:
-    -a --archives           Search archive folders for matches.
+    -a --archives           Search archive folders for matches. [default:False]
     -e --editor=<editor>    Open files with the specified editor. [default: vim]
     -h --help               Show this help.
     --max=<max>          Maximum results to display. [default: 10]
@@ -250,8 +250,9 @@ if args['summary']:
     notes_home = brain_of_minion.get_notes_home()
     folders = os.listdir(notes_home)
     for folder in folders:
-        matches = match_files = brain_of_minion.find_files(filter=folder)
-        print "%s\t\t-\t%d" % (folder, len(matches))
+        matches = match_files = brain_of_minion.find_files(filter=folder, 
+                archives = args['--archives'])
+        print "%s\t\t\t-\t%d" % (folder, len(matches))
 
 # Everything below this is legacy...still being integrated.
 

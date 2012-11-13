@@ -168,7 +168,7 @@ def getTomorrowTags():
 # # # # # # # # # @route('/sample/:tags')
 def sampleTagged(tags):
     matching_files = getTaggedFiles(tags, full=False)
-    non_cal_files = removeNotes(matching_files, ['calendar'])
+    non_cal_files = remove_notes(matching_files, ['calendar'])
     if len(non_cal_files) > 0:
         sample_file = random.choice(non_cal_files)
         sample_text = sample_file
@@ -180,21 +180,8 @@ def sampleTagged(tags):
     else:
         return [] 
 
-def removeArchives(file_list):
-    return removeNotes(file_list, ['archive'])
-
-def removeNotes(file_list, terms):
-    new_list = []
-    for f in file_list:
-        matches_term = False
-        low_f = f.lower()
-        for term in terms:
-            term = term.lower()
-            if low_f.count(term) > 0:
-                matches_term = True
-        if not matches_term:
-            new_list.append(f)
-    return new_list
+def remove_archives(file_list):
+    return remove_notes(file_list, ['archive'])
 
 def getRemoveTags(text_string):
     tag_re = re.compile("-@\w*")
@@ -223,7 +210,7 @@ def isProject(filename):
 
 def removeWorkNotes(files, worktime=True):
     ignore_tags = get_ignore_tags(worktime)
-    return removeNotes(files, ignore_tags)
+    return remove_notes(files, ignore_tags)
 
 def isValidTag(tag):
     if tag.isdigit():
@@ -332,7 +319,7 @@ def getTaggedLines(tags, filename):
 
 def sampleTagged(tags):
     matching_files = getTaggedFiles(tags, full=False)
-    non_cal_files = removeNotes(matching_files, ['calendar'])
+    non_cal_files = remove_notes(matching_files, ['calendar'])
     if len(non_cal_files) > 0:
         sample_file = random.choice(non_cal_files)
         sample_text = sample_file
@@ -385,10 +372,7 @@ def limit_notes(choice, notes, full=False):
                     new_array.append(note)
     return new_array
 
-def removeArchives(file_list):
-    return removeNotes(file_list, ['archive'])
-
-def removeNotes(file_list, terms):
+def remove_notes(file_list, terms):
     new_list = []
     for f in file_list:
         matches_term = False
@@ -779,7 +763,7 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
                 files.append("%s/%s" % (directory, item))
     
     if not archives:
-        files = removeArchives(files)
+        files = remove_archives(files)
 
     for tag in filter:
         files = limit_notes(tag, files, full=full_text)
