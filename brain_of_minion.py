@@ -226,26 +226,23 @@ def sort_by_tag(file_list):
         tags = get_tags(item)
         if len(tags) == 0:
             all_tags['no tags'].append(item)
+        placed = False
         for tag in tags:
-            if all_tags.has_key(tag):
-                all_tags[tag].append(item)
-            else:
-                all_tags[tag] = [item]
-    output = ''
-    for tag in all_tags:
-        if len(all_tags[tag]) > 1:
-            output += '\n\t' + tag
-            output += "\n-------------------\n"
-            output += '\n'.join(all_tags[tag])
-    return output
-
-#def remove_duplicate_tasks(tagged_dict):
+            if not placed:
+                if all_tags.has_key(tag):
+                    placed = True
+                    all_tags[tag].append(item)
+                else:
+                    all_tags[tag] = [item]
+    return all_tags
+                    
+    #def remove_duplicate_tasks(tagged_dict):
         #length_by_key = {}
         #for key in tagged_dict:
                 #length_by_key[key] = len(tagged_dict[key])
-                
 
 def display_output(title, output, by_tag=True, raw_files=False):
+    separator = '\n'
     if output == None:
         print "No %s tasks." % title
     elif len(output) == 0:
@@ -253,10 +250,16 @@ def display_output(title, output, by_tag=True, raw_files=False):
     else:
         if type(output) is list:
             if by_tag:
-                output = sort_by_tag(output)
+                all_tags = sort_by_tag(output)
+                output = ''
+                for tag in all_tags:
+                    if len(all_tags[tag]) > 1:
+                        output += '\n\t' + tag
+                        output += "\n-------------------\n"
+                        output += separator.join(all_tags[tag])
             else:
                 output = [x.replace('\n', '') for x in output]
-                output = '\n'.join(output)
+                output = separator.join(output)
 
     if title != None:
         print "\n---- %s: " % title
@@ -269,9 +272,10 @@ def display_output(title, output, by_tag=True, raw_files=False):
 
 def clean_output(output):
     notes_folder = get_notes_home()
-    no_folder = output.replace(notes_folder, '').replace('/', ' ')
+    no_folder = output.replace(notes_folder, '')
     no_dashes = no_folder.replace('-', ' ')
-    no_extensions = no_dashes.replace('.txt', '')
+    no_slashes = no_dashes.replace('/', ' : ')
+    no_extensions = no_slashes.replace('.txt', '')
     no_tags = remove_tags(no_extensions)
     return no_tags
 
