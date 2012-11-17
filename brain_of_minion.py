@@ -42,7 +42,7 @@ class WebTemplate(object):
         if getattr(content, '__iter__', False):
             result += "<ul>"
             for item in content:
-                item = cleanOutput(item)
+                item = clean_output(item)
                 result += "<li>" + item + "</li>"
             result += "</ul>"
         else:
@@ -188,7 +188,7 @@ def getRemoveTags(text_string):
     tags = tag_re.findall(text_string)
     return tags
 
-def getTags(text_string):
+def get_tags(text_string):
     tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
     return tags
@@ -220,22 +220,24 @@ def isValidTag(tag):
     return True
 
 def sort_by_tag(file_list):
-        all_tags = {'no tags':[]}
-        for item in file_list:
-                if len(getTags(item)) == 0:
-                        all_tags['no tags'].append(item)
-                for tag in getTags(item):
-                        if all_tags.has_key(tag):
-                                all_tags[tag].append(item)
-                        else:
-                                all_tags[tag] = [item]
-        output = ''
-        for tag in all_tags:
-                if len(all_tags[tag]) > 1:
-                        output += '\n\t' + tag
-                        output += "\n-------------------\n"
-                        output += '\n'.join(all_tags[tag])
-        return output
+    all_tags = {'no tags':[]}
+    file_list = list(set(file_list))
+    for item in file_list:
+        tags = get_tags(item)
+        if len(tags) == 0:
+            all_tags['no tags'].append(item)
+        for tag in tags:
+            if all_tags.has_key(tag):
+                all_tags[tag].append(item)
+            else:
+                all_tags[tag] = [item]
+    output = ''
+    for tag in all_tags:
+        if len(all_tags[tag]) > 1:
+            output += '\n\t' + tag
+            output += "\n-------------------\n"
+            output += '\n'.join(all_tags[tag])
+    return output
 
 #def remove_duplicate_tasks(tagged_dict):
         #length_by_key = {}
@@ -243,31 +245,47 @@ def sort_by_tag(file_list):
                 #length_by_key[key] = len(tagged_dict[key])
                 
 
-def display_output(title, output, by_tag=True):
-        if output == None:
-                print "No %s tasks." % title
-        elif len(output) == 0:
-                print "No %s tasks." % title
-        else:
-                if not type(output) is list:
-                        print output
-                else:
-                        if by_tag:
-                                output = sort_by_tag(output)
-                        else:
-                                output = [x.replace('\n', '') for x in output]
-                                output = '\n'.join(output)
-                        if title != None:
-                                print "\n---- %s: " % title
-                                print "-------------------------"
-                        print output
+def display_output(title, output, by_tag=True, raw_files=False):
+    if output == None:
+        print "No %s tasks." % title
+    elif len(output) == 0:
+        print "No %s tasks." % title
+    else:
+        if type(output) is list:
+            if by_tag:
+                output = sort_by_tag(output)
+            else:
+                output = [x.replace('\n', '') for x in output]
+                output = '\n'.join(output)
 
-def cleanOutput(output):
-        notes_folder = get_notes_home()
-        no_folder = output.replace(notes_folder, '').replace('/', ' ')
-        no_dashes = no_folder.replace('-', ' ')
-        no_extensions = no_dashes.replace('.txt', '')
-        return no_extensions
+    if title != None:
+        print "\n---- %s: " % title
+        print "-------------------------"
+
+    if not raw_files:
+        output = clean_output(output)
+
+    print output
+
+def clean_output(output):
+    notes_folder = get_notes_home()
+    no_folder = output.replace(notes_folder, '').replace('/', ' ')
+    no_dashes = no_folder.replace('-', ' ')
+    no_extensions = no_dashes.replace('.txt', '')
+    no_tags = remove_tags(no_extensions)
+    return no_tags
+
+def remove_tags(filename):
+    removing = False
+    tag_free_name = ''
+    for char in filename:
+        if char == '@':
+            removing = True
+        if char == ' ':
+            removing = False
+        if not removing:
+            tag_free_name += char
+    return tag_free_name
 
 #def parseTags(input_string):
 #    input_string = input_string.replace('\n' ,' ')
@@ -848,7 +866,7 @@ def archive(filename):
     recordDone(filename)
 
 def recordDone(item):
-    clean_item = cleanOutput(item)
+    clean_item = clean_output(item)
     done_file = "%s/done.txt" % (get_notes_home())
     appendToFile(done_file, clean_item)
 
@@ -874,13 +892,6 @@ import os
 def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
         return display_options
-
-def cleanOutput(output):
-        notes_folder = os.path.expanduser('~/Dropbox/notes/')
-        no_folder = output.replace(notes_folder, '')
-        no_dashes = no_folder.replace('-', ' ')
-        no_extensions = no_dashes.replace('.txt', '')
-        return no_extensions
 
 def previewFile(filename, lines):
     result = displayNice(filename)
