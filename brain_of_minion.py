@@ -471,35 +471,6 @@ def isValidTag(tag):
         return False
     return True
 
-#def chooseFileByTags(file_list, tags):
-#    new_array = []
-#    for note in file_list:
-#        match = True
-#        for tag in tags:
-#            if not tag in note:
-#                match = False
-#        if match:
-#            new_array.append(note)
-#    return new_array
-#
-#def chooseFileByTagsInteractive(file_list, tags=[]):
-#    file_list = chooseFileByTags(file_list, tags)
-#    all_tags = tags
-#    while len(file_list) > 1:
-#        display_output('Matches', '\n'.join(file_list))
-#        more_tags = getTags(raw_input("More tags?"))
-#        all_tags.extend(more_tags)
-#        file_list = chooseFileByTags(file_list, more_tags)
-#
-#    if len(file_list) < 1:
-#        new_file = '%s/%s.txt' % (get_inbox(),'-'.join(all_tags))
-#        open(new_file, 'w').close() 
-#        print "Created a new file in inbox called: %s" % new_file
-#        filename = new_file
-#    else:
-#        filename = file_list[0]    
-#    return filename    
-#
 def open_file(filename, line=0, multiple=False, editor=None):
     print "Opening %s" % filename
     programs = {
@@ -735,7 +706,7 @@ def applyCommandToFile(filename, command):
         return new_file
 
     # Add tags
-    add_tags = getTags(command)
+    add_tags = get_tags(command)
     basename, extension = os.path.splitext(filename) 
     new_tags = '-'.join(add_tags)    
     if len(new_tags) > 0:

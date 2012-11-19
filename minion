@@ -157,7 +157,7 @@ if args['publish']:
     # brain_of_minion.open_file(filename, editor = args['--editor'])
     success = brain_of_minion.publish_file(filename, 
             editor = args['--editor'],
-            args['target'],
+            target = args['<target>'],
         )
     if success != None:
         print "Published to " + success + "."
