@@ -3,10 +3,11 @@
 
 Usage: 
     minion count [--archives] <text> ...
-    minion find [--archives] [--max=<max>] [--files] <text> ...
+    minion find [--archives] [--files] <text> ...
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion note [--editor=<editor>] <text> ...  
     minion open [--archives] [--editor=<editor>] <text> ...
+    minion publish [--archives] <target> <text> ...
     minion remind [--editor=<editor>] <text> ...
     minion sample [--files] <text> ...
     minion sort [--editor=<editor>] <text> ...
@@ -150,6 +151,17 @@ if args['list'] or args['find']:
     brain_of_minion.display_output(title=filter, output=match_files)
     sys.exit(0)
 
+# publish your articles.
+if args['publish']:
+    (choice_path, filename) = brain_of_minion.select_file(match_files)
+    # brain_of_minion.open_file(filename, editor = args['--editor'])
+    success = brain_of_minion.publish_file(filename, 
+            editor = args['--editor'],
+            args['target'],
+        )
+    if success != None:
+        print "Published to " + success + "."
+
 # note and remind verbs
 if args['note'] or args['remind']:
     brain_of_minion.new_note(args['<text>'], 
@@ -192,22 +204,7 @@ if args['sort']:
                         multiple=True, editor=args['--editor'])
 
 if args['open']:
-    choice_path = ''
-    choice = ''
-    while len(match_files) > 1:
-        print "Notes:\n"
-        if len(match_files) > args['--max']:
-            print "%d matches." % len(match_files)
-        else:
-            print "\n".join(match_files)
-        choice = raw_input('Selection? ')
-        if '!' in choice:
-            break    
-        choice_path += '-' + choice
-        prev_matches = match_files
-        match_files = brain_of_minion.limitNotes(choice, match_files, True)
-
-    filename = match_files[0]
+    (choice_path, filename) = brain_of_minion.select_file(match_files)
     brain_of_minion.open_file(filename, editor = args['--editor'])
 
     # Merge the selected files.

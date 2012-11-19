@@ -13,6 +13,51 @@ from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
 
+def select_file(match_files):
+    '''Interactively select a file from the given list.
+
+    Returns a tuple with the chosen keywords and the final selected item.
+    '''
+    choice_path = ''
+    while len(match_files) > 1:
+        print "Notes:\n"
+        if len(match_files) > args['--max']:
+            print "%d matches." % len(match_files)
+        else:
+            print "\n".join(match_files)
+        choice = raw_input('Selection? ')
+        if '!' in choice:
+            break    
+        choice_path += '-' + choice
+        prev_matches = match_files
+        match_files = limitNotes(choice, match_files, True)
+    return (choice_path, match_files[0])
+
+def publish(filename, target='?', editor='vim'):
+    '''Runs SCP to copy the file to the target.'''
+    
+    # Fetch some publish target shortcuts from out settings file. 
+    settings = get_settings()
+
+    target_string = settings.get('publish', 'targets')
+    converter = settings.get('publish', 'converter')
+    type = settings.get('publish', 'type')
+
+    targets = target_string.split(' ')
+    for full_target in targets:
+        if target in full_target:
+            target = full_target
+
+    # Convert the file to HTML (or whatever).
+    os.system('%s %s' % (converter, filename))
+
+    # Switch to the output file
+    filename = filename.replace('.txt', type)
+
+    # Publish the file.
+    os.system('scp %s %s' % (filename, target))
+    return full_target
+
 def remind(text):
     filename = "%s/%s" % (get_inbox(), createFileName(text))
     f = open(filename, 'a')
