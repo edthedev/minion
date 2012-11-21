@@ -56,55 +56,7 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 '''
 
 args = docopt(__doc__, version='1.0')
-print args
-
-def get_options():
-    "Parse the arguments and options from the command line."
-    option_parser = optparse.OptionParser()
-    option_parser.add_option('-a', '--archive', 
-        action='store_true', default=None)
-    option_parser.add_option('-A', '--action', default=None)
-    option_parser.add_option('-C', '--add-date', default=False)
-    option_parser.add_option("-c", "--count", 
-        action="store_true", help="Display count of items in box.")
-    option_parser.add_option('-d', '--directory', action='store')
-    option_parser.add_option('-D', '--dump', action='store_true')
-    option_parser.add_option('-e', '--editor', action='store', default=None)
-    option_parser.add_option('-f', '--full', action='store', default=None)
-    option_parser.add_option('-F', '--filename', action='store', default=None)
-    option_parser.add_option("-i", "--ignore", action="append", default=[], 
-        help="Ignore any item with this term.")
-    option_parser.add_option("-l", "--list", action="store_true", 
-            default=False, 
-        help="List the items in the inbox and then exit.")
-    option_parser.add_option('-L', '--silent', action='store_true')
-    # option_parser.add_option('-m', '--main-file', 
-    #     action='store_true', default=False)
-    option_parser.add_option('-m', '--max', default=20)
-    option_parser.add_option('-M', '--sample', action='store_true')
-    option_parser.add_option('-n', '--new-note', 
-        action='store_true', default=False)
-    option_parser.add_option('-S', '--filter', action='append', default=[])
-    option_parser.add_option('-s', '--search', action='append', default=[])
-    option_parser.add_option('-t', '--show-tags', default=True)
-    option_parser.add_option('-T', '--notags', action='store_true')
-    option_parser.add_option("-q", "--quick", action="store_true")
-    option_parser.add_option("-r", "--remind", action="store_true")
-    option_parser.add_option("-R", "--raw", action="store_true", 
-        default=None, 
-        help="Display raw filenames rather than human readable.")
-    option_parser.add_option('-o', '--open', action='store_true')
-    option_parser.add_option("-O", "--open-all", 
-        action="store_true", default=None, 
-        help="Open all files...")
-    option_parser.add_option('-v', '--review', action='store_true')
-    option_parser.add_option("-w", "--weekend", action="store_true", 
-        help="Reverse weekend setting from current default.")
-
-    return option_parser.parse_args()
-
-# (options, ARGS) = get_options()
-
+# print args
 
 # Interim code: Convert docopt args into options format from before.
 
