@@ -316,6 +316,15 @@ def display_output(title, output, by_tag=True, raw_files=False):
     print output
 
 def clean_output(output):
+    if type(output) is list:
+        clean_list = []
+        for item in output:
+            clean_list.append(clean_string(item))
+        return clean_list
+    else:
+        return clean_string(output)
+
+def clean_string(output):
     notes_folder = get_notes_home()
     no_folder = output.replace(notes_folder, '')
     no_dashes = no_folder.replace('-', ' ')

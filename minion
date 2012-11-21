@@ -56,7 +56,7 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 '''
 
 args = docopt(__doc__, version='1.0')
-# print args
+print args
 
 def get_options():
     "Parse the arguments and options from the command line."
