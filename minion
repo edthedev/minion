@@ -4,6 +4,7 @@
 Usage: 
     minion count [--archives] <text> ...
     minion find [--archives] [--files] <text> ...
+    minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion note [--editor=<editor>] <text> ...  
     minion open [--archives] [--editor=<editor>] <text> ...
@@ -24,6 +25,7 @@ Options:
 Command descriptions:
     count - display a count of the results.
     find - synonym for list 
+    here - create a note in the current working directory
     list - list files matching keywords
     note - create a new note and then open it - <text> becomes filename
     remind - create a new file where <text> becomes filename
@@ -115,10 +117,16 @@ if args['publish']:
         print "Published to " + success + "."
 
 # note and remind verbs
-if args['note'] or args['remind']:
+if args['note'] or args['remind'] or args['here']:
+    notes_dir = None
+
+    if args['here']:
+        notes_dir = os.curdir
+    
     brain_of_minion.new_note(args['<text>'], 
             quick=args['remind'],
-            editor=args['--editor'])
+            editor=args['--editor'], 
+            notes_dir=notes_dir)
     sys.exit(0)
 
 # List just a sample of the matches 

@@ -998,8 +998,9 @@ def getDateString():
 def getUpdatedString():
         return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
 
-def new_note(args, quick, editor):
-    notes_dir = get_inbox()
+def new_note(args, quick, editor, notes_dir=None):
+    if notes_dir is None:
+        notes_dir = get_inbox()
 
     if not os.path.exists(notes_dir):
         os.mkdir(notes_dir)
