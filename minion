@@ -102,7 +102,10 @@ if args['list'] or args['find']:
     total=len(total_files))
     
     # Display results
-    brain_of_minion.display_output(title=filter, output=match_files)
+    brain_of_minion.display_output(title=filter, 
+        output=match_files, 
+        raw_files=args['--files'],
+    )
     sys.exit(0)
 
 # publish your articles.
