@@ -538,6 +538,8 @@ def get_settings():
     settings = SafeConfigParser()
     settings.add_section('notes')
     settings.set('notes', 'home', '~/notes')
+    settings.add_section('compose')
+    settings.set('compose', 'template', '~/Minion/template.txt')
 
 # Load if available, write defaults if not.
     if os.path.exists(minion_file):
@@ -999,11 +1001,25 @@ def getUpdatedString():
         return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
 
 def new_note(args, quick, editor, notes_dir=None):
+
+    # Get template file
+    settings = get_settings()
+    template_file = settings.get('compose', 'template')
+    template_file = os.path.expanduser(template_file)
+    f = open(template_file, 'r')
+    template_text = f.readlines()
+    f.close()
+    template_text = ''.join(template_text)
+
+    # Get location for new file
     if notes_dir is None:
         notes_dir = get_inbox()
 
     if not os.path.exists(notes_dir):
         os.mkdir(notes_dir)
+
+    # Create data for file
+    data = {}
 
     topic = ' '.join(args)
     if len(topic) == 0:
@@ -1011,19 +1027,32 @@ def new_note(args, quick, editor, notes_dir=None):
         topic = raw_input("Topic? ")
 
     topic_filename = createFileName(topic)
-    print topic_filename
 
     today = datetime.date.today()
     filename = "%s/%s" %(notes_dir, topic_filename)
     underline = '=' * len(topic)
     summary = "%s\n%s\nCreated %s" % (topic, underline, today)
 
+    data['topic'] =  topic
+    data['filename'] = topic_filename 
+    data['topic_underline'] = underline
+    data['today'] = today
+    data['underline'] = underline
+    # data['tags'] = tags 
+
+    # print template_text
+
+    t = Template(template_text)
+    file_text = t.safe_substitute(data)
+
     f = open(filename, 'a')
-    f.write(summary)
+    f.write(file_text)
     f.close()
 
+    last = len('\n'.split(file_text)) + 1
+
     if not quick:
-        open_file(filename, editor=editor)
+        open_file(filename, editor=editor, line=last)
     print summary
 
 def to_bar(number, total=10):
