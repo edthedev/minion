@@ -4,6 +4,7 @@
 Usage: 
     minion count [--archives] <text> ...
     minion find [--archives] [--files] <text> ...
+    minion folders 
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion note [--editor=<editor>] <text> ...  
@@ -27,6 +28,7 @@ Options:
 Command descriptions:
     count - display a count of the results.
     find - synonym for list 
+    folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
     list - list files matching keywords
     merge - find and merge similar files
@@ -228,6 +230,35 @@ def choose_files(minion_options):
 #         options.directory = brain_of_minion.get_inbox()
 # options.directory = brain_of_minion.get_notes_home()
 
+if args['folders']:
+
+
+    updated_files = []
+    match_files = brain_of_minion.find_files()
+
+    # All poorly used folders
+    max = 5 
+    notes_home = brain_of_minion.get_notes_home()
+    for folder in os.listdir(brain_of_minion.get_notes_home()):
+        folder = os.path.join(notes_home, folder)
+        if os.path.isdir(folder):
+            if len(os.listdir(folder)) < max:
+                items = brain_of_minion.find_files(filter=folder)
+                for item in items:
+                    updated_files.append(item)
+
+
+    match_files = updated_files
+
+    total = len(match_files)
+    count = 0
+    for item in match_files:
+        count += 1
+        print brain_of_minion.to_bar(count, total)
+        files_to_open = brain_of_minion.doInboxInteractive(item)
+
+
+
 if args['strays']:
     
     # All poorly tagged files...
@@ -236,19 +267,12 @@ if args['strays']:
     for item in match_files:
         if len(brain_of_minion.get_tags(item)) < 2:
             updated_files.append(item)
-
-    # All poorly used folders
-    notes_home = brain_of_minion.get_notes_home()
-    for folder in os.listdir(brain_of_minion.get_notes_home()):
-        folder = os.path.join(notes_home, folder)
-        if os.path.isdir(folder):
-            if len(os.listdir(folder)) < 3:
-                items = brain_of_minion.find_files(filter=folder)
-                for item in items:
-                    updated_files.append(item)
-
     match_files = updated_files
 
+    total = len(match_files)
+    count = 0
     for item in match_files:
+        count += 1
+        print brain_of_minion.to_bar(count, total)
         files_to_open = brain_of_minion.doInboxInteractive(item)
 
