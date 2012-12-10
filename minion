@@ -12,7 +12,8 @@ Usage:
     minion remind [--editor=<editor>] <text> ...
     minion sample [--files] <text> ...
     minion sort [--editor=<editor>] <text> ...
-    minion summary 
+    minion strays
+    minion summary [--archives] [--max=<max>] 
     minion tags
 
 Options:
@@ -28,11 +29,13 @@ Command descriptions:
     find - synonym for list 
     here - create a note in the current working directory
     list - list files matching keywords
+    merge - find and merge similar files
     note - create a new note and then open it - <text> becomes filename
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
     sort - step through results matching <text>, tag, rename, sort into folders
     summary - list all folders and the item counts in those folders
+    tags - list all tags
 
 """
 
@@ -104,7 +107,10 @@ if args['list'] or args['find']:
     total=len(total_files))
     
     # Display results
-    brain_of_minion.display_output(title=filter, output=match_files)
+    brain_of_minion.display_output(title=filter, 
+        output=match_files, 
+        raw_files=args['--files'],
+    )
     sys.exit(0)
 
 # publish your articles.
@@ -196,12 +202,11 @@ if args['open']:
 #
 
 if args['summary']:
-    notes_home = brain_of_minion.get_notes_home()
-    folders = os.listdir(notes_home)
-    for folder in folders:
-        matches = match_files = brain_of_minion.find_files(filter=folder, 
-                archives = args['--archives'])
-        print "%s\t\t\t-\t%d" % (folder, len(matches))
+    summary = brain_of_minion.get_folder_summary(archives = args['--archives'])
+    limit = int(args['--max'])
+    summary = summary[:limit]
+    for (count, folder) in summary:
+        print "%s\t\t\t-\t%d" % (folder, count)
 
 # Single box or all boxes...
 
@@ -223,34 +228,27 @@ def choose_files(minion_options):
 #         options.directory = brain_of_minion.get_inbox()
 # options.directory = brain_of_minion.get_notes_home()
 
-# if len(ARGS) > 0:
-#     options.filter.extend(ARGS)
+if args['strays']:
+    
+    # All poorly tagged files...
+    updated_files = []
+    match_files = brain_of_minion.find_files()
+    for item in match_files:
+        if len(brain_of_minion.get_tags(item)) < 2:
+            updated_files.append(item)
 
-# options.filter = args['text']
+    # All poorly used folders
+    notes_home = brain_of_minion.get_notes_home()
+    for folder in os.listdir(brain_of_minion.get_notes_home()):
+        folder = os.path.join(notes_home, folder)
+        if os.path.isdir(folder):
+            if len(os.listdir(folder)) < 3:
+                items = brain_of_minion.find_files(filter=folder)
+                for item in items:
+                    updated_files.append(item)
 
-# inbox_files = []
-# inbox_files = choose_files(options)
+    match_files = updated_files
 
-# If we are along looking for orphaned files...
-# if options.notags:
-#    updated_inbox_files = []
-#    for item in inbox_files:
-#        if len(brain_of_minion.getTags(item)) < 2:
-#            updated_inbox_files.append(item)
-#    inbox_files = updated_inbox_files
-#
-# if not options.silent: 
-#     print "Searching directory %s." % (options.directory)
+    for item in match_files:
+        files_to_open = brain_of_minion.doInboxInteractive(item)
 
-
-# if len(options.ignore) > 0:
-#     search_terms = [item.lower() for item in options.ignore]
-#     ignore_tags.extend(search_terms)
-# if not options.silent: 
-#     print "Ignoring %s" % ','.join(ignore_tags)
-
-# Open all results
-# if options.open_all:
-#     for item in inbox_files:
-#         brain_of_minion.open_file(item, multiple=True, editor=options.editor)
-#     sys.exit() 
