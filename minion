@@ -12,7 +12,7 @@ Usage:
     minion remind [--editor=<editor>] <text> ...
     minion sample [--files] <text> ...
     minion sort [--editor=<editor>] <text> ...
-    minion summary 
+    minion summary [--archives] [--max=<max>] 
 
 Options:
     -a --archives           Search archive folders for matches. 
@@ -197,12 +197,11 @@ if args['open']:
 #
 
 if args['summary']:
-    notes_home = brain_of_minion.get_notes_home()
-    folders = os.listdir(notes_home)
-    for folder in folders:
-        matches = match_files = brain_of_minion.find_files(filter=folder, 
-                archives = args['--archives'])
-        print "%s\t\t\t-\t%d" % (folder, len(matches))
+    summary = brain_of_minion.get_folder_summary(archives = args['--archives'])
+    limit = int(args['--max'])
+    summary = summary[:limit]
+    for (count, folder) in summary:
+        print "%s\t\t\t-\t%d" % (folder, count)
 
 # Single box or all boxes...
 

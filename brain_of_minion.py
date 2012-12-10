@@ -13,6 +13,18 @@ from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
 
+def get_folder_summary(archives=False):
+    summary = []
+    notes_home = get_notes_home()
+    folders = os.listdir(notes_home)
+    for folder in folders:
+        matches = match_files = find_files(filter=folder, 
+                archives = archives)
+        summary.append( (len(matches), folder) )
+
+    summary.sort(reverse = True)
+    return summary 
+
 def select_file(match_files):
     '''Interactively select a file from the given list.
 
