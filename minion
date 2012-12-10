@@ -13,6 +13,7 @@ Usage:
     minion sample [--files] <text> ...
     minion sort [--editor=<editor>] <text> ...
     minion summary 
+    minion tags
 
 Options:
     -a --archives           Search archive folders for matches. 
@@ -31,6 +32,7 @@ Command descriptions:
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
     sort - step through results matching <text>, tag, rename, sort into folders
+    summary - list all folders and the item counts in those folders
 
 """
 
