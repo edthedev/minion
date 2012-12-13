@@ -232,17 +232,16 @@ def choose_files(minion_options):
 
 if args['folders']:
 
-
     updated_files = []
     match_files = brain_of_minion.find_files()
 
     # All poorly used folders
-    max = 5 
+    too_few = 5
     notes_home = brain_of_minion.get_notes_home()
     for folder in os.listdir(brain_of_minion.get_notes_home()):
         folder = os.path.join(notes_home, folder)
         if os.path.isdir(folder):
-            if len(os.listdir(folder)) < max:
+            if len(os.listdir(folder)) < too_few:
                 items = brain_of_minion.find_files(filter=folder)
                 for item in items:
                     updated_files.append(item)
@@ -259,20 +258,42 @@ if args['folders']:
 
 
 
-if args['strays']:
+if args['tags']:
     
-    # All poorly tagged files...
-    updated_files = []
-    match_files = brain_of_minion.find_files()
-    for item in match_files:
-        if len(brain_of_minion.get_tags(item)) < 2:
-            updated_files.append(item)
-    match_files = updated_files
+    # TODO: Rid of this. Concept of 'tags' does not play well with the filesystem.
+    # TODO: Switch to simply using any word as a 'tag'.
+    # So what is 'poorly tagged'? Too short of a name? Too many common words?
 
-    total = len(match_files)
-    count = 0
-    for item in match_files:
-        count += 1
-        print brain_of_minion.to_bar(count, total)
-        files_to_open = brain_of_minion.doInboxInteractive(item)
+    # A 'tag cloud' would be pretty awesome...
+    boring = ['the', 'this']
+    notes_home = brain_of_minion.get_notes_home()
+    all_files = brain_of_minion.find_files()
+    word_count = dict()
+    for filename in all_files:
+        filename = filename.replace(notes_home, '')
+        filename = filename.replace('/', '-').replace('.','-')
+        words = filename.split('-')
+        print words
+        for word in words:
+            if word_count.has_key(word):
+               word_count[word] += 1 
+            else:
+                word_count[word] = 1
+    # word_count.sort()
+    print word_count
 
+#    # All poorly tagged files...
+#    updated_files = []
+#    match_files = brain_of_minion.find_files()
+#    for item in match_files:
+#        if len(brain_of_minion.get_tags(item)) < 2:
+#            updated_files.append(item)
+#    match_files = updated_files
+#
+#    total = len(match_files)
+#    count = 0
+#    for item in match_files:
+#        count += 1
+#        print brain_of_minion.to_bar(count, total)
+#        files_to_open = brain_of_minion.doInboxInteractive(item)
+#
