@@ -18,9 +18,13 @@ def get_folder_summary(archives=False):
     notes_home = get_notes_home()
     folders = os.listdir(notes_home)
     for folder in folders:
-        matches = match_files = find_files(filter=folder, 
-                archives = archives)
-        summary.append( (len(matches), folder) )
+        if not 'archive' in folder:
+            full_folder = os.path.join(notes_home, folder)
+            if os.path.isdir(full_folder):
+                files = os.listdir(full_folder)
+        # matches = match_files = find_files(filter=folder, 
+        #         archives = archives)
+                summary.append( (len(files), folder) )
 
     summary.sort(reverse = True)
     return summary 
