@@ -109,6 +109,7 @@ if args['list'] or args['find']:
     total=len(total_files))
     
     # Display results
+    print match_files
     brain_of_minion.display_output(title=filter, 
         output=match_files, 
         raw_files=args['--files'],
@@ -203,12 +204,53 @@ if args['open']:
 #                                        by_tag=options.show_tags)
 #
 
+def format_2_cols(tuple_list):
+    SEPARATOR = " - "
+    PADDING = ' '
+    output = []
+
+    col_max = {}
+    
+    # Find longest column members
+    for tup in tuple_list:
+        line = ""
+        col = 0
+        for item in tup:
+            item = str(item)
+            col += 1
+            if not item in col_max:
+                col_max[col] = 0
+            if len(item) > col_max[col]:
+                col_max[col] = len(item)
+
+    # Build the string
+    for tup in tuple_list:
+        col = 0
+        for item in tup:
+            item = str(item)
+            col += 1
+
+            # Separator when needed.
+            if len(line) != 0:
+                line += SEPARATOR
+
+            # Padded line item.
+            while len(item) < col_max[col]:
+                item += PADDING 
+            line += item 
+        output.append(line)
+    output = '\n'.join(output)
+    return output
+
 if args['summary']:
     summary = brain_of_minion.get_folder_summary(archives = args['--archives'])
     limit = int(args['--max'])
     summary = summary[:limit]
-    for (count, folder) in summary:
-        print "%s\t\t\t-\t%d" % (folder, count)
+    output = format_2_cols(summary)
+    print output
+    # brain_of_minion.display_output('Summary', output)
+    # for (count, folder) in summary:
+    #    print "%s\t\t\t-\t%d" % (folder, count)
 
 # Single box or all boxes...
 

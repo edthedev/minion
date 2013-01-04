@@ -294,6 +294,7 @@ def sort_by_tag(file_list):
                     placed = True
                     all_tags[tag].append(item)
                 else:
+                    placed = True
                     all_tags[tag] = [item]
     return all_tags
                     
@@ -314,7 +315,7 @@ def display_output(title, output, by_tag=True, raw_files=False):
                 all_tags = sort_by_tag(output)
                 output = ''
                 for tag in all_tags:
-                    if len(all_tags[tag]) > 1:
+                    if len(all_tags[tag]) > 0:
                         output += '\n\t' + tag
                         output += "\n-------------------\n"
                         output += separator.join(all_tags[tag])
