@@ -13,6 +13,19 @@ from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
 
+# Linux preferred apps:
+VIEWERS= {
+        'default':'vim',
+        'jpg':'eog',
+        'jpeg':'eog',
+        'png':'eog',
+        '.pdf':'evince',
+        '.xls':'libreoffice',
+        }
+
+EDITORS = VIEWERS
+EDITORS['default'] = 'vim'
+
 def get_folder_summary(archives=False):
     summary = []
     notes_home = get_notes_home()
@@ -497,30 +510,43 @@ def isValidTag(tag):
         return False
     return True
 
+def get_viewer(filename):
+    return get_editor(filename, view=True)
+
+def get_editor(filename, view=False):
+    apps = EDITORS
+    if view:
+        apps = VIEWERS
+    
+    extension = os.path.splitext(filename)[1]
+    extension.lower()
+    if apps.has_key(extension):
+        editor = apps[extension]
+    else:
+        try:
+            editor = os.environ['EDITOR']
+        except:
+            editor = apps['default']
+
+    return editor 
+
 def open_file(filename, line=0, multiple=False, editor=None):
     print "Opening %s" % filename
-    programs = {
-        '.pdf':'evince',
-        '.xls':'libreoffice',
-        }
-    extension = os.path.splitext(filename)[1]
-    if programs.has_key(extension):
-        program = programs[extension]
+    program = get_editor(filename)
+    if editor == 'vim':
+        subprocess.call([editor, filename, "+%d" % (line + 2)])
+    else:
         subprocess.call([program, filename])
         # subprocess.Popen([program, filename])
-    else:
-        if editor == None:
-            try:
-                editor = os.environ['EDITOR']
-            except:
-                editor = 'vim'
-        subprocess.call([editor, filename, "+%d" % (line + 2)])
         # subprocess.Popen([editor, filename, "+%d" % (line + 2)])
 
-
 def preview_file(filename):
+    viewer = get_viewer(filename)
     print "Viewing file: " + filename
-    os.system('cat %s | less' % filename)
+    if viewer == 'cat':
+        os.system('cat %s | less' % filename)
+    else:
+        subprocess.call([viewer, filename])
 
 #def previewFile(filename, lines):
 #    result = displayNice(filename)
@@ -616,16 +642,19 @@ def chooseBox(choice):
             return None
 
 def get_folder(folder):
-    '''If in invalid folder is passed, assume a relative path 
-    within the Inbox directory.'''
-    if os.path.exists(folder):
-        return folder
-    notes_home = get_notes_home()
+    '''Return a full path, relative to the notes home.
+    '''
+    # if os.path.exists(folder):
+    #     return folder
+
+    # Convert 'archive' to 'archive.2012.08'
     if folder == 'archive':
         year_month = datetime.datetime.today().strftime("%y.%m")
-        archive_folder = "archive.%s" % (year_month)
-        directory = os.path.join(notes_home, archive_folder )
+        folder = "archive.%s" % (year_month)
+        
+    notes_home = get_notes_home()
     directory = os.path.join(notes_home, folder)
+
     if not os.path.exists(directory):
         os.mkdir(directory)
     return directory
@@ -930,19 +959,19 @@ def move_to_folder(filename, folder):
         print "Error: Moved %s to inbox." % filname
         shutil.move(filename, destination)
 
-def archive(filename):
-    archive_dir = getDir('archive') 
-    cleaned_name = filename.replace('urgent', 'complete')
-    if filename != cleaned_name:
-        shutil.move(filename, cleaned_name)
-        print "Renamed to %s" % cleaned_name
-    final_name = '%s/%s' % (archive_dir, os.path.basename(cleaned_name))
-    while os.path.exists(final_name):
-        final_name = final_name.replace('.', '.duplicate.', 1)
-    shutil.move(cleaned_name, final_name)
-    print "Moved to %s" % final_name
-    recordDone(filename)
-
+#def archive(filename):
+#    archive_dir = get_folder('archive') 
+#    cleaned_name = filename.replace('urgent', 'complete')
+#    if filename != cleaned_name:
+#        shutil.move(filename, cleaned_name)
+#        print "Renamed to %s" % cleaned_name
+#    final_name = '%s/%s' % (archive_dir, os.path.basename(cleaned_name))
+#    while os.path.exists(final_name):
+#        final_name = final_name.replace('.', '.duplicate.', 1)
+#    shutil.move(cleaned_name, final_name)
+#    print "Moved to %s" % final_name
+#    recordDone(filename)
+#
 def recordDone(item):
     clean_item = clean_output(item)
     done_file = "%s/done.txt" % (get_notes_home())
