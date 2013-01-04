@@ -75,7 +75,7 @@ def publish(filename, target='?', editor='vim'):
     return full_target
 
 def remind(text):
-    filename = "%s/%s" % (get_inbox(), createFileName(text))
+    filename = "%s/%s" % (get_inbox(), string_to_file_name(text))
     f = open(filename, 'a')
     f.write(text)
     return filename
@@ -347,10 +347,10 @@ def clean_string(output):
     no_dashes = no_folder.replace('-', ' ')
     no_slashes = no_dashes.replace('/', ' : ')
     no_extensions = no_slashes.replace('.txt', '')
-    no_tags = remove_tags(no_extensions)
+    no_tags = remove_tags_from_string(no_extensions)
     return no_tags
 
-def remove_tags(filename):
+def remove_tags_from_string(filename):
     removing = False
     tag_free_name = ''
     for char in filename:
@@ -517,37 +517,42 @@ def open_file(filename, line=0, multiple=False, editor=None):
         subprocess.call([editor, filename, "+%d" % (line + 2)])
         # subprocess.Popen([editor, filename, "+%d" % (line + 2)])
 
-def previewFile(filename, lines):
-    result = displayNice(filename)
-    f = open(full_path, 'r')
-    line_count = 0
-    lines = f.readlines()
-    lines = [line.replace('\t', ' ') for line in lines]
-    if len(lines) > 2:
-        for line in lines:
-            if 'done' in line.lower() or 'waiting' in line.lower() or 'someday' in line.lower():
-                pass
-            else:
-                if (line_count < lines) and (len(line) > 0):
-                    result += '\n'
-                    result += line.replace('\n', '')
-                    line_count = line_count +1
-        if line_count >= lines: result += "\n..."
 
-    output = ''
-    first_found = False
-    end_of_first_found = False
-    for line in result.split('\n'):
-        if len(line) == 0:
-            if first_found:
-                end_of_first_found = True
-        else:
-            if not end_of_first_found:
-                output += '%s\n' % line
-                first_found = True
-    # print result
-    return output
+def preview_file(filename):
+    print "Viewing file: " + filename
+    os.system('cat %s | less' % filename)
 
+#def previewFile(filename, lines):
+#    result = displayNice(filename)
+#    f = open(full_path, 'r')
+#    line_count = 0
+#    lines = f.readlines()
+#    lines = [line.replace('\t', ' ') for line in lines]
+#    if len(lines) > 2:
+#        for line in lines:
+#            if 'done' in line.lower() or 'waiting' in line.lower() or 'someday' in line.lower():
+#                pass
+#            else:
+#                if (line_count < lines) and (len(line) > 0):
+#                    result += '\n'
+#                    result += line.replace('\n', '')
+#                    line_count = line_count +1
+#        if line_count >= lines: result += "\n..."
+#
+#    output = ''
+#    first_found = False
+#    end_of_first_found = False
+#    for line in result.split('\n'):
+#        if len(line) == 0:
+#            if first_found:
+#                end_of_first_found = True
+#        else:
+#            if not end_of_first_found:
+#                output += '%s\n' % line
+#                first_found = True
+#    # print result
+#    return output
+#
 def get_settings():
     minion_file = os.path.expanduser('~/.minion')
 
@@ -610,7 +615,7 @@ def chooseBox(choice):
         else:
             return None
 
-def getDir(folder):
+def get_folder(folder):
     '''If in invalid folder is passed, assume a relative path 
     within the Inbox directory.'''
     if os.path.exists(folder):
@@ -618,14 +623,15 @@ def getDir(folder):
     notes_home = get_notes_home()
     if folder == 'archive':
         year_month = datetime.datetime.today().strftime("%y.%m")
-        directory = os.path.expanduser("%s/archive.%s" % (notes_home, year_month))
+        archive_folder = "archive.%s" % (year_month)
+        directory = os.path.join(notes_home, archive_folder )
     directory = os.path.join(notes_home, folder)
     if not os.path.exists(directory):
         os.mkdir(directory)
     return directory
 
 def newNote(name, ext='txt'):
-    clean_name = createFileName(name, ext)
+    clean_name = string_to_file_name(name, ext)
     inbox = get_inbox()
     full_name = "%s/%s" % (inbox, clean_name)
     return full_name    
@@ -713,6 +719,26 @@ def applyCommandToLine(filename, line, command):
         pass
     return line
 
+
+def add_tags_to_file(tags, filename):
+    basename, extension = os.path.splitext(filename) 
+    new_tags = '-'.join(tags)    
+    new_filename = filename
+    if len(new_tags) > 0:
+        new_filename = "%s.%s.%s" % (basename, new_tags, extension)
+        print "Added tags: %s" % tags
+    new_filename = rename_file(filename, new_filename)
+    return new_filename
+
+def remove_tags_from_file(tags, filename):
+    orig_filename = filename
+    new_filename = filename
+    for remove_tag in tags:
+        new_filename = new_filename.replace(remove_tag, '')
+        print "Removed tags: %s" % tags
+    new_filename = rename_file(orig_filename, new_filename)
+    return new_filename
+
 def applyCommandToFile(filename, command):
     '''
     The core of the interactive file sorting system.
@@ -726,36 +752,24 @@ def applyCommandToFile(filename, command):
         new_name = command.replace('!rename', '')
         if len(new_name) == 0:
             new_name = raw_input('New name? ')
-        new_name = createFileName(new_name)
+        new_name = string_to_file_name(new_name)
         new_file = "%s/%s" % (get_inbox(), new_name)
-        new_file = move_file(filename, new_file)
+        new_file = rename_file(filename, new_file)
         # shutil.move(filename, new_file)
         # print "Renamed to %s" % new_file
         return new_file
 
     # Add tags
     add_tags = get_tags(command)
-    basename, extension = os.path.splitext(filename) 
-    new_tags = '-'.join(add_tags)    
-    if len(new_tags) > 0:
-        filename = "%s.%s.%s" % (basename, new_tags, extension)
-        print "Added tags: %s" % add_tags
-    
+    filename = add_tags_to_file(add_tags, filename)
+   
     # Remove tags
     remove_tags = getRemoveTags(command)
-    for remove_tag in remove_tags:
-        filename = filename.replace(remove_tag, '')
-        print "Removed tags: %s" % remove_tags
-    
-    #    Move file
-    if len(remove_tags) > 0 or len(add_tags) > 0:
-        filename = move_file(orig_filename, filename)
-        # shutil.move(orig_filename, filename)
-        # print "Re-tagged to %s" % filename
+    filename = remove_tags_from_file(remove_tags, filename)
 
     # If there's a calendar tag...move to the calendar folder.
     if hasCalendarTag(command):
-        filename = move_file(filename, 'calendar')
+        filename = move_to_folder(filename, 'calendar')
     else:
         # Move elsehwere if requested.
         folder_re = re.compile('>\S*')
@@ -765,12 +779,12 @@ def applyCommandToFile(filename, command):
             folder = folders[0]
             folder = folder.replace('>', '')
             folder = os.path.expanduser(folder)
-            filename = move_file(filename, folder)
+            filename = move_to_folder(filename, folder)
             print "Moved to %s" % folder
 
     if '!view' in command:
-            os.system('cat %s | less' % filename)
-            doInboxInteractive(filename)
+        preview_file(filename)
+        doInboxInteractive(filename)
 
     return filename
 
@@ -873,23 +887,39 @@ def chooseBox(choice):
         else:
             return None
 
-def createFileName(text, ext='.txt'):
+def string_to_file_name(text, ext='.txt'):
     new_name = text.replace(' ', '-').replace('/', '-')
     # if not (new_name.endswith('.txt') or new_name.endswith('.pdf')):
     if not new_name.endswith(ext):
         new_name = '%s%s' % (new_name, ext)
     return new_name
 
-def move_file(filename, folder):
+def get_unique_name(filename):
+    final_name = filename
+    while os.path.exists(final_name):
+        import uuid
+        uid = str(uuid.uuid1())
+        final_name = final_name.replace('.', \
+                '.' + uid + '.', 1)
+    return final_name
+
+def rename_file(filename, new_name):
+    folder = os.path.basename(filename)
+    new_file = os.path.join(folder, new_name)
+
+    if filename != new_file:
+        new_file = get_unique_name(new_file)
+        shutil.move(filename, new_file)
+        print "Renamed " + filename + " to " + new_file
+    return new_file
+
+def move_to_folder(filename, folder):
     try:
-        destination = getDir(folder)
-        print destination
-        final_name = "%s/%s" % (destination, os.path.basename(filename))
-        while os.path.exists(final_name):
-            import uuid
-            uid = str(uuid.uuid1())
-            final_name = final_name.replace('.', \
-                    '.' + uid + '.', 1)
+        destination = get_folder(folder)
+        print "Moving to " + destination
+        short_name = os.path.basename(filename)
+        final_name = os.path.join(destination, short_name)
+        final_name = get_unique_name(final_name)
         shutil.move(filename, final_name)
         print "Moved %s to %s" % (filename, final_name)
         return final_name 
@@ -941,36 +971,6 @@ def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
         return display_options
 
-def previewFile(filename, lines):
-    result = displayNice(filename)
-    f = open(full_path, 'r')
-    line_count = 0
-    lines = f.readlines()
-    lines = [line.replace('\t', ' ') for line in lines]
-    if len(lines) > 2:
-        for line in lines:
-            if 'done' in line.lower() or 'waiting' in line.lower() or 'someday' in line.lower():
-                pass
-            else:
-                if (line_count < lines) and (len(line) > 0):
-                    result += '\n'
-                    result += line.replace('\n', '')
-                    line_count = line_count +1
-        if line_count >= lines: result += "\n..."
-
-    output = ''
-    first_found = False
-    end_of_first_found = False
-    for line in result.split('\n'):
-        if len(line) == 0:
-            if first_found:
-                end_of_first_found = True
-        else:
-            if not end_of_first_found:
-                output += '%s\n' % line
-                first_found = True
-    # print result
-    return output
 
 #def getOutput(command):
 #        # print command
@@ -1043,7 +1043,7 @@ def new_note(args, quick, editor, notes_dir=None):
         print getOutput('cal')
         topic = raw_input("Topic? ")
 
-    topic_filename = createFileName(topic)
+    topic_filename = string_to_file_name(topic)
 
     today = datetime.date.today()
     filename = "%s/%s" %(notes_dir, topic_filename)
