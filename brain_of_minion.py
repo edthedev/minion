@@ -19,6 +19,7 @@ NON_TEXT_VIEWERS= {
         '.jpg':'eog',
         '.jpeg':'eog',
         '.png':'eog',
+        '.pnm':'eog',
         '.pdf':'evince',
         '.xls':'libreoffice',
         }
@@ -34,7 +35,10 @@ def get_first_date(filename):
 '''
 
     recognizers  = {
-        '\d{1,2}\.\d{1,2}\.\d{2,4}':'%m.%d.%Y',
+        '\d{1,2}\.\d{1,2}\.\d{4}':'%m.%d.%Y',
+        '\d{1,2}\.\d{1,2}\.\d{2}':'%m.%d.%y',
+        '\d{1,2}/\d{1,2}/\d{4}':'%m/%d/%Y',
+        '\d{1,2}/\d{1,2}/\d{2}':'%m/%d/%y',
 #         '\d{2}\.\d{2}':'%m.%d',
     }
 
@@ -102,7 +106,7 @@ def get_folder_summary(archives=False):
     summary.sort(reverse = True)
     return summary 
 
-def select_file(match_files):
+def select_file(match_files, max_files = 10):
     '''Interactively select a file from the given list.
 
     Returns a tuple with the chosen keywords and the final selected item.
@@ -110,7 +114,7 @@ def select_file(match_files):
     choice_path = ''
     while len(match_files) > 1:
         print "Notes:\n"
-        if len(match_files) > args['--max']:
+        if len(match_files) > max_files:
             print "%d matches." % len(match_files)
         else:
             print "\n".join(match_files)
@@ -119,7 +123,7 @@ def select_file(match_files):
             break    
         choice_path += '-' + choice
         prev_matches = match_files
-        match_files = limitNotes(choice, match_files, True)
+        match_files = limit_notes(choice, match_files, True)
     return (choice_path, match_files[0])
 
 def publish(filename, target='?', editor='vim'):

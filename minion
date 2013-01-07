@@ -199,7 +199,9 @@ if args['sort']:
                         multiple=True, editor=args['--editor'])
 
 if args['open']:
-    (choice_path, filename) = brain_of_minion.select_file(match_files)
+    (choice_path, filename) = \
+        brain_of_minion.select_file( \
+            match_files, args['--max'])
     brain_of_minion.open_file(filename, editor = args['--editor'])
 
     # Merge the selected files.
