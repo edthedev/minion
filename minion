@@ -98,7 +98,11 @@ if args['dates']:
                 events[date].append(filename)
             else:
                 events[date] = [filename]
-    print events
+
+    # for key in events:
+    #     print key.strftime(DATE_FORMAT) + "\t" + events[key]
+
+    brain_of_minion.display_output('Upcoming Dates', events)
 
 # List the results
 if args['list'] or args['find']:

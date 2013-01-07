@@ -27,7 +27,11 @@ EDITORS = NON_TEXT_VIEWERS
 EDITORS['default'] = 'vim'
 
 def get_first_date(filename):
-    '''Return the earliest date writting in the file name or contents.'''
+    '''Return the earliest date writting in the file name or contents.
+        
+    But only return dates that are after the current date.
+
+'''
 
     recognizers  = {
         '\d{2}\.\d{2}.\d{4}':'%m.%d.%Y',
@@ -42,18 +46,22 @@ def get_first_date(filename):
     if not extension in NON_TEXT_VIEWERS:
         f = open(filename, 'r')
         content = f.read()
-        print content
         f.close()
 
     dates = []
     for key in recognizers:
         r = re.compile(key)
-        matches = r.match(content)
+        matches = r.findall(content)
+        # print matches
         if matches:
             form = recognizers[key]
             for match in matches:
-                dates.append(datetime.strptime(match, form))
-   
+                try:
+                    new_date = datetime.datetime.strptime(match, form) 
+                    if new_date > datetime.datetime.today():
+                        dates.append(new_date)
+                except ValueError:
+                    pass
     if len(dates) == 0:
         return None
     dates.sort()
@@ -361,25 +369,37 @@ def sort_by_tag(file_list):
 
 def display_output(title, output, by_tag=True, raw_files=False):
     separator = '\n'
-    if output == None:
-        print "No %s tasks." % title
-    elif len(output) == 0:
-        print "No %s tasks." % title
-    else:
-        if type(output) is list:
-            if by_tag:
-                all_tags = sort_by_tag(output)
-                output = ''
-                for tag in all_tags:
-                    if len(all_tags[tag]) > 0:
-                        output += '\n\t' + tag
-                        output += "\n-------------------\n"
-                        output += separator.join(all_tags[tag])
-            else:
-                output = [x.replace('\n', '') for x in output]
-                output = separator.join(output)
 
-    if title != None:
+    # If empty list or empty string, etc:
+    if not output:
+        print "No %s items." % title
+        return
+
+    # Print dictionaries as key - value
+    if type(output) is dict:
+        print "Converting dict"
+        output_lines = []
+        for key in output:
+            line = '\t-\t'.join(key, output[key])
+            output_lines.append(line)
+
+        output = separator.join(output_lines)
+
+    # Print lists with one item per line 
+    if type(output) is list:
+        if by_tag:
+            all_tags = sort_by_tag(output)
+            output = ''
+            for tag in all_tags:
+                if len(all_tags[tag]) > 0:
+                    output += '\n\t' + tag
+                    output += "\n-------------------\n"
+                    output += separator.join(all_tags[tag])
+        else:
+            output = [x.replace('\n', '') for x in output]
+            output = separator.join(output)
+
+    if title:
         print "\n---- %s: " % title
         print "-------------------------"
 
