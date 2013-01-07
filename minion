@@ -88,8 +88,17 @@ if args['count']:
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
-if args['date']:
+if args['dates']:
     total = brain_of_minion.get_total_file_count(include_archives = False)
+    events = dict()
+    for filename in match_files:
+        date = brain_of_minion.get_first_date(filename)
+        if date:
+            if events.has_key(date):
+                events[date].append(filename)
+            else:
+                events[date] = [filename]
+    print events
 
 # List the results
 if args['list'] or args['find']:
@@ -107,9 +116,10 @@ if args['list'] or args['find']:
     match_template = \
 "{matching} of {total} files match search {search} in directory {directory}"
     print match_template.format( \
-    directory = brain_of_minion.get_notes_home(),
-    matching=len(match_files), 
-    search=','.join(args['<text>']), 
+        directory = brain_of_minion.get_notes_home(),
+        matching=len(match_files), 
+        search=','.join(args['<text>']), 
+        total = total)
     
     # Display results
     print match_files

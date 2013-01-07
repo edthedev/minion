@@ -14,17 +14,50 @@ from ConfigParser import SafeConfigParser
 # from bottle import route, run
 
 # Linux preferred apps:
-VIEWERS= {
+NON_TEXT_VIEWERS= {
         'default':'vim',
-        'jpg':'eog',
-        'jpeg':'eog',
-        'png':'eog',
+        '.jpg':'eog',
+        '.jpeg':'eog',
+        '.png':'eog',
         '.pdf':'evince',
         '.xls':'libreoffice',
         }
 
-EDITORS = VIEWERS
+EDITORS = NON_TEXT_VIEWERS
 EDITORS['default'] = 'vim'
+
+def get_first_date(filename):
+    '''Return the earliest date writting in the file name or contents.'''
+
+    recognizers  = {
+        '\d{2}\.\d{2}.\d{4}':'%m.%d.%Y',
+        '\d{2}\.\d{2}':'%m.%d',
+    }
+
+    # TODO: Handle dates in the filename itself.
+   
+    # Find dates in the contents 
+    content = ""
+    _, extension = os.path.splitext(filename) 
+    if not extension in NON_TEXT_VIEWERS:
+        f = open(filename, 'r')
+        content = f.read()
+        print content
+        f.close()
+
+    dates = []
+    for key in recognizers:
+        r = re.compile(key)
+        matches = r.match(content)
+        if matches:
+            form = recognizers[key]
+            for match in matches:
+                dates.append(datetime.strptime(match, form))
+   
+    if len(dates) == 0:
+        return None
+    dates.sort()
+    return dates[0]
 
 def get_total_file_count(include_archives = False):
     '''Return the count of the total number of files available to Minion.
@@ -33,7 +66,7 @@ def get_total_file_count(include_archives = False):
     '''
     total_files = []
     total_files = find_files(archives = include_archives)
-    total=len(total_files))
+    total=len(total_files)
     return total
 
 def get_folder_summary(archives=False):
@@ -526,7 +559,7 @@ def get_viewer(filename):
 def get_editor(filename, view=False):
     apps = EDITORS
     if view:
-        apps = VIEWERS
+        apps = NON_TEXT_VIEWERS
     
     extension = os.path.splitext(filename)[1]
     extension.lower()
