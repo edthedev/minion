@@ -74,7 +74,11 @@ args = docopt(__doc__, version='1.0')
 # Interim code: Convert docopt args into options format from before.
 
 directory = brain_of_minion.get_notes_home()
+
+# Search terms to filter by.
 filter = args['<text>']
+if args['<text>'] == 'all':
+    args['<text>'] = None
 
 # Everything after this point requires searching for matches...
 match_files = brain_of_minion.find_files(filter=args['<text>'], 
@@ -85,7 +89,7 @@ inbox_files = []
 # Display a count of the matches 
 if args['count']:
     search_terms = "%s: %s" % ( \
-    os.path.basename(directory), ','.join(filter))
+    os.path.basename(directory), ','.join(args['<text>']))
     count = len(match_files)
     print "%d - %s" % (count, search_terms)
     sys.exit()
