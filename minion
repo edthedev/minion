@@ -66,6 +66,8 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 *~*~*~*~*~*~*
 '''
 
+DATE_FORMAT = '%m.%d.%Y'
+
 args = docopt(__doc__, version='1.0')
 # print args
 
@@ -94,10 +96,15 @@ if args['dates']:
     for filename in match_files:
         date = brain_of_minion.get_first_date(filename)
         if date:
-            if events.has_key(date):
-                events[date].append(filename)
-            else:
-                events[date] = [filename]
+            try:
+                date = date.strftime(DATE_FORMAT)
+                if events.has_key(date):
+                    events[date].append(filename)
+                else:
+                    events[date] = [filename]
+            except ValueError:
+                # Date before 1900
+                pass
 
     # for key in events:
     #     print key.strftime(DATE_FORMAT) + "\t" + events[key]

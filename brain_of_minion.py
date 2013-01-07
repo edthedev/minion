@@ -34,8 +34,8 @@ def get_first_date(filename):
 '''
 
     recognizers  = {
-        '\d{2}\.\d{2}.\d{4}':'%m.%d.%Y',
-        '\d{2}\.\d{2}':'%m.%d',
+        '\d{1,2}\.\d{1,2}\.\d{2,4}':'%m.%d.%Y',
+#         '\d{2}\.\d{2}':'%m.%d',
     }
 
     # TODO: Handle dates in the filename itself.
@@ -58,9 +58,18 @@ def get_first_date(filename):
             for match in matches:
                 try:
                     new_date = datetime.datetime.strptime(match, form) 
+                    # Assume current year, if unsure.
+                    # if new_date.year == 1900:
+                        # new_date.year = datetime.datetime.today().year
                     if new_date > datetime.datetime.today():
                         dates.append(new_date)
+                    # else:
+                    #     dates.append(new_date)
+
                 except ValueError:
+                    pass
+                except TypeError:
+                    print "Ignored " + match
                     pass
     if len(dates) == 0:
         return None
@@ -380,7 +389,11 @@ def display_output(title, output, by_tag=True, raw_files=False):
         print "Converting dict"
         output_lines = []
         for key in output:
-            line = '\t-\t'.join(key, output[key])
+            items = [
+                str(key), 
+                str(output[key]),
+                ]       
+            line = '\t-\t'.join(items)
             output_lines.append(line)
 
         output = separator.join(output_lines)
