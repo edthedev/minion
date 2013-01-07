@@ -3,7 +3,7 @@
 
 Usage: 
     minion count [--archives] <text> ...
-    minion dates 
+    minion dates <text> ...
     minion find [--archives] [--files] <text> ...
     minion folders 
     minion here [--editor=<editor>] <text> ...  
@@ -28,7 +28,7 @@ Options:
 
 Command descriptions:
     count - display a count of the results
-    dates - display all files with dates, by date order
+    dates - display matching files with dates, in date order
     find - synonym for list 
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
