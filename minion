@@ -3,6 +3,7 @@
 
 Usage: 
     minion count [--archives] <text> ...
+    minion dates 
     minion find [--archives] [--files] <text> ...
     minion folders 
     minion here [--editor=<editor>] <text> ...  
@@ -26,7 +27,8 @@ Options:
     --version               Show version.
 
 Command descriptions:
-    count - display a count of the results.
+    count - display a count of the results
+    dates - display all files with dates, by date order
     find - synonym for list 
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
@@ -86,18 +88,20 @@ if args['count']:
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
+if args['date']:
+    total = brain_of_minion.get_total_file_count(include_archives = False)
+
 # List the results
 if args['list'] or args['find']:
-    total_files = []
 
     # Set archives if no finds...
     if len(match_files) == 0:
         print "Found no matches. Searching archives..."
         match_files = brain_of_minion.find_files(filter=args['<text>'], 
                 archives=True)
-        total_files = brain_of_minion.find_files(archives=True)
+        total = brain_of_minion.get_total_file_count(include_archives = True)
     else:
-        total_files = brain_of_minion.find_files()
+        total = brain_of_minion.get_total_file_count(include_archives = False)
 
     # Display results / total 
     match_template = \
@@ -106,7 +110,6 @@ if args['list'] or args['find']:
     directory = brain_of_minion.get_notes_home(),
     matching=len(match_files), 
     search=','.join(args['<text>']), 
-    total=len(total_files))
     
     # Display results
     print match_files

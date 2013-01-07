@@ -26,6 +26,16 @@ VIEWERS= {
 EDITORS = VIEWERS
 EDITORS['default'] = 'vim'
 
+def get_total_file_count(include_archives = False):
+    '''Return the count of the total number of files available to Minion.
+    
+    This is useful for context when a search unexpectedly returns no results.
+    '''
+    total_files = []
+    total_files = find_files(archives = include_archives)
+    total=len(total_files))
+    return total
+
 def get_folder_summary(archives=False):
     summary = []
     notes_home = get_notes_home()
