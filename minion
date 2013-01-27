@@ -6,6 +6,7 @@ Usage:
     minion dates <text> ...
     minion find [--archives] [--files] <text> ...
     minion folders 
+    minion journal [--editor=<editor>] 
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion note [--editor=<editor>] <text> ...  
@@ -32,12 +33,14 @@ Command descriptions:
     find - synonym for list 
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
+    journal - open a new or existing file named journal.<today>.txt
     list - list files matching keywords
     merge - find and merge similar files
     note - create a new note and then open it - <text> becomes filename
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
-    sort - step through results matching <text>, tag, rename, sort into folders
+    sort - step through results matching <text>
+            tag, rename, and sort files into folders
     summary - list all folders and the item counts in those folders
     tags - list all tags
 
@@ -67,7 +70,8 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 *~*~*~*~*~*~*
 '''
 
-DATE_FORMAT = '%m.%d.%Y'
+# DATE_FORMAT = '%m.%d.%Y'
+DATE_FORMAT = '%Y.%m.%d'
 
 args = docopt(__doc__, version='1.0')
 # print args
@@ -171,8 +175,12 @@ if args['publish']:
     if success != None:
         print "Published to " + success + "."
 
+if args['journal']:
+    today_string = datetime.datetime.today().strftime(DATE_FORMAT)
+    args['<text>'] = ['Journal ' + today_string]
+
 # note and remind verbs
-if args['note'] or args['remind'] or args['here']:
+if args['note'] or args['remind'] or args['here'] or args['journal']:
     notes_dir = None
 
     if args['here']:

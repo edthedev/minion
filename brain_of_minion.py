@@ -13,6 +13,9 @@ from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
 
+# DATE_FORMAT = '%m.%d.%Y'
+DATE_FORMAT = '%Y.%m.%d'
+
 # Linux preferred apps:
 NON_TEXT_VIEWERS= {
         'default':'vim',
@@ -1153,6 +1156,7 @@ def new_note(args, quick, editor, notes_dir=None):
     topic_filename = string_to_file_name(topic)
 
     today = datetime.date.today()
+    today = today.strftime(DATE_FORMAT)
     filename = "%s/%s" %(notes_dir, topic_filename)
     underline = '=' * len(topic)
     summary = "%s\n%s\nCreated %s" % (topic, underline, today)
