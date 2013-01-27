@@ -28,9 +28,7 @@ EDITORS = NON_TEXT_VIEWERS
 EDITORS['default'] = 'vim'
 
 def get_first_date(filename):
-    '''Return the earliest date writting in the file name or contents.
-        
-    But only return dates that are after the current date.
+    '''Return the earliest date written in the file name or contents.
 
 '''
 
@@ -65,8 +63,8 @@ def get_first_date(filename):
                     # Assume current year, if unsure.
                     # if new_date.year == 1900:
                         # new_date.year = datetime.datetime.today().year
-                    if new_date > datetime.datetime.today():
-                        dates.append(new_date)
+                    # if new_date > datetime.datetime.today():
+                    dates.append(new_date)
                     # else:
                     #     dates.append(new_date)
 
@@ -390,7 +388,7 @@ def display_output(title, output, by_tag=True, raw_files=False):
 
     # Print dictionaries as key - value
     if type(output) is dict:
-        print "Converting dict"
+        # print "Converting dict"
         output_lines = []
         for key in output:
             items = [
