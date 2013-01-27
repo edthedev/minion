@@ -1,10 +1,27 @@
 Minion
 ======
 
-Personal command line assistant. Takes notes, tags notes, finds notes, gets things done.
+Minion is a digital assitant that runs on the command line and stores everything in text files. Minion takes notes, tags notes, finds notes, and gets things done.
 
-Setup
------
+Minion is compatible with other systems. Minion creates, finds, sorts and archives files in a folder using subfolders on the filesystem. Because Minion uses plain text files, it is already compatible with other software.
+
+In particular, Minion is well complimented by the following:
+ 
+    1. A great text editor. The best editors can be configured to run Minion commands as shortcuts without leaving the editor.
+    2. A file folder synchronizer. Minion stores everything in files, so  synchronization software can make Minion content available from any location.
+
+What Minon Does
+----------------
+
+In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload thoughts from their minds into a computer for storage, and then recover and act on those thoughts later. Minion is meant to be a first step on that path. Minion takes care of storing, tagging, and retrieving ideas, freeing it's user to focus on thinking.
+
+    1. Capture thoughts. The note function gets an editor open to capture thoughts quickly.
+    2. Take next steps. Convert captured ideas into actions and artifacts. The sort function makes it simple to review files and take next steps related to them.
+    3. Never lose anything. The find, open and archive commands make sure that files are only a few keypresses away.
+    4. (beta) Keep track of upcoming dates. The dates function displays recent and upcoming date strings that appear in files.
+
+Installation and Setup
+-----------------------
 Copy the example .minion file to your home directory, and edit it as needed.
 Edit your bash/zsh/sh profile to add `source ~/Minion/add_to_your_profile`.
 
