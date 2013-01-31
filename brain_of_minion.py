@@ -13,6 +13,9 @@ from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
 
+import logging
+LOGGER = logging.getLogger(__name__)
+
 # DATE_FORMAT = '%m.%d.%Y'
 DATE_FORMAT = '%Y.%m.%d'
 
@@ -26,7 +29,8 @@ NON_TEXT_VIEWERS= {
         '.pdf':'evince',
         '.xls':'libreoffice',
         }
-REQUIRE_TERMINAL = ['vim', 'cat %s | less']
+TERMINAL_APP = ['vim', 'cat %s | less']
+REPLACE_APP = ['cat %s | less']
 
 EDITORS = NON_TEXT_VIEWERS
 EDITORS['default'] = 'vim'
@@ -629,9 +633,11 @@ def open_file(filename, line=0, multiple=False, editor=None):
 
 def preview_file(filename):
     viewer = get_viewer(filename)
-    print "Viewing file: " + filename
-    if viewer in REQUIRE_TERMINAL:
+    LOGGER.info("Viewing file: " + filename + " with " + viewer)
+    if viewer in REPLACE_APP:
         os.system(viewer % filename)
+    elif viewer in TERMINAL_APP:
+        os.system("%s %s" % (viewer, filename))
     else:
         subprocess.call([viewer, filename])
 
