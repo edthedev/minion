@@ -10,7 +10,7 @@ Usage:
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion note [--editor=<editor>] <text> ...  
-    minion open [--archives] [--editor=<editor>] <text> ...
+    minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
     minion publish [--archives] <target> <text> ...
     minion remind [--editor=<editor>] <text> ...
     minion sample [--files] <text> ...
@@ -227,10 +227,13 @@ if args['sort']:
                         multiple=True, editor=args['--editor'])
 
 if args['open']:
-    (choice_path, filename) = \
-        brain_of_minion.select_file( \
-            match_files, args['--max'])
-    brain_of_minion.open_file(filename, editor = args['--editor'])
+    if len(match_files) > 0:
+        (choice_path, filename) = \
+                brain_of_minion.select_file( \
+                match_files, args['--max'])
+        brain_of_minion.open_file(filename, editor = args['--editor'])
+    else:
+        brain_of_minion.display_output(title=filter, output=match_files)
 
     # Merge the selected files.
 #    if choice == '!merge':

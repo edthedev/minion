@@ -18,7 +18,7 @@ DATE_FORMAT = '%Y.%m.%d'
 
 # Linux preferred apps:
 NON_TEXT_VIEWERS= {
-        'default':'vim',
+        'default':'cat %s | less',
         '.jpg':'eog',
         '.jpeg':'eog',
         '.png':'eog',
@@ -26,6 +26,7 @@ NON_TEXT_VIEWERS= {
         '.pdf':'evince',
         '.xls':'libreoffice',
         }
+REQUIRE_TERMINAL = ['vim', 'cat %s | less']
 
 EDITORS = NON_TEXT_VIEWERS
 EDITORS['default'] = 'vim'
@@ -48,6 +49,7 @@ def get_first_date(filename):
     # Find dates in the contents 
     content = ""
     _, extension = os.path.splitext(filename) 
+    extension.lower()
     if not extension in NON_TEXT_VIEWERS:
         f = open(filename, 'r')
         content = f.read()
@@ -113,6 +115,9 @@ def select_file(match_files, max_files = 10):
     Returns a tuple with the chosen keywords and the final selected item.
     '''
     choice_path = ''
+    if len(match_files) == 0:
+        return (choice_path, '')
+
     while len(match_files) > 1:
         print "Notes:\n"
         if len(match_files) > max_files:
@@ -600,7 +605,8 @@ def get_editor(filename, view=False):
         apps = NON_TEXT_VIEWERS
     
     extension = os.path.splitext(filename)[1]
-    extension.lower()
+    extension = extension.lower()
+    print extension
     if apps.has_key(extension):
         editor = apps[extension]
     else:
@@ -624,8 +630,8 @@ def open_file(filename, line=0, multiple=False, editor=None):
 def preview_file(filename):
     viewer = get_viewer(filename)
     print "Viewing file: " + filename
-    if viewer == 'cat':
-        os.system('cat %s | less' % filename)
+    if viewer in REQUIRE_TERMINAL:
+        os.system(viewer % filename)
     else:
         subprocess.call([viewer, filename])
 
@@ -858,6 +864,7 @@ def applyCommandToFile(filename, command):
     # Rename:
     if '!review' in command:
         reviewProjectInteractive(filename)
+        doInboxInteractive(filename)
     if '!rename' in command:
         new_name = command.replace('!rename', '')
         if len(new_name) == 0:
@@ -867,6 +874,7 @@ def applyCommandToFile(filename, command):
         new_file = rename_file(filename, new_file)
         # shutil.move(filename, new_file)
         # print "Renamed to %s" % new_file
+        doInboxInteractive(new_file)
         return new_file
 
     # Add tags
