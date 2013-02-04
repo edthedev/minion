@@ -691,7 +691,7 @@ def get_settings():
 
     return settings
 
-def get_get_date_format()():
+def get_date_format():
     settings = get_settings()
 
     return settings.get('date', 'format')
