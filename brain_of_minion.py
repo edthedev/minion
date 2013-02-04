@@ -679,7 +679,7 @@ def get_settings():
     settings.add_section('compose')
     settings.set('compose', 'template', '~/Minion/template.txt')
     settings.add_section('date')
-    settings.set('date', 'format', '%Y-%m-%d'
+    settings.set('date', 'format', '%%Y-%%m-%%d')
 
 # Load if available, write defaults if not.
     if os.path.exists(minion_file):
