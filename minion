@@ -75,6 +75,7 @@ DATE_FORMAT = '%Y.%m.%d'
 
 args = docopt(__doc__, version='1.0')
 # print args
+# print args
 
 # Interim code: Convert docopt args into options format from before.
 
