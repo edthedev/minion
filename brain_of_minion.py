@@ -13,8 +13,6 @@ from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
 
-# DATE_FORMAT = '%m.%d.%Y'
-DATE_FORMAT = '%Y.%m.%d'
 
 # Linux preferred apps:
 NON_TEXT_VIEWERS= {
@@ -669,6 +667,8 @@ def get_settings():
     settings.set('notes', 'home', '~/notes')
     settings.add_section('compose')
     settings.set('compose', 'template', '~/Minion/template.txt')
+    settings.add_section('date')
+    settings.set('date', 'format', '%Y-%m-%d'
 
 # Load if available, write defaults if not.
     if os.path.exists(minion_file):
@@ -679,6 +679,11 @@ def get_settings():
         f.close()
 
     return settings
+
+def get_get_date_format()():
+    settings = get_settings()
+
+    return settings.get('date', 'format')
 
 def get_notes_home():
     # if os.environ.has_key('NOTES_HOME'):
@@ -1156,7 +1161,7 @@ def new_note(args, quick, editor, notes_dir=None):
     topic_filename = string_to_file_name(topic)
 
     today = datetime.date.today()
-    today = today.strftime(DATE_FORMAT)
+    today = today.strftime(get_date_format())
     filename = "%s/%s" %(notes_dir, topic_filename)
     underline = '=' * len(topic)
     summary = "%s\n%s\nCreated %s" % (topic, underline, today)

@@ -63,15 +63,13 @@ import datetime
 from docopt import docopt
 
 import brain_of_minion
+from brain_of_minion import get_date_format
 import sys
 
 CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
  Clean Inbox
 *~*~*~*~*~*~*
 '''
-
-# DATE_FORMAT = '%m.%d.%Y'
-DATE_FORMAT = '%Y.%m.%d'
 
 args = docopt(__doc__, version='1.0')
 # print args
@@ -106,7 +104,7 @@ if args['dates']:
         date = brain_of_minion.get_first_date(filename)
         if date:
             try:
-                # date = date.strftime(DATE_FORMAT)
+                # date = date.strftime(get_date_format())
                 if events.has_key(date):
                     events[date].append(filename)
                 else:
@@ -116,20 +114,20 @@ if args['dates']:
                 pass
 
     today = datetime.datetime.today()
-    today_str = today.strftime(DATE_FORMAT)
+    today_str = today.strftime(get_date_format())
     recent_date = today - datetime.timedelta(days=14)
     upcoming = dict()
     recent = dict()
     for key in events:
         if key > today:
-            datestr = key.strftime(DATE_FORMAT)
+            datestr = key.strftime(get_date_format())
             upcoming[datestr] = events[key]
         elif key > recent_date:
-            datestr = key.strftime(DATE_FORMAT)
+            datestr = key.strftime(get_date_format())
             recent[datestr] = events[key]
  
     # for key in events:
-    #     print key.strftime(DATE_FORMAT) + "\t" + events[key]
+    #     print key.strftime(get_date_format()) + "\t" + events[key]
 
     brain_of_minion.display_output('Recent Dates', recent)
     brain_of_minion.display_output('Today', today_str)
@@ -157,7 +155,7 @@ if args['list'] or args['find']:
         total = total)
     
     # Display results
-    print match_files
+    # print match_files
     brain_of_minion.display_output(title=filter, 
         output=match_files, 
         raw_files=args['--files'],
@@ -176,7 +174,7 @@ if args['publish']:
         print "Published to " + success + "."
 
 if args['journal']:
-    today_string = datetime.datetime.today().strftime(DATE_FORMAT)
+    today_string = datetime.datetime.today().strftime(get_date_format())
     args['<text>'] = ['Journal ' + today_string]
 
 # note and remind verbs
