@@ -475,18 +475,6 @@ def getMatchingFiles(search_terms, file_list):
             match_files.append(f)
     return match_files
 
-def getProject(project_name):
-    matching = []
-    for project in getCurrentProjects():
-        if project_name in project:
-            matching.append(project)
-    if len(matching) == 0:
-        return newNote(project_name, 'org') 
-    if len(matching) == 1:
-        return matching[0]
-    else:
-        return limit_notesInteractive(matching)
-
 def getTaggedLines(tags, filename):
     f = open(filename)
     lines = f.readlines()
@@ -658,7 +646,20 @@ def preview_file(filename):
 #    # print result
 #    return output
 #
+
+def get_date_format():
+    return get_setting('date', 'format')
+
+def get_setting(section, key):
+    settings = get_settings()
+
+    return settings.get(section, key)
+
+# SETTINGS_OBJ = None
 def get_settings():
+    # if SETTINGS_OBJ:
+    #    return SETTINGS_OBJ
+
     minion_file = os.path.expanduser('~/.minion')
 
 # Default settings
@@ -667,8 +668,9 @@ def get_settings():
     settings.set('notes', 'home', '~/notes')
     settings.add_section('compose')
     settings.set('compose', 'template', '~/Minion/template.txt')
+    settings.set('compose', 'extension', '.txt')
     settings.add_section('date')
-    settings.set('date', 'format', '%Y-%m-%d'
+    settings.set('date', 'format', '%%Y-%%m-%%d')
 
 # Load if available, write defaults if not.
     if os.path.exists(minion_file):
@@ -678,12 +680,8 @@ def get_settings():
         settings.write(f)
         f.close()
 
+    # SETTINGS_OBJ = settings
     return settings
-
-def get_get_date_format()():
-    settings = get_settings()
-
-    return settings.get('date', 'format')
 
 def get_notes_home():
     # if os.environ.has_key('NOTES_HOME'):
@@ -744,12 +742,6 @@ def get_folder(folder):
     if not os.path.exists(directory):
         os.mkdir(directory)
     return directory
-
-def newNote(name, ext='txt'):
-    clean_name = string_to_file_name(name, ext)
-    inbox = get_inbox()
-    full_name = "%s/%s" % (inbox, clean_name)
-    return full_name    
 
 def limit_notes_interactive(notes):
     while len(notes) > 1:
@@ -1002,7 +994,10 @@ def chooseBox(choice):
         else:
             return None
 
-def string_to_file_name(text, ext='.txt'):
+def string_to_file_name(text, ext=None):
+    if not ext:
+        ext = get_setting('compose', 'extension')
+
     new_name = text.replace(' ', '-').replace('/', '-')
     # if not (new_name.endswith('.txt') or new_name.endswith('.pdf')):
     if not new_name.endswith(ext):
