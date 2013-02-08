@@ -1146,6 +1146,15 @@ def getUpdatedString():
         return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
 
 def new_note(args, quick, editor, notes_dir=None):
+    '''Without any distractions, create a new file, from a template.
+    
+    Use a file-system safe filename, based on the title.
+    Use a pre-configured 'inbox' for the files initial location.
+    If this 'inbox' folder does not exist, create it.
+    Include the title in the file, per the template.
+    Include the creation date in the file, per the template.
+    
+    '''
 
     # Get template file
     settings = get_settings()
@@ -1202,6 +1211,7 @@ def new_note(args, quick, editor, notes_dir=None):
     print summary
 
 def to_bar(number, total=10):
+    '''Convert a number into a ASCII art progress bar.'''
     pct_complete = number * 1.0 / total 
     print pct_complete
     result ='%s/%s [' % (number, total)
@@ -1217,6 +1227,8 @@ def to_bar(number, total=10):
     return result
     
 def numbers_to_bars(text):
+    '''Convert all numbers in the string into
+    ASCII art progress bars.'''
     output = ''
     args = text.split(' ')
     for arg in args:
