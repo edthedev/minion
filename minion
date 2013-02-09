@@ -5,6 +5,7 @@ Usage:
     minion count [--archives] <text> ...
     minion dates <text> ...
     minion find [--archives] [--files] <text> ...
+    minion folder <text> ... 
     minion folders 
     minion journal [--editor=<editor>] 
     minion here [--editor=<editor>] <text> ...  
@@ -31,6 +32,7 @@ Command descriptions:
     count - display a count of the results
     dates - display matching files with dates, in date order
     find - synonym for list 
+    folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
     journal - open a new or existing file named journal.<today>.txt
@@ -323,6 +325,10 @@ def choose_files(minion_options):
 #     if len(ARGS) == 0:
 #         options.directory = brain_of_minion.get_inbox()
 # options.directory = brain_of_minion.get_notes_home()
+if args['folder']:
+    # TODO: Do interactive inbox search, but for directories, notfiles
+    pass
+
 
 if args['folders']:
 
