@@ -7,13 +7,13 @@ Usage:
     minion find [--archives] [--files] <text> ...
     minion folder <text> ... 
     minion folders 
-    minion journal [--editor=<editor>] 
+    minion journal [--folder=<folder>] [--editor=<editor>] 
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
-    minion note [--editor=<editor>] <text> ...  
+    minion note [--folder=<folder>] [--editor=<editor>] <text> ...  
     minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
     minion publish [--archives] <target> <text> ...
-    minion remind [--editor=<editor>] <text> ...
+    minion remind [--folder=<folder>] [--editor=<editor>] <text> ...
     minion sample [--files] <text> ...
     minion sort [--editor=<editor>] <text> ...
     minion strays
@@ -24,6 +24,7 @@ Options:
     -a --archives           Search archive folders for matches. 
     -e --editor=<editor>    Open files with the specified editor. [default: vim]
     -f --files              Display raw file names when listing files.
+    -F --folder=<folder>    Place the new note into the given folder.
     -h --help               Show this help.
     --max=<max>             Maximum results to display. [default: 10]
     --version               Show version.
@@ -74,7 +75,6 @@ CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
 '''
 
 args = docopt(__doc__, version='1.0')
-# print args
 # print args
 
 # Interim code: Convert docopt args into options format from before.
@@ -186,6 +186,11 @@ if args['note'] or args['remind'] or args['here'] or args['journal']:
 
     if args['here']:
         notes_dir = os.curdir
+    if args['--folder']:
+        folder = \
+            os.path.expanduser(args['--folder'])
+        notes_home = brain_of_minion.get_notes_home()
+        notes_dir = os.path.join( notes_home, folder)
     
     brain_of_minion.new_note(args['<text>'], 
             quick=args['remind'],
