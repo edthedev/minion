@@ -5,10 +5,8 @@ import datetime
 import re
 import socket
 import ConfigParser
-import string
 import random
 from string import Template
-import string
 from ConfigParser import SafeConfigParser
 
 # from bottle import route, run
@@ -174,7 +172,7 @@ class WebTemplate(object):
         web_data = {}
         for key in self.Data:
             web_data[key] = self.webify(key, self.Data[key])
-        return string.Template(self.Template).substitute(web_data)
+        return Template(self.Template).substitute(web_data)
     def __iter__(self):
         return self
     def next(self):
@@ -240,7 +238,7 @@ def get_ignore_tags(worktime=False):
 def getIgnoredTags(script_name=''):
     cp = ConfigParser.ConfigParser()
 
-    settings_file = string.Template("~/.edthedev/$hostname").substitute(hostname=socket.gethostname())
+    settings_file = Template("~/.edthedev/$hostname").substitute(hostname=socket.gethostname())
     #print settings_file
     ignore = []
     settings_file = os.path.expanduser(settings_file)
@@ -1219,10 +1217,10 @@ def to_bar(number, total=10):
     FULL = '#'
     EMPTY = ' '
     for i in range(1, 10):
-        if (i * .1)<=pct_complete:
-            result+=FULL
+        if (i * .1) <= pct_complete:
+            result += FULL
         else:
-            result+=EMPTY
+            result += EMPTY
     result+= ']'
     return result
     
@@ -1232,11 +1230,11 @@ def numbers_to_bars(text):
     output = ''
     args = text.split(' ')
     for arg in args:
-        x = None
+        bit = None
         try:
-            x = int(arg)
+            bit = int(arg)
         except:
             output += arg + ' '	
-        if x != None:
-            output += to_bar(x) + ' '
+        if bit != None:
+            output += to_bar(bit) + ' '
     return output
