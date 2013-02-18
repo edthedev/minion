@@ -861,7 +861,7 @@ def remove_tags_from_file(tags, filename):
     new_filename = rename_file(orig_filename, new_filename)
     return new_filename
 
-def applyCommandToFile(filename, command):
+def apply_command_to_file(filename, command):
     '''
     The core of the interactive file sorting system.
     '''
@@ -936,7 +936,7 @@ def doInboxInteractive(item):
     display_output('Selected', item, by_tag=False)
     choice = raw_input('Action? ')
     if len(choice) > 0:
-        applyCommandToFile(item, choice)
+        apply_command_to_file(item, choice)
         if choice == 'o':
             to_open.append(item)
     return to_open

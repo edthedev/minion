@@ -3,6 +3,7 @@
 
 Usage: 
     minion count [--archives] <text> ...
+    minion command <command> <filename>
     minion dates <text> ...
     minion find [--archives] [--files] <text> ...
     minion folder <text> ... 
@@ -93,6 +94,12 @@ match_files = brain_of_minion.find_files(filter=args['<text>'],
 inbox_files = []
 
 # Display a count of the matches 
+
+if args['command'] and args['<command>'] and args['<filename>']:
+    brain_of_minion.apply_command_to_file(
+            args['<filename>'],
+            args['<command>'])
+
 if args['count']:
     search_terms = "%s: %s" % ( \
     os.path.basename(directory), ','.join(args['<text>']))
