@@ -326,13 +326,14 @@ def sampleTagged(tags):
 def remove_archives(file_list):
     return remove_notes(file_list, ['archive'])
 
-def getRemoveTags(text_string):
+def get_remove_tags(text_string):
     tag_re = re.compile("-@\w*")
     tags = tag_re.findall(text_string)
+    tags = [x.replace('-@', '@') for x in tags]
     return tags
 
 def get_tags(text_string):
-    tag_re = re.compile("@\w*")
+    tag_re = re.compile("[^-]@\w*")
     tags = tag_re.findall(text_string)
     return tags
 
@@ -887,7 +888,7 @@ def applyCommandToFile(filename, command):
     filename = add_tags_to_file(add_tags, filename)
    
     # Remove tags
-    remove_tags = getRemoveTags(command)
+    remove_tags = get_remove_tags(command)
     filename = remove_tags_from_file(remove_tags, filename)
 
     # If there's a calendar tag...move to the calendar folder.
