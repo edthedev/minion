@@ -280,6 +280,7 @@ def format_2_cols(tuple_list):
     # Build the string
     for tup in tuple_list:
         col = 0
+        line = ""
         for item in tup:
             item = str(item)
             col += 1
