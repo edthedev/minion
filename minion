@@ -2,6 +2,7 @@
 """Creates and manages a folder full of reminder files.
 
 Usage: 
+    minion collect [--archives] <year> <text> ...
     minion count [--archives] <text> ...
     minion dates <text> ...
     minion find [--archives] [--files] <text> ...
@@ -65,6 +66,8 @@ import datetime
 from docopt import docopt
 
 import brain_of_minion
+import brain_of_minion as brain
+
 from brain_of_minion import get_date_format
 import sys
 
@@ -85,11 +88,22 @@ filter = args['<text>']
 if args['<text>'] == 'all':
     args['<text>'] = None
 
+# Always collect from  archives
+# if args['collect']:
+#     args['--archives'] = True
+
 # Everything after this point requires searching for matches...
 match_files = brain_of_minion.find_files(filter=args['<text>'], 
         archives=args['--archives'])
 
 inbox_files = []
+
+YEAR = args['<year>']
+# Collect stories
+if args['collect']:
+    collected_matches = brain.limit_to_year(YEAR, match_files)
+    collection_title = 'Collected-%s-%s' % (YEAR, filter)
+    brain.display_output(collection_title, collected_matches)
 
 # Display a count of the matches 
 if args['count']:
