@@ -8,6 +8,7 @@ import ConfigParser
 import random
 from string import Template
 from ConfigParser import SafeConfigParser
+from collections import defaultdict
 
 # from bottle import route, run
 
@@ -40,6 +41,7 @@ def get_first_date(filename):
         '\d{1,2}\.\d{1,2}\.\d{2}':'%m.%d.%y',
         '\d{1,2}/\d{1,2}/\d{4}':'%m/%d/%Y',
         '\d{1,2}/\d{1,2}/\d{2}':'%m/%d/%y',
+        '\d{4}-\d{1,2}-\d{2}':'%Y-%m-%d',
 #         '\d{2}\.\d{2}':'%m.%d',
     }
 
@@ -81,6 +83,27 @@ def get_first_date(filename):
         return None
     dates.sort()
     return dates[0]
+
+def limit_to_year(year, file_list):
+    '''Return only files from the list whose first date is within
+    the specified year.
+    
+    Sorts the list by date, while at it. 
+    '''
+    results = defaultdict(list)
+    for filename in file_list:
+        first_date = get_first_date(filename)
+        if hasattr(first_date, 'year'):
+            if str(first_date.year) == str(year):
+                results[first_date].append(filename)
+    
+    # TODO: Sort the collection
+    sorted_results = []
+    for _, files in results.items():
+        for filename in files:
+            sorted_results.append(filename)
+
+    return sorted_results
 
 def get_total_file_count(include_archives = False):
     '''Return the count of the total number of files available to Minion.
