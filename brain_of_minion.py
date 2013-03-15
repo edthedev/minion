@@ -675,7 +675,7 @@ def get_settings():
 # Default settings
     settings = SafeConfigParser()
     settings.add_section('notes')
-    settings.set('notes', 'home', '~/notes')
+    settings.set('notes', 'home', '~/Dropbox/notes')
     settings.add_section('compose')
     settings.set('compose', 'template', '~/Minion/template.txt')
     settings.set('compose', 'extension', '.txt')
