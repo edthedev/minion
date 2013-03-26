@@ -1182,7 +1182,7 @@ def new_note(args, quick, editor, notes_dir=None):
         print getOutput('cal')
         topic = raw_input("Topic? ")
 
-    filename = filename_for_title(title, notes_dir)
+    filename = filename_for_title(topic, notes_dir)
 
     today = datetime.date.today()
     today = today.strftime(get_date_format())
