@@ -1167,6 +1167,19 @@ def getDateString():
 def getUpdatedString():
         return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
 
+def filename_for_title(topic, notes_dir=None):
+     # Get location for new file
+    if notes_dir is None:
+        notes_dir = get_inbox()
+    if not os.path.exists(notes_dir):
+        os.mkdir(notes_dir)
+
+    topic_filename = string_to_file_name(topic)
+
+    filename = "%s/%s" %(notes_dir, topic_filename)
+
+    return filename
+
 def new_note(args, quick, editor, notes_dir=None):
     '''Without any distractions, create a new file, from a template.
     
@@ -1187,13 +1200,6 @@ def new_note(args, quick, editor, notes_dir=None):
     f.close()
     template_text = ''.join(template_text)
 
-    # Get location for new file
-    if notes_dir is None:
-        notes_dir = get_inbox()
-
-    if not os.path.exists(notes_dir):
-        os.mkdir(notes_dir)
-
     # Create data for file
     data = {}
 
@@ -1202,16 +1208,15 @@ def new_note(args, quick, editor, notes_dir=None):
         print getOutput('cal')
         topic = raw_input("Topic? ")
 
-    topic_filename = string_to_file_name(topic)
+    filename = filename_for_title(topic, notes_dir)
 
     today = datetime.date.today()
     today = today.strftime(get_date_format())
-    filename = "%s/%s" %(notes_dir, topic_filename)
     underline = '=' * len(topic)
     summary = "%s\n%s\nCreated %s" % (topic, underline, today)
 
     data['topic'] =  topic
-    data['filename'] = topic_filename 
+    data['filename'] = filename 
     data['topic_underline'] = underline
     data['today'] = today
     data['underline'] = underline

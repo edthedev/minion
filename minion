@@ -104,8 +104,32 @@ YEAR = args['<year>']
 # Collect stories
 if args['collect']:
     collected_matches = brain.limit_to_year(YEAR, match_files)
-    collection_title = 'Collected-%s-%s' % (YEAR, filter)
+    collection_title = 'Collected-%s-%s' % (YEAR, ' '.join(filter))
+
+    print "%d/%d %s stories occur in year %s" % (
+            len(collected_matches),
+            len(match_files),
+            filter,
+            str(YEAR),
+            )
     brain.display_output(collection_title, collected_matches)
+
+    collected_string = collection_title
+    for filename in collected_matches:
+        f = open(filename, 'r')
+        lines = f.read()
+        f.close()
+        collected_string += '\n'
+        collected_string += '\n'
+        collected_string += lines
+    
+    collected_filename = brain.filename_for_title(collection_title)
+
+    f = open(collected_filename, 'a')
+    f.write(collected_string)
+    f.close()
+    brain.display_output('Created Collection', collected_filename)
+
 
 # Display a count of the matches 
 
