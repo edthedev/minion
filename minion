@@ -123,7 +123,7 @@ if args['collect']:
     
     collected_filename = brain.filename_for_title(collection_title)
 
-    f = open(collected_filename, 'a')
+    f = open(collected_filename, 'w')
     f.write(collected_string)
     f.close()
     brain.display_output('Created Collection', collected_filename)

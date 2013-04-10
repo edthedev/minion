@@ -40,7 +40,7 @@ class KivyMinion(App):
         
         search_text = str(self.controller.search_box.text)
         if len(search_text) > 1:
-            files = brain_of_minion.get_files(filter=[search_text])
+            files = brain_of_minion.find_files(filter=[search_text])
 
             for file in files:
                 result = Label(text=file)
