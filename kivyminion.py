@@ -5,6 +5,8 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.app import App
 from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.button import Button
 
 import brain_of_minion
 # TODO: Make enter key do the search.
@@ -23,7 +25,7 @@ class Controller(FloatLayout):
     search_box = ObjectProperty()
     search_results = ObjectProperty()
     search_button = ObjectProperty()
-    search_title = ObjectProperty()
+    # search_title = ObjectProperty()
     
 
 
@@ -35,16 +37,22 @@ class KivyMinion(App):
     controller = None
 
     def get_results(self):
-        debug = dir(self.controller.search_results)
-        self.controller.search_title.text = str(debug)
+        # TODO: Add a status bar...
+        # debug = dir(self.controller.search_results)
+        # self.controller.search_title.text = str(debug)
         
         search_text = str(self.controller.search_box.text)
         if len(search_text) > 1:
             files = brain_of_minion.find_files(filter=[search_text])
-
-            for file in files:
-                result = Label(text=file)
-                self.controller.search_results.add_widget(result)
+    
+            file_list = '\n'.join(files) 
+            # results = TextInput(text=file_list, multiline=True)
+            # self.controller.search_results.add_widget(results)
+            # for file in files:
+            if len(files) <= 10:
+                for file in files:
+                    result = Button(text=file)
+                    self.controller.search_results.add_widget(result)
 
     def build(self):
         self.controller = Controller(info='Hello world') 
