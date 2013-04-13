@@ -65,6 +65,8 @@ class GMinion(App):
     def build(self):
         self.controller = Controller(info='Hello world') 
         self.controller.search_button.on_press=self.get_results
+        self.controller.search_box.on_text_validate=self.get_results
+
         # self.get_results()
         return self.controller 
 
