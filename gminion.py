@@ -34,7 +34,7 @@ class Controller(FloatLayout):
 def open_file(button):
     brain_of_minion.open_file(button.text, graphical=True)
 
-class KivyMinion(App):
+class GMinion(App):
     controller = None
 
     def get_results(self):
@@ -69,4 +69,4 @@ class KivyMinion(App):
         return self.controller 
 
 if __name__ == '__main__':
-    KivyMinion().run()
+    GMinion().run()
