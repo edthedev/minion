@@ -1,5 +1,5 @@
 import kivy
-kivy.require('1.0.8')
+kivy.require('1.2.0')
 
 from kivy.uix.floatlayout import FloatLayout
 from kivy.app import App
@@ -55,9 +55,6 @@ class GMinion(App):
         # results = TextInput(text=file_list, multiline=True)
         # self.controller.search_results.add_widget(results)
         # for file in files:
-        if len(files) > 10:
-            # TODO: Warning message...
-            return
 
         # lay_o = GridLayout(
         #         cols = 1, 
@@ -65,13 +62,14 @@ class GMinion(App):
         #        )
         lay_o = BoxLayout()
         lay_o.orientation = 'vertical'
+        lay_o.size_hint_y = 2
         # scrolly = ScrollView()
         # scrolly.add_widget(lay_o)
 
         for file in files:
             result = Button(text=file)
             result.bind(on_press=open_file)
-            # result.size_hint = (1, .1)
+            result.size_hint = (1, None)
 
             lay_o.add_widget(result)
 
