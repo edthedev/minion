@@ -80,6 +80,8 @@ class GMinion(App):
         self.controller = Controller(info='Hello world') 
         self.controller.search_button.on_press=self.get_results
         self.controller.search_box.on_text_validate=self.get_results
+        self.controller.scroll_results.do_scroll_x = False
+        self.controller.scroll_results.bar_width = 20
 
         # self.get_results()
         return self.controller 

@@ -1,4 +1,4 @@
-#:kivy 1.0
+#:kivy 1.2.0
 
 <Controller>:
 
@@ -9,6 +9,7 @@
     # search_title: search_results_title
     search_button: search_button_id
     search_box: search_box_id
+	scroll_results: scroll_results_id
 
     BoxLayout:
         orientation: 'vertical'
@@ -44,6 +45,7 @@
 # This is where we will add our search results.
 		ScrollView:
             id: scroll_results_id
+			# do_scroll_y = True
 			# bar_width = 2
 
 			BoxLayout:
