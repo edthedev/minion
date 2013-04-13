@@ -60,9 +60,9 @@ class GMinion(App):
         #         cols = 1, 
         #         size_hint_y = 2,
         #        )
-        lay_o = BoxLayout()
-        lay_o.orientation = 'vertical'
-        lay_o.size_hint_y = 2
+#         lay_o = BoxLayout()
+#         lay_o.orientation = 'vertical'
+#         lay_o.size_hint_y = 2
         # scrolly = ScrollView()
         # scrolly.add_widget(lay_o)
 
@@ -71,9 +71,10 @@ class GMinion(App):
             result.bind(on_press=open_file)
             result.size_hint = (1, None)
 
-            lay_o.add_widget(result)
+ #             lay_o.add_widget(result)
+            self.controller.search_results.add_widget(result)
 
-        self.controller.search_results.add_widget(lay_o)
+#         self.controller.search_results.add_widget(lay_o)
 
     def build(self):
         self.controller = Controller(info='Hello world') 
