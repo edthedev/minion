@@ -28,6 +28,8 @@ NON_TEXT_VIEWERS= {
 
 EDITORS = NON_TEXT_VIEWERS
 EDITORS['default'] = 'vim'
+GRAPHICAL_EDITORS = EDITORS
+GRAPHICAL_EDITORS['default'] = 'gvim'
 
 def get_first_date(filename):
     '''Return the earliest date written in the file name or contents.
@@ -603,10 +605,14 @@ def isValidTag(tag):
 def get_viewer(filename):
     return get_editor(filename, view=True)
 
-def get_editor(filename, view=False):
+def get_editor(filename, multiple=False,
+        graphical = False, 
+        view=False):
     apps = EDITORS
     if view:
         apps = NON_TEXT_VIEWERS
+    if graphical:
+        apps = GRAPHICAL_EDITORS
     
     extension = os.path.splitext(filename)[1]
     extension.lower()
@@ -620,10 +626,14 @@ def get_editor(filename, view=False):
 
     return editor 
 
-def open_file(filename, line=0, multiple=False, editor=None):
+def open_file(filename, 
+        line=0, 
+        multiple = False, 
+        graphical = False):
     print "Opening %s" % filename
-    program = get_editor(filename)
-    if editor == 'vim':
+    program = get_editor(filename, 
+            multiple, graphical)
+    if program == 'vim':
         subprocess.call([editor, filename, "+%d" % (line + 2)])
     else:
         subprocess.call([program, filename])

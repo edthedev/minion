@@ -207,7 +207,7 @@ if args['publish']:
     (choice_path, filename) = brain_of_minion.select_file(match_files)
     # brain_of_minion.open_file(filename, editor = args['--editor'])
     success = brain_of_minion.publish_file(filename, 
-            editor = args['--editor'],
+#             editor = args['--editor'],
             target = args['<target>'],
         )
     if success != None:
@@ -262,13 +262,17 @@ if args['sort']:
             print "Files to open: %s" % '\n'.join(to_open)
             for item in to_open:
                 brain_of_minion.open_file(item, 
-                        multiple=True, editor=args['--editor'])
+                        multiple=True,
+                        #  editor=args['--editor']
+                        )
 
 if args['open']:
     (choice_path, filename) = \
         brain_of_minion.select_file( \
             match_files, args['--max'])
-    brain_of_minion.open_file(filename, editor = args['--editor'])
+    brain_of_minion.open_file(filename, 
+            # editor = args['--editor'])
+            )
 
     # Merge the selected files.
 #    if choice == '!merge':
