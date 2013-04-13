@@ -9,6 +9,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
+from kivy.uix.boxlayout import BoxLayout
 
 import brain_of_minion
 # TODO: Make enter key do the search.
@@ -58,17 +59,19 @@ class GMinion(App):
             # TODO: Warning message...
             return
 
-        lay_o = GridLayout(
-                cols = 1, 
-                size_hint_y = None,
-                )
-        scrolly = ScrollView()
-        scrolly.add_widget(lay_o)
+        # lay_o = GridLayout(
+        #         cols = 1, 
+        #         size_hint_y = 2,
+        #        )
+        lay_o = BoxLayout()
+        lay_o.orientation = 'vertical'
+        # scrolly = ScrollView()
+        # scrolly.add_widget(lay_o)
 
         for file in files:
             result = Button(text=file)
             result.bind(on_press=open_file)
-            result.size_hint = (1, .01)
+            # result.size_hint = (1, .1)
 
             lay_o.add_widget(result)
 
