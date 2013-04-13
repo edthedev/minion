@@ -1,5 +1,5 @@
 import kivy
-kivy.require('1.0.5')
+kivy.require('1.0.8')
 
 from kivy.uix.floatlayout import FloatLayout
 from kivy.app import App
@@ -7,6 +7,8 @@ from kivy.properties import ObjectProperty, StringProperty
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scrollview import ScrollView
 
 import brain_of_minion
 # TODO: Make enter key do the search.
@@ -56,11 +58,21 @@ class GMinion(App):
             # TODO: Warning message...
             return
 
+        lay_o = GridLayout(
+                cols = 1, 
+                size_hint_y = None,
+                )
+        scrolly = ScrollView()
+        scrolly.add_widget(lay_o)
+
         for file in files:
             result = Button(text=file)
             result.bind(on_press=open_file)
+            result.size_hint = (1, .01)
 
-            self.controller.search_results.add_widget(result)
+            lay_o.add_widget(result)
+
+        self.controller.search_results.add_widget(lay_o)
 
     def build(self):
         self.controller = Controller(info='Hello world') 
