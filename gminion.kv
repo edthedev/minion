@@ -1,4 +1,4 @@
-#:kivy 1.0
+#:kivy 1.2.0
 
 <Controller>:
 
@@ -6,9 +6,10 @@
 # Declare them here.
 	search_label: search_label_id
     search_results: search_results_id
-    search_title: search_results_title
+    # search_title: search_results_title
     search_button: search_button_id
     search_box: search_box_id
+	scroll_results: scroll_results_id
 
     BoxLayout:
         orientation: 'vertical'
@@ -28,19 +29,27 @@
                 id: search_box_id
                 text: ''
                 size_hint: (.7, 1)
+				multiline: False
 
             Button:
                 id: search_button_id
                 text: 'Search'
                 size_hint: (.1, 1)
 
-        Label:
-            id: search_results_title
-            text: 'Here are your results.'
-            size_hint: (1, .1)
+
+        #Label:
+        #    id: search_results_title
+        #    text: 'Here are your results.'
+        #    size_hint: (1, .1)
         
 # This is where we will add our search results.
-        BoxLayout:
-            orientation: 'vertical'
-            id: search_results_id
+		ScrollView:
+            id: scroll_results_id
+			# do_scroll_y = True
+			# bar_width = 2
+
+			BoxLayout:
+				id: search_results_id
+				orientation: 'vertical'
+				size_hint_y: 2
 

@@ -125,7 +125,7 @@ if args['collect']:
     
     collected_filename = brain.filename_for_title(collection_title)
 
-    f = open(collected_filename, 'a')
+    f = open(collected_filename, 'w')
     f.write(collected_string)
     f.close()
     brain.display_output('Created Collection', collected_filename)
@@ -215,7 +215,7 @@ if args['publish']:
     (choice_path, filename) = brain_of_minion.select_file(match_files)
     # brain_of_minion.open_file(filename, editor = args['--editor'])
     success = brain_of_minion.publish_file(filename, 
-            editor = args['--editor'],
+#             editor = args['--editor'],
             target = args['<target>'],
         )
     if success != None:
@@ -275,14 +275,19 @@ if args['sort']:
             print "Files to open: %s" % '\n'.join(to_open)
             for item in to_open:
                 brain_of_minion.open_file(item, 
-                        multiple=True, editor=args['--editor'])
+                        multiple=True,
+                        #  editor=args['--editor']
+                        )
 
 if args['open']:
     if len(match_files) > 0:
         (choice_path, filename) = \
                 brain_of_minion.select_file( \
                 match_files, args['--max'])
-        brain_of_minion.open_file(filename, editor = args['--editor'])
+        # brain_of_minion.open_file(filename, editor = args['--editor'])
+        brain_of_minion.open_file(filename, 
+            # editor = args['--editor'])
+            )
     else:
         brain_of_minion.display_output(title=filter, output=match_files)
 
