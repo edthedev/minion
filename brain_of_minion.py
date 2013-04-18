@@ -642,7 +642,7 @@ def open_file(filename,
     program = get_editor(filename, 
             multiple, graphical)
     if program == 'vim':
-        subprocess.call([editor, filename, "+%d" % (line + 2)])
+        subprocess.call([program, filename, "+%d" % (line + 2)])
     else:
         subprocess.call([program, filename])
         # subprocess.Popen([program, filename])
@@ -1244,7 +1244,9 @@ def new_note(args, quick, editor, notes_dir=None):
     last = len('\n'.split(file_text)) + 1
 
     if not quick:
-        open_file(filename, editor=editor, line=last)
+        open_file(filename, 
+                # editor=editor, 
+                line=last)
     print summary
 
 def to_bar(number, total=10):
