@@ -2,7 +2,7 @@
 """Creates and manages a folder full of reminder files.
 
 Usage: 
-    minion collect [--archives] <year> <text> ...
+    minion collect [--archives] [--year=<year>] <text> ...
     minion count [--archives] <text> ...
     minion command <command> <filename>
     minion dates <text> ...
@@ -12,6 +12,7 @@ Usage:
     minion journal [--folder=<folder>] [--editor=<editor>] <text> ...
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
+    minion log <text> <comment> ...
     minion note [--folder=<folder>] [--editor=<editor>] <text> ...  
     minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
     minion publish [--archives] <target> <text> ...
@@ -40,6 +41,7 @@ Command descriptions:
     here - create a note in the current working directory
     journal - open a new or existing file named journal.<today>.txt
     list - list files matching keywords
+    log - add a line with the current date and time to a file.
     merge - find and merge similar files
     note - create a new note and then open it - <text> becomes filename
     remind - create a new file where <text> becomes filename
@@ -85,6 +87,10 @@ args = docopt(__doc__, version='1.0')
 
 directory = brain_of_minion.get_notes_home()
 
+# If using Log, treat <log> as <text>
+# if args['<log>']:
+#     args['<text>'] = args['<log>']
+
 # Search terms to filter by.
 filter = args['<text>']
 if args['<text>'] == 'all':
@@ -95,14 +101,15 @@ if args['<text>'] == 'all':
 #     args['--archives'] = True
 
 # Everything after this point requires searching for matches...
+
 match_files = brain_of_minion.find_files(filter=args['<text>'], 
         archives=args['--archives'])
 
 inbox_files = []
 
-YEAR = args['<year>']
 # Collect stories
 if args['collect']:
+    YEAR = args['<year>']
     collected_matches = brain.limit_to_year(YEAR, match_files)
     collection_title = 'Collected-%s-%s' % (YEAR, ' '.join(filter))
 
@@ -220,6 +227,27 @@ if args['publish']:
         )
     if success != None:
         print "Published to " + success + "."
+
+if args['log']:
+    print match_files
+    (choice_path, filename) = brain_of_minion.select_file(match_files)
+    data = dict()
+    data.update(args)
+    data['date'] = datetime.datetime.today().strftime(get_date_format())
+    data['time'] = datetime.datetime.today().strftime("%H:%M")
+    data['<comment>'] = ' '.join(args['<comment>'])
+# TODO: select_file should probably create the file if it does not exist...
+#  This would allow merging the 'note' and 'open' commands, resulting in 
+#    less duplication with new notes, and less need to call collect.
+    # TODO: Make this fetch from config file.
+# TODO: Make match template fetch from config file too...
+    new_line_template = "\n{date} {time} : {<comment>}" 
+    new_line = new_line_template.format(**data)
+    print "Appended new line to %s" % filename
+    f = open(filename, 'a')
+    f.write(new_line)
+    f.close()
+    print new_line
 
 if args['journal']:
     today_string = datetime.datetime.today().strftime(get_date_format())
