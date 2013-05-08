@@ -113,9 +113,16 @@ def should_collect(filename):
     filename, ext = os.path.splitext(filename)
     allowed_ext = ['.txt','.rst']
     if ext in allowed_ext:
+# Hack to avoid collecting collections.
         if not 'Collected' in filename:
             return True
     return False
+
+def date_sort(filename):
+    '''Provide a date sort that puts None first.'''
+    if brain.get_first_date(filename):
+        return brain.get_first_date(filename)
+    return datetime.datetime.now()
 
 # Collect stories
 if args['collect']:
@@ -138,7 +145,10 @@ if args['collect']:
     brain.display_output(collection_title, collected_matches)
 
     collected_string = collection_title
-    for filename in collected_matches:
+
+    sorted_matches = sorted(collected_matches, key=date_sort)
+
+    for filename in sorted_matches:
 # Don't include past collections...
         if should_collect(filename):
             f = open(filename, 'r')
