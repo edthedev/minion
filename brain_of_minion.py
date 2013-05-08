@@ -57,6 +57,7 @@ def get_first_date(filename):
         f = open(filename, 'r')
         content = f.read()
         f.close()
+    content = filename + content
 
     dates = []
     for key in recognizers:
@@ -994,7 +995,7 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
     for item in dirList:
         dirName = os.path.join(directory, item)
         if os.path.isdir(dirName):
-            files.extend(find_files(dirName))
+            files.extend(find_files(dirName, archives=archives))
         else:
             if not item.endswith('~'):
                 files.append("%s/%s" % (directory, item))

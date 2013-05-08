@@ -97,7 +97,7 @@ filter = args['<text>']
 if args['<text>'] == 'all':
     args['<text>'] = None
 
-# Always collect from  archives
+# Always collect from archives
 # if args['collect']:
 #     args['--archives'] = True
 
