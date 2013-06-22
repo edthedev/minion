@@ -29,9 +29,44 @@ TERMINAL_APP = ['vim', 'cat %s | less']
 REPLACE_APP = ['cat %s | less']
 
 EDITORS = NON_TEXT_VIEWERS
-EDITORS['default'] = 'vim'
 GRAPHICAL_EDITORS = EDITORS
 GRAPHICAL_EDITORS['default'] = 'gvim'
+
+def get_setting(section, key):
+    settings = get_settings()
+
+    return settings.get(section, key)
+
+# SETTINGS_OBJ = None
+def get_settings():
+    # if SETTINGS_OBJ:
+    #    return SETTINGS_OBJ
+
+    minion_file = os.path.expanduser('~/.minion')
+
+# Default settings
+    settings = SafeConfigParser()
+    settings.add_section('notes')
+    settings.set('notes', 'home', '~/Dropbox/notes')
+    settings.add_section('compose')
+    settings.set('compose', 'template', '~/Minion/template.txt')
+    settings.set('compose', 'extension', '.txt')
+    settings.set('compose', 'editor', 'vim')
+    settings.add_section('date')
+    settings.set('date', 'format', '%%Y-%%m-%%d')
+
+# Load if available, write defaults if not.
+    if os.path.exists(minion_file):
+        settings.read([minion_file])
+    else:
+        f = open(minion_file, 'w')
+        settings.write(f)
+        f.close()
+
+    # SETTINGS_OBJ = settings
+    return settings
+
+EDITORS['default'] = get_setting('compose', 'editor')
 
 def get_first_date(filename):
     '''Return the earliest date written in the file name or contents.
@@ -693,39 +728,6 @@ def preview_file(filename):
 
 def get_date_format():
     return get_setting('date', 'format')
-
-def get_setting(section, key):
-    settings = get_settings()
-
-    return settings.get(section, key)
-
-# SETTINGS_OBJ = None
-def get_settings():
-    # if SETTINGS_OBJ:
-    #    return SETTINGS_OBJ
-
-    minion_file = os.path.expanduser('~/.minion')
-
-# Default settings
-    settings = SafeConfigParser()
-    settings.add_section('notes')
-    settings.set('notes', 'home', '~/Dropbox/notes')
-    settings.add_section('compose')
-    settings.set('compose', 'template', '~/Minion/template.txt')
-    settings.set('compose', 'extension', '.txt')
-    settings.add_section('date')
-    settings.set('date', 'format', '%%Y-%%m-%%d')
-
-# Load if available, write defaults if not.
-    if os.path.exists(minion_file):
-        settings.read([minion_file])
-    else:
-        f = open(minion_file, 'w')
-        settings.write(f)
-        f.close()
-
-    # SETTINGS_OBJ = settings
-    return settings
 
 def get_date_format():
     settings = get_settings()
