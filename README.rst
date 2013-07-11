@@ -60,6 +60,21 @@ This will search for all files with all three search terms, regardless of their 
 
 Configure your preferred editor in either your ~/.minion configuration file or your $EDITOR environment variable. You may also override your setting by calling minion with the --editor= flag. Minion will also detect some binary files and open them with an appropriate viewer on Linux, but this feature is still in Beta.
 
+To see a summary of everything you have stored in Minion folders::
+
+    minion summary
+
+    164 - someday
+    51 - journal
+    44 - wiki 
+    28 - pics 
+    23 - soon 
+    22 - teddy
+    16 - blog 
+    13 - next 
+    4 - waiting
+    4 - today
+
 This command will step you through your inbox::
 
     minion sort inbox
