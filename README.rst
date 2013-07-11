@@ -28,47 +28,58 @@ Edit your bash/zsh/sh profile to add `source ~/Minion/add_to_your_profile`.
 Usage
 -----
 
-minion --new-note Meet with Mr. Gordon.
-will create a new note file in your inbox (as set by your .minion file, or the `$NOTES_HOME` environment variable.) This file will be fetched by minion in various useful ways.
+Create a new note in your inbox folder::
+
+    minion remind Need to Meet with Mr. Gordon on Monday
+
+Your inbox folder is a subfolder of your NOTES_HOME folder, which is determined by your .minion file, or the `$NOTES_HOME` environment variable. The default value is ~/notes, but I typically change it to $NOTES_HOME to ~/Dropbox/notes, since I am a Dropbox user.
+
+Because it is inside a subfolder of the notes folder, the file you just created can now be instantly recalled by minion in various useful ways.
 
 Calling minion with a command line argument will search for that term (or terms):
 
-`minion urgent` will list anything in the notes directory (outside of the archive folders) with 'urgent' in the file name or text body.
+To list every file that mentions 'gordon'::
 
-`minion --open cave security plan`
-will search for all files with all three search terms, regardless of their order or location. If there are multiple matches, the matches will be displayed, and you will be prompted for additional search terms. Once enough terms have been added to find a unique match, the file will be opened in your preferred editor as set by your ~/.minion configuration file or your $EDITOR environment variable. You may override by calling minion with the --editor= flag. Minion has some experimental code for matching binay formats with appropriate viewers (pdf, etc), but it is not yet full featured.
+    minion list gordon
+   
+To list every file that mentions 'monday'::
 
-This command will step you through your inbox:
-minion inbox
+    minion list monday
+   
+This will list anything in the notes directory (outside of the archive folders) with 'gordon' (case insensitive) in the file name or text body.
 
-Here are some handy things you can do when stepping through results:
+To immediately open a note after creating it, use the 'note' command instead of 'remind'.::
 
-a - archive - Move the file into the 'Archive.YYYY.MM' folder.
-d - done - Move the file into the 'Archive.YYYY.MM' folder.
-r - rename - Lets you type in a new name. Renaming resets all tags, so retype any tags that you want to keep.
-v - view the file inline
->later - Move the file into a folder next to the inbox called 'later'
-@email - Add an @email tag to the file name, to assist with searching later.
-You can combine any number of tags with a single folder move, so this command is valid:
-@email @alfred >later
+    minion note cave security plan
 
-This creates a file in your notes folder.
+To open a specific file, use the 'open' command with enough keywords to uniquely match a file you have already created.::
 
-Get some things done
---------------------
-Use tags and categories as recommended in your favorite organizational book.
-I recommend symlinking ~/inbox to your actual inbox location, for those rare occassions when you need to create a file from some source other than minion.
-Anything in a title starting with @ is a tag.
-The name of a folder can act like a category.
+    minion open cave security plan
 
-Some tags or categories that might get you started on the right foot:
-@monday, @tuesday, etc.
-@today, @tomorrow
-@soon, @someday
-@alfred, @email, @calendar, @online, @quick
+This will search for all files with all three search terms, regardless of their order or location. If there are multiple matches, the matches will be displayed, and you will be prompted for additional search terms. Once enough terms have been added to find a unique match, the file will be opened in your preferred editor.
+
+Configure your preferred editor in either your ~/.minion configuration file or your $EDITOR environment variable. You may also override your setting by calling minion with the --editor= flag. Minion will also detect some binary files and open them with an appropriate viewer on Linux, but this feature is still in Beta.
+
+This command will step you through your inbox::
+
+    minion sort inbox
+
+Here are some handy things you can do when stepping through results::
+
+    a - archive - Move the file into the 'Archive.YYYY.MM' folder.
+    d - done - Move the file into the 'Archive.YYYY.MM' folder.
+    r - rename - Lets you type in a new name. Renaming resets all tags, so retype any tags that you want to keep.
+    v - view the file inline
+    >later - Move the file into a folder next to the inbox called 'later'. If the folder does not exist yet, it will be created.
+    @email - Add an @email keyword to the file name, to assist with searching later.
+    You can combine any number of additional keywords with a single folder move, so this command is valid:
+    @email @alfred >later
 
 Tips
 ----
+
+Since Minion uses the existing file system to organize your notes, it is completely compatible with other systems that do the same. Minion accepts all incoming changes, so it is perfectly acceptable to use alternate tools to move files around under Minions nose. Minion will adapt and continue to help you create and find files located under the Minion 'NOTES_HOME' directory.
+
 The file system can be a decent way to stay organized. You may decide to open your favorite file manager once in awhile to take stock or move things quickly. minion is named minion because it serves without question. It won't mind.
 
 Minion will create new folders dynamically as you work, and never loses track of anything. Experiment with your categories and tags until you find what works for you. 
