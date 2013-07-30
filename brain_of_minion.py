@@ -187,9 +187,14 @@ def select_file(match_files, max_files = 10):
         choice = raw_input('Selection? ')
         if '!' in choice:
             break    
-        choice_path += '-' + choice
         prev_matches = match_files
-        match_files = limit_notes(choice, match_files, True)
+        less_match_files = limit_notes(choice, match_files, True)
+        if len(less_match_files) == 0:
+            print "No %s %s matches." % (choice_path, choice)
+        else:
+            choice_path += '-' + choice
+            match_files = less_match_files
+
     return (choice_path, match_files[0])
 
 def publish(filename, target='?', editor='vim'):
@@ -1060,10 +1065,12 @@ def string_to_file_name(text, ext=None):
 def get_unique_name(filename):
     final_name = filename
     while os.path.exists(final_name):
+        directory, short_name = os.path.split(final_name)
         import uuid
         uid = str(uuid.uuid1())
-        final_name = final_name.replace('.', \
+        short_name = short_name.replace('.', \
                 '.' + uid + '.', 1)
+        final_name = os.path.join(directory, short_name)
     return final_name
 
 def rename_file(filename, new_name):
