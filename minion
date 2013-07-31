@@ -261,7 +261,17 @@ if args['log']:
     match_files = brain_of_minion.find_files(filter=args['<log>'], 
         archives=args['--archives'])
 
-    print match_files
+    import ipdb
+    with ipdb.launch_ipdb_on_exception():
+
+    # from IPython import embed; embed()
+    #  import pdb; pdb.set_trace()
+    # import ipdb
+    # ipdb.set_trace()
+
+    # print match_files
+        raise Exception('Testing break!')  
+
     (choice_path, filename) = brain_of_minion.select_file(match_files)
     data = dict()
     data.update(args)
