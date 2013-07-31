@@ -12,7 +12,7 @@ Usage:
     minion journal [--folder=<folder>] [--editor=<editor>] <text> ...
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
-    minion log <text> <comment> ...
+    minion log <log> <comment> ...
     minion note [--folder=<folder>] [--editor=<editor>] <text> ...  
     minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
     minion publish [--archives] <target> <text> ...
@@ -257,6 +257,10 @@ if args['publish']:
         print "Published to " + success + "."
 
 if args['log']:
+
+    match_files = brain_of_minion.find_files(filter=args['<log>'], 
+        archives=args['--archives'])
+
     print match_files
     (choice_path, filename) = brain_of_minion.select_file(match_files)
     data = dict()
@@ -271,7 +275,11 @@ if args['log']:
 # TODO: Make match template fetch from config file too...
     new_line_template = "\n{date} {time} : {<comment>}" 
     new_line = new_line_template.format(**data)
-    print "Appended new line to %s" % filename
+
+    if filename == '':
+        filename = brain_of_minion.filename_for_title(args['<selection>'])
+
+    print "Appending new line to %s" % filename
     f = open(filename, 'a')
     f.write(new_line)
     f.close()
