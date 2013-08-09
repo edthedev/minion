@@ -158,7 +158,7 @@ if args['collect']:
             collected_string += '\n'
             collected_string += lines
     
-    collected_filename = brain.filename_for_title(collection_title)
+    collected_filename = brain.get_filename_for_title(collection_title)
 
     f = open(collected_filename, 'w')
     f.write(collected_string)
@@ -255,45 +255,6 @@ if args['publish']:
         )
     if success != None:
         print "Published to " + success + "."
-
-if args['log']:
-
-    match_files = brain_of_minion.find_files(filter=args['<log>'], 
-        archives=args['--archives'])
-
-    import ipdb
-    with ipdb.launch_ipdb_on_exception():
-
-    # from IPython import embed; embed()
-    #  import pdb; pdb.set_trace()
-    # import ipdb
-    # ipdb.set_trace()
-
-    # print match_files
-        raise Exception('Testing break!')  
-
-    (choice_path, filename) = brain_of_minion.select_file(match_files)
-    data = dict()
-    data.update(args)
-    data['date'] = datetime.datetime.today().strftime(get_date_format())
-    data['time'] = datetime.datetime.today().strftime("%H:%M")
-    data['<comment>'] = ' '.join(args['<comment>'])
-# TODO: select_file should probably create the file if it does not exist...
-#  This would allow merging the 'note' and 'open' commands, resulting in 
-#    less duplication with new notes, and less need to call collect.
-    # TODO: Make this fetch from config file.
-# TODO: Make match template fetch from config file too...
-    new_line_template = "\n{date} {time} : {<comment>}" 
-    new_line = new_line_template.format(**data)
-
-    if filename == '':
-        filename = brain_of_minion.filename_for_title(args['<selection>'])
-
-    print "Appending new line to %s" % filename
-    f = open(filename, 'a')
-    f.write(new_line)
-    f.close()
-    print new_line
 
 if args['journal']:
     today_string = datetime.datetime.today().strftime(get_date_format())
@@ -531,3 +492,46 @@ if args['tags']:
 #        print brain_of_minion.to_bar(count, total)
 #        files_to_open = brain_of_minion.doInboxInteractive(item)
 #
+
+def log(args):
+    # match_files = brain_of_minion.find_files(filter=args['<log>'], 
+    #     archives=args['--archives'])
+    filename = brain_of_minion.get_filename_for_title(args['<log>'])
+
+    # if filename == '':
+    #     filename = brain_of_minion.get_filename_for_title(args['<selection>'])
+
+    # from IPython import embed; embed()
+    #  import pdb; pdb.set_trace()
+    # import ipdb
+    # ipdb.set_trace()
+
+    # print match_files
+
+    # (choice_path, filename) = brain_of_minion.select_file(match_files)
+    data = dict()
+    data.update(args)
+    data['date'] = datetime.datetime.today().strftime(get_date_format())
+    data['time'] = datetime.datetime.today().strftime("%H:%M")
+    data['<comment>'] = ' '.join(args['<comment>'])
+# TODO: select_file should probably create the file if it does not exist...
+#  This would allow merging the 'note' and 'open' commands, resulting in 
+#    less duplication with new notes, and less need to call collect.
+    # TODO: Make this fetch from config file.
+# TODO: Make match template fetch from config file too...
+    new_line_template = "\n{date} {time} : {<comment>}" 
+    new_line = new_line_template.format(**data)
+
+    print "Appending new line to %s" % filename
+    f = open(filename, 'a')
+    f.write(new_line)
+    f.close()
+    print new_line
+
+if __name__ == '__main__':
+# Run any method named in the keyword args.
+    methods = ['log']
+    for method in methods:
+        if args[method]:
+            locals()[method](args)
+

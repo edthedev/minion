@@ -1187,7 +1187,7 @@ def getDateString():
 def getUpdatedString():
         return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
 
-def filename_for_title(topic, notes_dir=None):
+def get_filename_for_title(topic, notes_dir=None):
      # Get location for new file
     if notes_dir is None:
         notes_dir = get_inbox()
@@ -1228,7 +1228,7 @@ def new_note(args, quick, editor, notes_dir=None):
         print getOutput('cal')
         topic = raw_input("Topic? ")
 
-    filename = filename_for_title(topic, notes_dir)
+    filename = get_filename_for_title(topic, notes_dir)
 
     today = datetime.date.today()
     today = today.strftime(get_date_format())
