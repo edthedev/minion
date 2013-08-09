@@ -494,19 +494,15 @@ if args['tags']:
 #
 
 def log(args):
-    # match_files = brain_of_minion.find_files(filter=args['<log>'], 
-    #     archives=args['--archives'])
-    filename = brain_of_minion.get_filename_for_title(args['<log>'])
+    '''Add a quick additional line to an existing (or new) Minion file.'''
+    filename = ''
+    match_files = brain_of_minion.find_files(filter=args['<log>'], archives=args['--archives'])
+    if len(match_files) == 1:
+        filename = match_files[0]
+    else:
+        filename = brain_of_minion.get_filename_for_title(args['<log>'])
 
-    # if filename == '':
-    #     filename = brain_of_minion.get_filename_for_title(args['<selection>'])
-
-    # from IPython import embed; embed()
-    #  import pdb; pdb.set_trace()
-    # import ipdb
-    # ipdb.set_trace()
-
-    # print match_files
+    # import ipdb; ipdb.set_trace()
 
     # (choice_path, filename) = brain_of_minion.select_file(match_files)
     data = dict()
