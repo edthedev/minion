@@ -452,7 +452,7 @@ def sort_by_tag(file_list):
         #for key in tagged_dict:
                 #length_by_key[key] = len(tagged_dict[key])
 
-def display_output(title, output, by_tag=True, raw_files=False):
+def display_output(title, output, by_tag=False, raw_files=False, max_display=None):
     separator = '\n'
 
     # If empty list or empty string, etc:
@@ -475,7 +475,13 @@ def display_output(title, output, by_tag=True, raw_files=False):
         output = separator.join(output_lines)
 
     # Print lists with one item per line 
+
     if type(output) is list:
+        if max_display:
+            remain = len(output) - max_display
+            output =  output[:max_display]
+            output.append("{} more results...".format(remain))
+
         if by_tag:
             all_tags = sort_by_tag(output)
             output = ''
