@@ -102,7 +102,7 @@ if args['<text>'] == 'all':
 #     args['--archives'] = True
 
 # Everything after this point requires searching for matches...
-
+# import pdb; pdb.set_trace()
 match_files = brain_of_minion.find_files(filter=args['<text>'], 
         archives=args['--archives'])
 
@@ -314,18 +314,6 @@ if args['sort']:
                         #  editor=args['--editor']
                         )
 
-if args['open']:
-    if len(match_files) > 0:
-        (choice_path, filename) = \
-                brain_of_minion.select_file( \
-                match_files, args['--max'])
-        # brain_of_minion.open_file(filename, editor = args['--editor'])
-        brain_of_minion.open_file(filename, 
-            # editor = args['--editor'])
-            )
-    else:
-        brain_of_minion.display_output(title=filter, output=match_files)
-
     # Merge the selected files.
 #    if choice == '!merge':
 #        trash_dir = os.path.expanduser("~/.trash")
@@ -493,7 +481,23 @@ if args['tags']:
 #        files_to_open = brain_of_minion.doInboxInteractive(item)
 #
 
-def log(args):
+def minion_open(args):
+
+    match_files = brain_of_minion.find_files(filter=args['<text>'], 
+        archives=args['--archives'])
+
+    if len(match_files) > 0:
+        (choice_path, filename) = \
+                brain_of_minion.select_file( \
+                match_files, args['--max'])
+        # brain_of_minion.open_file(filename, editor = args['--editor'])
+        brain_of_minion.open_file(filename, 
+            # editor = args['--editor'])
+            )
+    else:
+        brain_of_minion.display_output(title=filter, output=match_files)
+
+def minion_log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
     filename = ''
     match_files = brain_of_minion.find_files(filter=[args['<log>']], 
@@ -533,7 +537,7 @@ def log(args):
 
 if __name__ == '__main__':
 # Run any method named in the keyword args.
-    methods = ['log']
+    methods = ['open', 'log']
     for method in methods:
         if args[method]:
-            locals()[method](args)
+            locals()['minion_' + method](args)
