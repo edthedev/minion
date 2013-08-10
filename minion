@@ -496,12 +496,13 @@ if args['tags']:
 def log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
     filename = ''
-    match_files = brain_of_minion.find_files(filter=args['<log>'], 
+    match_files = brain_of_minion.find_files(filter=[args['<log>']], 
             archives=args['--archives'])
     if len(match_files) > 1:
         title = ("Too many matches for log "
         "function with keyword '{}'").format(args['<log>'])
         brain_of_minion.display_output(title, match_files, max_display=10)
+        return False
     elif len(match_files) == 1:
         filename = match_files[0]
     else:
