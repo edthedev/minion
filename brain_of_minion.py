@@ -609,7 +609,7 @@ def limit_notes(choice, notes, full=False):
             if 'swp' not in note:
                 new_array.append(note)
         else:
-            if full or isProject(low_note):
+            if full:
                 content = ''
                 try:
                     f = open(note, 'r')
@@ -1008,7 +1008,8 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
     for item in dirList:
         dirName = os.path.join(directory, item)
         if os.path.isdir(dirName):
-            files.extend(find_files(dirName, archives=archives))
+            files.extend(find_files(dirName, 
+                archives=archives, full_text=full_text))
         else:
             if not item.endswith('~'):
                 files.append("%s/%s" % (directory, item))
