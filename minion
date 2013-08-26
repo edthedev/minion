@@ -266,8 +266,16 @@ if args['journal']:
     today_string = datetime.datetime.today().strftime(get_date_format())
     args['<text>'] = ['Journal ' + today_string] + args['<text>']
 
+def remind():
+    '''Set a quick reminder.'''
+    notes_dir = None
+    brain_of_minion.new_note(args['<text>'], 
+            quick=args['remind'],
+            editor=args['--editor'], 
+            notes_dir=notes_dir)
+
 # note and remind verbs
-if args['note'] or args['remind'] or args['here'] or args['journal']:
+if args['note'] or args['here'] or args['journal']:
     notes_dir = None
 
     if args['here']:
@@ -282,7 +290,7 @@ if args['note'] or args['remind'] or args['here'] or args['journal']:
             quick=args['remind'],
             editor=args['--editor'], 
             notes_dir=notes_dir)
-    sys.exit(0)
+#     sys.exit(0)
 
 # List just a sample of the matches 
 if args['sample']:
@@ -548,6 +556,12 @@ def minion_log(args):
 if __name__ == '__main__':
 # Run any method named in the keyword args.
     methods = ['open', 'log']
-    for method in methods:
-        if args[method]:
-            locals()['minion_' + method](args)
+# Cool hack: use DocOpt args to call methods in this file.
+#      Note that this only avails those methods whose name matches a
+#      documented arg.
+    for method in dir():
+        if hasattr(method, '__call__'):
+            if args[method]:
+                locals()['minion_' + method](args)
+
+sys.exit(0)
