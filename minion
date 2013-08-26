@@ -262,35 +262,50 @@ if args['publish']:
     if success != None:
         print "Published to " + success + "."
 
-if args['journal']:
+
+def minion_journal(args):
+    '''Start a journal article, which always includes the current date
+    in the filename.'''
+    notes_dir = get_notes_dir(args)
     today_string = datetime.datetime.today().strftime(get_date_format())
     args['<text>'] = ['Journal ' + today_string] + args['<text>']
-
-def remind():
-    '''Set a quick reminder.'''
-    notes_dir = None
     brain_of_minion.new_note(args['<text>'], 
             quick=args['remind'],
             editor=args['--editor'], 
             notes_dir=notes_dir)
 
-# note and remind verbs
-if args['note'] or args['here'] or args['journal']:
-    notes_dir = None
+def minion_remind(args):
+    '''Set a quick reminder.'''
+    notes_dir = get_notes_dir(args)
+    brain_of_minion.new_note(args['<text>'], 
+            quick=args['remind'],
+            editor=args['--editor'], 
+            notes_dir=notes_dir)
 
-    if args['here']:
-        notes_dir = os.curdir
+def get_notes_dir(args):
+    notes_dir = None
     if args['--folder']:
         folder = \
             os.path.expanduser(args['--folder'])
         notes_home = brain_of_minion.get_notes_home()
         notes_dir = os.path.join( notes_home, folder)
-    
+    return notes_dir
+
+def minion_here(args):
+    '''Create a Minion style now in the current working directory.'''
+    notes_dir = os.curdir
     brain_of_minion.new_note(args['<text>'], 
             quick=args['remind'],
             editor=args['--editor'], 
             notes_dir=notes_dir)
-#     sys.exit(0)
+
+def minion_note(args):
+    '''Create a Minion note.'''
+    notes_dir = get_notes_dir(args)
+    brain_of_minion.new_note(args['<text>'], 
+            quick=args['remind'],
+            editor=args['--editor'], 
+            notes_dir=notes_dir)
 
 # List just a sample of the matches 
 if args['sample']:
@@ -553,15 +568,18 @@ def minion_log(args):
     f.close()
     print new_line
 
+# Run all the things!!!!
 if __name__ == '__main__':
 # Run any method named in the keyword args.
-    methods = ['open', 'log']
 # Cool hack: use DocOpt args to call methods in this file.
 #      Note that this only avails those methods whose name matches a
 #      documented arg.
     for method in dir():
-        if hasattr(method, '__call__'):
-            if args[method]:
-                locals()['minion_' + method](args)
+        argname = method.replace('minion_', '')
+        if (argname in args) and args[argname]:
+            print "ARGNAME" + argname
+            if hasattr(locals()[method], '__call__'):
+                print "Running {}".format(method)
+                locals()[method](args)
 
 sys.exit(0)
