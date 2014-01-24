@@ -49,7 +49,8 @@ def get_settings():
     settings.add_section('notes')
     settings.set('notes', 'home', '~/Dropbox/notes')
     settings.add_section('compose')
-    settings.set('compose', 'template', '~/Minion/template.txt')
+    default_template = os.path.join(os.path.dirname(__file__), 'template.txt')
+    settings.set('compose', 'template', default_template)
     settings.set('compose', 'extension', '.txt')
     settings.set('compose', 'editor', 'vim')
     settings.add_section('date')
@@ -912,6 +913,10 @@ def remove_tags_from_file(tags, filename):
         print "Removed tags: %s" % tags
     new_filename = rename_file(orig_filename, new_filename)
     return new_filename
+
+
+def archive(filename):
+    raise Exception("TODO! Unpack arvhice logic.")
 
 def apply_command_to_file(filename, command):
     '''
