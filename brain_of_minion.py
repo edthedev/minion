@@ -796,14 +796,12 @@ def chooseBox(choice):
 def get_folder(folder):
     '''Return a full path, relative to the notes home.
     '''
-    # if os.path.exists(folder):
-    #     return folder
 
     # Convert 'archive' to 'archive.2012.08'
     if folder == 'archive':
         year_month = datetime.datetime.today().strftime("%y.%m")
         folder = "archive.%s" % (year_month)
-        
+
     notes_home = get_notes_home()
     directory = os.path.join(notes_home, folder)
 
@@ -916,7 +914,11 @@ def remove_tags_from_file(tags, filename):
 
 
 def archive(filename):
-    raise Exception("TODO! Unpack arvhice logic.")
+    ''' Move the selected file into an archive folder. '''
+# get_folder does some cleverness with the 'archive' name.
+    folder = get_folder('archive')
+    filename = move_to_folder(filename, folder)
+    # print "Moved to %s" % folder
 
 def apply_command_to_file(filename, command):
     '''
@@ -956,7 +958,6 @@ def apply_command_to_file(filename, command):
         folder_re = re.compile('>\S*')
         folders = folder_re.findall(command)
         if len(folders) > 0:
-                #print folders
             folder = folders[0]
             folder = folder.replace('>', '')
             folder = os.path.expanduser(folder)
