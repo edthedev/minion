@@ -769,6 +769,11 @@ def get_inbox():
         os.mkdir(inbox)
     return inbox
 
+def get_inbox_files():
+    ''' Get all inbox files. '''
+    match_files = find_files(filter=['inbox'], archives=False)
+    return match_files
+
 def chooseBox(choice):
     boxes = getBoxes()
     selected = []
