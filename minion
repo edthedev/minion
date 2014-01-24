@@ -579,7 +579,7 @@ if __name__ == '__main__':
     for method in dir():
         argname = method.replace('minion_', '')
         if (argname in args) and args[argname]:
-            print "ARGNAME" + argname
+            # print "ARGNAME" + argname
             if hasattr(locals()[method], '__call__'):
                 print "Running {}".format(method)
                 locals()[method](args)

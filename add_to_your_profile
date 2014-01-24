@@ -10,12 +10,9 @@
 # Org(anizer) scripts allow you to set reminders, sort them, and see summaries of them.
 # --------------------------------------------------------------------------------
 # Variables for convenience. 
-export MINION_INSTALL=$HOME/Minion
-export NOTES_HOME=$HOME/Dropbox/notes
+export MINION_INSTALL=$HOME/.vim/bundle/Minion/
+export NOTES_HOME=$HOME/Copy/notes
 export INBOX=$NOTES_HOME/inbox
-
-# The location you installed the edthedev package to.
-# export PYTHONPATH=$HOME/edthedev:$PYTHONPATH
 
 # Include the scripts on your path.
 if [ -d "$MINION_INSTALL" ] ; then
