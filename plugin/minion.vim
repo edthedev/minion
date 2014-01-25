@@ -80,12 +80,14 @@ sys.path.insert(0, lib_path)
 import vim
 import brain_of_minion as brain
 
-current_file = vim.eval("s:current_file")
-current_command = vim.eval("a:command")
-# TODO: Debug this call...
-brain.apply_command_to_file(current_command, current_file)
+args = {
+	'command':vim.eval("a:command"),
+	'filename':vim.eval("s:current_file"),
+}
+brain.apply_command_to_file(**args)
 
 EOF
+bd
 endfunction
 
 " ================
