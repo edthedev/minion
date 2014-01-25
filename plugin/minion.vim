@@ -70,7 +70,7 @@ endfunction
 
 " Sort the current file into a folder.
 " -------------------------------------
-function! MinionSort(command)
+function! MinionMove(folder)
 	let s:current_file = expand('%')
 python << EOF
 import sys
@@ -84,10 +84,10 @@ import vim
 import brain_of_minion as brain
 
 args = {
-	'command':vim.eval("a:command"),
+	'folder':vim.eval("a:folder"),
 	'filename':vim.eval("s:current_file"),
 }
-brain.apply_command_to_file(**args)
+brain.move_to_folder(**args)
 
 EOF
 bd
@@ -99,8 +99,7 @@ endfunction
 
 command! -nargs=0 MinionInbox call MinionInbox()
 command! -nargs=0 MinionArchive call MinionArchive()
-" TODO: Shorthand for Minion Sort...?
-" command! -nargs=1 MinionArchive call MinionSort(foo?)
+command! -nargs=1 MinionMove call MinionMove(<f-args>)
 
 " ==========================
 " Minion Keyboard Shortcuts
@@ -112,10 +111,8 @@ command! -nargs=0 MinionArchive call MinionArchive()
 " Open all items in the Minion Inbox
 :map <Leader>mi :MinionInbox<Cr>
 
-" Apply a sort command to the current file.
-" Allows arbitrary text to allow for folder names...
-:map <Leader>ms :MinionSort
-
+" Move the current file...
+:map <Leader>mm :MinionMove 
 
 " Organizer help
 :map <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$

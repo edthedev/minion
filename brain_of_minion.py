@@ -1102,6 +1102,7 @@ def rename_file(filename, new_name):
     return new_file
 
 def move_to_folder(filename, folder):
+    ''' Move the file to a difference folder. '''
     try:
         destination = get_folder(folder)
         print "Moving to " + destination
@@ -1307,3 +1308,4 @@ def numbers_to_bars(text):
         if bit != None:
             output += to_bar(bit) + ' '
     return output
+
