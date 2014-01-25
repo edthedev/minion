@@ -17,18 +17,21 @@ let s:path = expand('<sfile>:p:h')
 
 " " Open all Inbox files in buffers.
 " -----------------------------------
+
 function! MinionInbox()
 python << EOF
+
 import sys
 import os
 script_path = vim.eval('s:path')
 lib_path = os.path.join(script_path, '..')
-print lib_path 
 sys.path.insert(0, lib_path)
 
 import vim
 import brain_of_minion as brain
 match_files = brain.get_inbox_files()
+if not match_files:
+	vim.command('echom "Clean Inbox!"')
 for item in match_files:
 	# Add everything to buffers.
 	vim.command("badd %(item)s" % {'item':item})
