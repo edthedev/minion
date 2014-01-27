@@ -179,35 +179,43 @@ command! -nargs=0 MinionSummary call MinionSummary()
 " mappings.
 " http://getpocket.com/a/read/102013317 - search yourplugin_map_keys
 "
-" Display a summary of Minion managed folders.
-:map <Leader>ms :MinionSummary<Cr>
 
-" Create a new item in the Inbox, and open it immediately.
-" TODO:
+if !exists('g:minion_map_keys')
+	let g:minion_map_keys = 1
+endif
 
+if g:minion_map_keys
+	nnoremap <leader>d :call <sid>minionDelete()<CR>
 
-" Open files from a Minion sub-folder.
-:map <leader>mo :MinionOpen 
+	" Display a summary of Minion managed folders.
+	:nnoremap <Leader>ms :MinionSummary<Cr>
 
-" Open all items in the Minion Inbox
-:map <Leader>mi :MinionOpen inbox<Cr>
-
-" Archive the current file and close it.
-:map <Leader>ma :MinionArchive<Cr>
-
-" Move the current file to a new folder.
-:map <Leader>mm :MinionMove 
-
-" Rename the current file in place.
-:map <leader>mr :MinionRename
+	" Create a new item in the Inbox, and open it immediately.
+	" TODO:
 
 
-" Organizer help
-" ":map <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$
+	" Open files from a Minion sub-folder.
+	:nnoremap <leader>mo :MinionOpen 
 
-" New Note
-" :map <Leader>mn :!~/.vim/bundle/Minion/bin/minion --new-note
+	" Open all items in the Minion Inbox
+	:nnoremap <Leader>mi :MinionOpen inbox<Cr>
 
-" Review this file
-" ":map <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>
+	" Archive the current file and close it.
+	:nnoremap <Leader>ma :MinionArchive<Cr>
 
+	" Move the current file to a new folder.
+	:nnoremap <Leader>mm :MinionMove 
+
+	" Rename the current file in place.
+	:nnoremap <leader>mr :MinionRename
+
+
+	" Organizer help
+	" ":nnoremap <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$
+
+	" New Note
+	" :nnoremap <Leader>mn :!~/.vim/bundle/Minion/bin/minion --new-note
+
+	" Review this file
+	" ":nnoremap <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>
+endif
