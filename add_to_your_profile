@@ -10,7 +10,7 @@
 # Org(anizer) scripts allow you to set reminders, sort them, and see summaries of them.
 # --------------------------------------------------------------------------------
 # Variables for convenience. 
-export MINION_INSTALL=$HOME/.vim/bundle/Minion/
+export MINION_INSTALL=$HOME/.vim/bundle/minion
 export NOTES_HOME=$HOME/Copy/notes
 export INBOX=$NOTES_HOME/inbox
 
