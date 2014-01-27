@@ -1309,3 +1309,48 @@ def numbers_to_bars(text):
             output += to_bar(bit) + ' '
     return output
 
+
+def format_2_cols(tuple_list):
+    SEPARATOR = " - "
+    PADDING = ' '
+    output = []
+
+    col_max = {}
+    
+    # Find longest column members
+    for tup in tuple_list:
+        line = ""
+        col = 0
+        for item in tup:
+            item = str(item)
+            col += 1
+            if not item in col_max:
+                col_max[col] = 0
+            if len(item) > col_max[col]:
+                col_max[col] = len(item)
+
+    # Build the string
+    for tup in tuple_list:
+        col = 0
+        line = ""
+        for item in tup:
+            item = str(item)
+            col += 1
+
+            # Separator when needed.
+            if len(line) != 0:
+                line += SEPARATOR
+
+            # Padded line item.
+            while len(item) < col_max[col]:
+                item += PADDING 
+            line += item 
+        output.append(line)
+    output = '\n'.join(output)
+    return output
+
+def folder_summary(archives = False, limit = 10):
+    summary = get_folder_summary(archives)
+    summary = summary[:limit]
+    output = format_2_cols(summary)
+    return output

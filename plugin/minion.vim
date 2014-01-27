@@ -93,6 +93,27 @@ EOF
 bd
 endfunction
 
+
+" Output a summary of Minion folders.
+" -------------------------------------
+function! MinionSummary()
+	let s:current_file = expand('%')
+python << EOF
+import sys
+import os
+script_path = vim.eval('s:path')
+lib_path = os.path.join(script_path, '..')
+print lib_path 
+sys.path.insert(0, lib_path)
+
+import vim
+import brain_of_minion as brain
+
+print brain.folder_summary()
+EOF
+bd
+endfunction
+
 " ================
 " Minion Commands
 " ================
@@ -100,19 +121,29 @@ endfunction
 command! -nargs=0 MinionInbox call MinionInbox()
 command! -nargs=0 MinionArchive call MinionArchive()
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
+command! -nargs=0 MinionSummary call MinionSummary()
 
 " ==========================
 " Minion Keyboard Shortcuts
 " ==========================
 
-" Archive the current file and close it.
-:map <Leader>ma :MinionArchive<Cr>
+" Display a summary of Minion managed folders.
+:map <Leader>ms :MinionSummary<Cr>
+
+" Create a new item in the Inbox, and open it immediately.
+" TODO:
 
 " Open all items in the Minion Inbox
 :map <Leader>mi :MinionInbox<Cr>
 
+" Archive the current file and close it.
+:map <Leader>ma :MinionArchive<Cr>
+
 " Move the current file...
 :map <Leader>mm :MinionMove 
+
+
+
 
 " Organizer help
 :map <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$
