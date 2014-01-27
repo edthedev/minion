@@ -117,18 +117,18 @@ EOF
 bd
 endfunction
 
-function! MinionHelp()
-python << EOF
-import sys
-import os
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-sys.path.insert(0, lib_path)
-
-e eval('s:path')/help.txt
-EOF
-endfunction
-
+"function! MinionHelp()
+"python << EOF
+"import sys
+"import os
+"script_path = vim.eval('s:path')
+"lib_path = os.path.join(script_path, '..')
+"sys.path.insert(0, lib_path)
+"
+"e eval('s:path')/help.txt
+"EOF
+"endfunction
+"
 
 " Rename the current file.
 " -------------------------------------
@@ -168,8 +168,8 @@ endfunction
 " ================
 
 command! -nargs=0 MinionArchive call MinionArchive()
-command! -nargs=0 MinionHelp call MinionHelp()
-" command! -nargs=0 MinionInbox call MinionInbox('inbox')
+" command! -nargs=0 MinionHelp call MinionHelp()
+command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
 command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
 command! -nargs=1 MinionRename call MinionRename(<f-args>)
@@ -202,9 +202,10 @@ command! -nargs=0 MinionSummary call MinionSummary()
 " Archive the current file and close it.
 :map <Leader>ma :MinionArchive<Cr>
 
-" Move the current file...
+" Move the current file to a new folder.
 :map <Leader>mm :MinionMove 
 
+" Rename the current file in place.
 :map <leader>mr :MinionRename
 
 
