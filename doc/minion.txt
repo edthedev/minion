@@ -1,7 +1,36 @@
 *minion.txt* You create content. Minion stores, finds and sorts it.
 
-Mappings:
+Default Mappings:
 	<Leader>ma Archive the current file.
 
 Commands:
+	MinionArchive 
+		Archive the file of the current buffer.
+		Moves the file to folder called archives.YYYY.MM
 
+	MinionHelp 
+		Display this file.
+
+	MinionInbox 
+		Open all files in the INBOX in buffers.
+
+	MinionMove <foldername>
+		Moves the file of the current buffer to a different Minion folder.
+
+	MinionOpen <keywords>
+		Open all files matching keywords in buffers.
+
+	MinionRename <sentence>
+		Rename the current file based on the given sentence.
+		Spaces are replaced with dashes.
+		The default text extension is added.
+
+	MinionSummary 
+		Display counts of files in the ten minion folders 
+		containing the most files.
+
+Configuration:
+
+	~/.minion
+
+		Contains settings to configure Minion.

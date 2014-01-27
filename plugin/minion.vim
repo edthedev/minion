@@ -117,18 +117,10 @@ EOF
 bd
 endfunction
 
-"function! MinionHelp()
-"python << EOF
-"import sys
-"import os
-"script_path = vim.eval('s:path')
-"lib_path = os.path.join(script_path, '..')
-"sys.path.insert(0, lib_path)
-"
-"e eval('s:path')/help.txt
-"EOF
-"endfunction
-"
+function! MinionHelp()
+	help minion.txt
+endfunction
+
 
 " Rename the current file.
 " -------------------------------------
@@ -168,7 +160,7 @@ endfunction
 " ================
 
 command! -nargs=0 MinionArchive call MinionArchive()
-" command! -nargs=0 MinionHelp call MinionHelp()
+command! -nargs=0 MinionHelp call MinionHelp()
 command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
 command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
