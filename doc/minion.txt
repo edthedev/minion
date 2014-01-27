@@ -1,0 +1,7 @@
+*minion.txt* You create content. Minion stores, finds and sorts it.
+
+Mappings:
+	<Leader>ma Archive the current file.
+
+Commands:
+

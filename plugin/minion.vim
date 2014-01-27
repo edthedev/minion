@@ -114,18 +114,35 @@ EOF
 bd
 endfunction
 
+function! MinionHelp()
+python << EOF
+import sys
+import os
+script_path = vim.eval('s:path')
+lib_path = os.path.join(script_path, '..')
+sys.path.insert(0, lib_path)
+
+e eval('s:path')/help.txt
+EOF
+endfunction
+
 " ================
 " Minion Commands
 " ================
 
-command! -nargs=0 MinionInbox call MinionInbox()
 command! -nargs=0 MinionArchive call MinionArchive()
+command! -nargs=0 MinionHelp call MinionHelp()
+command! -nargs=0 MinionInbox call MinionInbox()
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
 command! -nargs=0 MinionSummary call MinionSummary()
 
 " ==========================
 " Minion Keyboard Shortcuts
 " ==========================
+
+" Get some help.
+
+:map <Leader>mh :MinionHelp<Cr>
 
 " Display a summary of Minion managed folders.
 :map <Leader>ms :MinionSummary<Cr>
@@ -146,11 +163,11 @@ command! -nargs=0 MinionSummary call MinionSummary()
 
 
 " Organizer help
-:map <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$
+" ":map <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$
 
 " New Note
-:map <Leader>mn :!~/.vim/bundle/Minion/bin/minion --new-note
+" :map <Leader>mn :!~/.vim/bundle/Minion/bin/minion --new-note
 
 " Review this file
-:map <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>
+" ":map <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>
 
