@@ -1,28 +1,5 @@
 *minion.txt* You create content. Minion stores, finds and sorts it.
 
-Default Mappings:
-
-	To disable minion default keyboard mappings:
-
-		let g:minion_map_keys = 0
-
-
-	<Leader>ma - *Archive* the current file and close it.
-
-	<Leader>mh - Display this *help* file.
-
-	<Leader>mi - Open all items in the Minion *inbox*.
-
-	<Leader>mm - *Move* the current file to a new folder.
-
-	Coming soon: <Leader>mn - Create a *new* file in the inbox.
-
-	<leader>mo - *Open* files from a Minion sub-folder.
-
-	<leader>mr - *Rename* the current file in place.
-
-	<leader>ms - Display a *summary* of minion managed folders.
-
 Commands:
 
 	MinionArchive 
@@ -57,3 +34,26 @@ Configuration:
 	~/.minion
 
 		Contains settings to configure Minion.
+
+Default Keyboard Mappings:
+
+	To disable minion default keyboard mappings:
+
+		let g:minion_map_keys = 0
+
+	<Leader>ma - MinionArchive
+
+	<Leader>mh - MinionHelp
+
+	<Leader>mi - MinionInbox
+
+	<Leader>mm - MinionMove
+
+	Coming soon: <Leader>mn - MinionNew
+
+	<leader>mo - MinionOpen
+
+	<leader>mr - MinionRename
+
+	<leader>ms - MinionSummary
+
