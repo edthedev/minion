@@ -151,10 +151,14 @@ args = {
 	'filename':vim.eval("s:current_file"),
 	'new_name': new_name,
 }
-results = {}
-results['new_filename'] = brain.rename_file(**args)
-vim.command('bd')
-vim.command('e %(new_filename)s' % results)
+
+# Close current buffer.
+# vim.command('bdelete')
+# Move the file.
+new_filename = brain.rename_file(**args)
+# Open it in the new location.
+vim.command("badd %(item)s" % {'item':new_filename})
+vim.command("echom 'Your buffer may have moved in the list.'")
 EOF
 bd
 endfunction
