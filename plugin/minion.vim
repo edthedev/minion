@@ -52,12 +52,12 @@ function! MinionArchive()
 python << EOF
 import sys
 import os
+import vim
 script_path = vim.eval('s:path')
 lib_path = os.path.join(script_path, '..')
 print lib_path 
 sys.path.insert(0, lib_path)
 
-import vim
 import brain_of_minion as brain
 
 current_file = vim.eval("s:current_file")
@@ -78,12 +78,12 @@ function! MinionMove(folder)
 python << EOF
 import sys
 import os
+import vim
 script_path = vim.eval('s:path')
 lib_path = os.path.join(script_path, '..')
 print lib_path 
 sys.path.insert(0, lib_path)
 
-import vim
 import brain_of_minion as brain
 
 args = {
@@ -104,12 +104,12 @@ function! MinionSummary()
 python << EOF
 import sys
 import os
+import vim
 script_path = vim.eval('s:path')
 lib_path = os.path.join(script_path, '..')
 print lib_path 
 sys.path.insert(0, lib_path)
 
-import vim
 import brain_of_minion as brain
 
 print brain.folder_summary()
@@ -129,6 +129,36 @@ e eval('s:path')/help.txt
 EOF
 endfunction
 
+
+" Rename the current file.
+" -------------------------------------
+function! MinionRename(new_name)
+	let s:current_file = expand('%')
+python << EOF
+import sys
+import os
+import vim
+script_path = vim.eval('s:path')
+lib_path = os.path.join(script_path, '..')
+print lib_path 
+sys.path.insert(0, lib_path)
+
+import brain_of_minion as brain
+
+new_name = vim.eval("a:new_name")
+new_name = brain.string_to_file_name(new_name)
+args = {
+	'filename':vim.eval("s:current_file"),
+	'new_name': new_name,
+}
+results = {}
+results['new_filename'] = brain.rename_file(**args)
+vim.command('bd')
+vim.command('e %(new_filename)s' % results)
+EOF
+bd
+endfunction
+
 " ================
 " Minion Commands
 " ================
@@ -138,6 +168,7 @@ command! -nargs=0 MinionHelp call MinionHelp()
 " command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
 command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
+command! -nargs=1 MinionRename call MinionRename(<f-args>)
 command! -nargs=0 MinionSummary call MinionSummary()
 
 " ==========================
@@ -170,7 +201,7 @@ command! -nargs=0 MinionSummary call MinionSummary()
 " Move the current file...
 :map <Leader>mm :MinionMove 
 
-
+:map <leader>mr :MinionRename
 
 
 " Organizer help

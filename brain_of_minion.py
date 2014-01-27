@@ -1098,7 +1098,7 @@ def get_unique_name(filename):
     return final_name
 
 def rename_file(filename, new_name):
-    folder = os.path.basename(filename)
+    folder = os.path.dirname(filename)
     new_file = os.path.join(folder, new_name)
 
     if filename != new_file:
