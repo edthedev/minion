@@ -770,6 +770,12 @@ def get_inbox():
         os.mkdir(inbox)
     return inbox
 
+def get_keyword_files(keyword_string):
+    ''' Get all files that match space-separated keywords. '''
+    keywords = keyword_string.split(' ')
+    match_files = find_files(filter=keywords, archives=False)
+    return match_files
+
 def get_inbox_files():
     ''' Get all inbox files. '''
     match_files = find_files(filter=['inbox'], archives=False)

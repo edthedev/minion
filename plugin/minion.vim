@@ -18,20 +18,23 @@ let s:path = expand('<sfile>:p:h')
 " " Open all Inbox files in buffers.
 " -----------------------------------
 
-function! MinionInbox()
+function! MinionOpen(keywords)
 python << EOF
 
 import sys
 import os
+import vim
 script_path = vim.eval('s:path')
 lib_path = os.path.join(script_path, '..')
 sys.path.insert(0, lib_path)
 
-import vim
 import brain_of_minion as brain
-match_files = brain.get_inbox_files()
+args = {
+	'keyword_string':vim.eval("a:keywords"),
+}
+match_files = brain.get_keyword_files(**args)
 if not match_files:
-	vim.command('echom "Clean Inbox!"')
+	vim.command('echom "No matching results."')
 for item in match_files:
 	# Add everything to buffers.
 	vim.command("badd %(item)s" % {'item':item})
@@ -132,8 +135,9 @@ endfunction
 
 command! -nargs=0 MinionArchive call MinionArchive()
 command! -nargs=0 MinionHelp call MinionHelp()
-command! -nargs=0 MinionInbox call MinionInbox()
+" command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
+command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
 command! -nargs=0 MinionSummary call MinionSummary()
 
 " ==========================
@@ -142,16 +146,23 @@ command! -nargs=0 MinionSummary call MinionSummary()
 
 " Get some help.
 
-:map <Leader>mh :MinionHelp<Cr>
+"TODO: ":map <Leader>mh :MinionHelp<Cr>
 
+" TODO: Create a global variable to control assignment of default key
+" mappings.
+" http://getpocket.com/a/read/102013317 - search yourplugin_map_keys
+"
 " Display a summary of Minion managed folders.
 :map <Leader>ms :MinionSummary<Cr>
 
 " Create a new item in the Inbox, and open it immediately.
 " TODO:
 
+" Open files from a Minion sub-folder.
+:map <leader>mo :MinionOpen 
+
 " Open all items in the Minion Inbox
-:map <Leader>mi :MinionInbox<Cr>
+:map <Leader>mi :MinionOpen inbox<Cr>
 
 " Archive the current file and close it.
 :map <Leader>ma :MinionArchive<Cr>
