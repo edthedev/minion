@@ -193,6 +193,7 @@ command! -nargs=0 MinionSummary call MinionSummary()
 " Create a new item in the Inbox, and open it immediately.
 " TODO:
 
+
 " Open files from a Minion sub-folder.
 :map <leader>mo :MinionOpen 
 
