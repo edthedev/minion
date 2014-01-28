@@ -1,3 +1,6 @@
+# TODO: Add some real tests.
+# TODO: Learn more about pythoscope.
+
 import unittest
 
 class TestGetSetting(unittest.TestCase):
