@@ -187,12 +187,12 @@ endif
 if g:minion_map_keys
 	nnoremap <leader>d :call <sid>minionDelete()<CR>
 
-	" Display a summary of Minion managed folders.
-	:nnoremap <Leader>ms :MinionSummary<Cr>
 
 	" Create a new item in the Inbox, and open it immediately.
 	" TODO:
 
+	" Minion help
+	:nnoremap <leader>mh :MinionHelp<Cr>
 
 	" Open files from a Minion sub-folder.
 	:nnoremap <leader>mo :MinionOpen 
@@ -210,8 +210,8 @@ if g:minion_map_keys
 	:nnoremap <leader>mr :MinionRename
 
 
-	" Organizer help
-	" ":nnoremap <Leader>mh :!~/.vim/bundle/Minion/bin/minion --help<Cr>$
+	" Display a summary of Minion managed folders.
+	:nnoremap <Leader>ms :MinionSummary<Cr>
 
 	" New Note
 	" :nnoremap <Leader>mn :!~/.vim/bundle/Minion/bin/minion --new-note
