@@ -1225,6 +1225,10 @@ def get_filename_for_title(topic, notes_dir=None):
 
     return filename
 
+def create_new_note(keywords):
+    pass
+    return filename
+
 def new_note(args, quick, editor, notes_dir=None):
     '''Without any distractions, create a new file, from a template.
     

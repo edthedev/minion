@@ -155,6 +155,37 @@ EOF
 bd
 endfunction
 
+
+" Create a new note file in the inbox
+" -------------------------------------
+function! MinionNew(keywords)
+	let s:current_file = expand('%')
+python << EOF
+import sys
+import os
+import vim
+script_path = vim.eval('s:path')
+lib_path = os.path.join(script_path, '..')
+print lib_path 
+sys.path.insert(0, lib_path)
+
+import brain_of_minion as brain
+
+# Create the file
+new_name = vim.eval("a:keywords")
+args = {
+	'keywords':vim.eval("a:keywords"),
+}
+new_file = brain.new_note(**args)
+
+# Open it in the new location.
+vim.command("badd %(item)s" % {'item':new_filename})
+vim.command("echom 'Your buffer may have moved in the list.'")
+EOF
+bd
+endfunction
+
+
 " ================
 " Minion Commands
 " ================
@@ -163,6 +194,7 @@ command! -nargs=0 MinionArchive call MinionArchive()
 command! -nargs=0 MinionHelp call MinionHelp()
 command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
+command! -nargs=1 MinionNew call MinionNew(<f-args>)
 command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
 command! -nargs=1 MinionRename call MinionRename(<f-args>)
 command! -nargs=0 MinionSummary call MinionSummary()
@@ -208,7 +240,6 @@ if g:minion_map_keys
 
 	" Rename the current file in place.
 	:nnoremap <leader>mr :MinionRename
-
 
 	" Display a summary of Minion managed folders.
 	:nnoremap <Leader>ms :MinionSummary<Cr>
