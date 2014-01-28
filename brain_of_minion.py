@@ -1236,8 +1236,6 @@ def new_note(args, quick, editor, notes_dir=None):
     Use a pre-configured 'inbox' for the files initial location.
     If this 'inbox' folder does not exist, create it.
     Include the title in the file, per the template.
-    Include the creation date in the file, per the template.
-    
     '''
 
     # Get template file

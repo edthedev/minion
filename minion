@@ -413,7 +413,7 @@ def format_2_cols(tuple_list):
     return output
 
 if args['summary']:
-    print brain_of_minion.folder_summary()
+    # print brain_of_minion.folder_summary()
     summary = brain_of_minion.get_folder_summary(archives = args['--archives'])
     limit = int(args['--max'])
     summary = summary[:limit]
