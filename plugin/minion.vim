@@ -158,7 +158,7 @@ endfunction
 
 " Create a new note file in the inbox
 " -------------------------------------
-function! MinionNew(keywords)
+function! MinionNote(keywords)
 	let s:current_file = expand('%')
 python << EOF
 import sys
@@ -174,13 +174,14 @@ import brain_of_minion as brain
 # Create the file
 new_name = vim.eval("a:keywords")
 args = {
-	'keywords':vim.eval("a:keywords"),
+	'topic':vim.eval("a:keywords"),
 }
 new_file = brain.new_note(**args)
+(filename, last_line) = brain.create_new_note(**args)
 
 # Open it in the new location.
-vim.command("badd %(item)s" % {'item':new_filename})
-vim.command("echom 'Your buffer may have moved in the list.'")
+vim.command("e %(item)s" % {'item':filename})
+vim.command("%dj" % last_line)
 EOF
 bd
 endfunction
@@ -194,7 +195,7 @@ command! -nargs=0 MinionArchive call MinionArchive()
 command! -nargs=0 MinionHelp call MinionHelp()
 command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
-command! -nargs=1 MinionNew call MinionNew(<f-args>)
+command! -nargs=1 MinionNote call MinionNote(<f-args>)
 command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
 command! -nargs=1 MinionRename call MinionRename(<f-args>)
 command! -nargs=0 MinionSummary call MinionSummary()
@@ -203,15 +204,7 @@ command! -nargs=0 MinionSummary call MinionSummary()
 " Minion Keyboard Shortcuts
 " ==========================
 
-" Get some help.
-
-"TODO: ":map <Leader>mh :MinionHelp<Cr>
-
-" TODO: Create a global variable to control assignment of default key
-" mappings.
-" http://getpocket.com/a/read/102013317 - search yourplugin_map_keys
-"
-
+" Map keyboard shortcuts by default.
 if !exists('g:minion_map_keys')
 	let g:minion_map_keys = 1
 endif
@@ -219,9 +212,8 @@ endif
 if g:minion_map_keys
 	nnoremap <leader>d :call <sid>minionDelete()<CR>
 
-
 	" Create a new item in the Inbox, and open it immediately.
-	" TODO:
+	:nnoremap <leader>mn :MinionNote 
 
 	" Minion help
 	:nnoremap <leader>mh :MinionHelp<Cr>

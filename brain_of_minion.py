@@ -1225,19 +1225,8 @@ def get_filename_for_title(topic, notes_dir=None):
 
     return filename
 
-def create_new_note(keywords):
-    pass
-    return filename
-
-def new_note(args, quick, editor, notes_dir=None):
-    '''Without any distractions, create a new file, from a template.
-    
-    Use a file-system safe filename, based on the title.
-    Use a pre-configured 'inbox' for the files initial location.
-    If this 'inbox' folder does not exist, create it.
-    Include the title in the file, per the template.
-    '''
-
+def get_template_content():
+    ''' Get the template text for a new note. '''
     # Get template file
     settings = get_settings()
     template_file = settings.get('compose', 'template')
@@ -1246,16 +1235,10 @@ def new_note(args, quick, editor, notes_dir=None):
     template_text = f.readlines()
     f.close()
     template_text = ''.join(template_text)
+    return template_text
 
-    # Create data for file
-    data = {}
-
-    topic = ' '.join(args)
-    if len(topic) == 0:
-        print getOutput('cal')
-        topic = raw_input("Topic? ")
-
-    filename = get_filename_for_title(topic, notes_dir)
+def write_template_to_file(topic, filename):
+    ''' Add templated pre-content to the new note.'''
 
     today = datetime.date.today()
     today = today.strftime(get_date_format())
@@ -1269,8 +1252,6 @@ def new_note(args, quick, editor, notes_dir=None):
     data['underline'] = underline
     # data['tags'] = tags 
 
-    # print template_text
-
     t = Template(template_text)
     file_text = t.safe_substitute(data)
 
@@ -1278,12 +1259,43 @@ def new_note(args, quick, editor, notes_dir=None):
     f.write(file_text)
     f.close()
 
-    last = len('\n'.split(file_text)) + 1
+    last_line = len('\n'.split(file_text)) + 1
+
+    return last_line
+
+def create_new_note(topic):
+    ''' Create a new note, non-interative.'''
+    template_text = get_template_content()
+    filename = get_filename_for_title(topic, notes_dir = None)
+    last_line = write_template_to_file(topic, filename)
+    return (filename, last_line)
+
+def new_note_interactive(args, quick, editor, notes_dir=None):
+    '''Without any distractions, create a new file, from a template.
+    
+    Use a file-system safe filename, based on the title.
+    Use a pre-configured 'inbox' for the files initial location.
+    If this 'inbox' folder does not exist, create it.
+    Include the title in the file, per the template.
+    '''
+    template_text = get_template_content()
+
+    # Create data for file
+    data = {}
+
+    topic = ' '.join(args)
+    if len(topic) == 0:
+        print getOutput('cal')
+        topic = raw_input("Topic? ")
+
+    filename = get_filename_for_title(topic, notes_dir)
+
+    last_line = write_template_to_file(topic, filename)
 
     if not quick:
         open_file(filename, 
                 # editor=editor, 
-                line=last)
+                line=last_line)
     print summary
 
 def to_bar(number, total=10):
