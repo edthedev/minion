@@ -49,7 +49,7 @@ def get_settings():
     settings.add_section('notes')
     settings.set('notes', 'home', '~/Dropbox/Notes')
     settings.add_section('compose')
-    default_template_dir = os.path.dirname(__file__)
+    default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
     settings.set('compose', 'templates', default_template_dir)
     settings.set('compose', 'extension', '.txt')
     settings.set('compose', 'editor', 'vim')
