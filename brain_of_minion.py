@@ -1245,12 +1245,14 @@ def write_template_to_file(topic, filename):
     underline = '=' * len(topic)
     summary = "%s\n%s\nCreated %s" % (topic, underline, today)
 
+    data = {}
     data['topic'] =  topic
     data['filename'] = filename 
     data['topic_underline'] = underline
     data['today'] = today
     data['underline'] = underline
     # data['tags'] = tags 
+    template_text = get_template_content()
 
     t = Template(template_text)
     file_text = t.safe_substitute(data)

@@ -176,14 +176,12 @@ new_name = vim.eval("a:keywords")
 args = {
 	'topic':vim.eval("a:keywords"),
 }
-new_file = brain.new_note(**args)
 (filename, last_line) = brain.create_new_note(**args)
 
 # Open it in the new location.
 vim.command("e %(item)s" % {'item':filename})
 vim.command("%dj" % last_line)
 EOF
-bd
 endfunction
 
 
