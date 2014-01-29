@@ -269,7 +269,7 @@ def minion_journal(args):
     notes_dir = get_notes_dir(args)
     today_string = datetime.datetime.today().strftime(get_date_format())
     args['<text>'] = ['Journal ' + today_string] + args['<text>']
-    brain_of_minion.new_note_interactiv(args['<text>'], 
+    brain_of_minion.new_note_interactive(args['<text>'], 
             quick=args['remind'],
             editor=args['--editor'], 
             notes_dir=notes_dir)
