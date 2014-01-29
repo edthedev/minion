@@ -47,10 +47,10 @@ def get_settings():
 # Default settings
     settings = SafeConfigParser()
     settings.add_section('notes')
-    settings.set('notes', 'home', '~/Dropbox/notes')
+    settings.set('notes', 'home', '~/Dropbox/Notes')
     settings.add_section('compose')
-    default_template = os.path.join(os.path.dirname(__file__), 'template.txt')
-    settings.set('compose', 'template', default_template)
+    default_template_dir = os.path.dirname(__file__)
+    settings.set('compose', 'templates', default_template_dir)
     settings.set('compose', 'extension', '.txt')
     settings.set('compose', 'editor', 'vim')
     settings.add_section('date')
@@ -1225,25 +1225,32 @@ def get_filename_for_title(topic, notes_dir=None):
 
     return filename
 
-def get_template_content():
+def get_template_content(template):
     ''' Get the template text for a new note. '''
     # Get template file
     settings = get_settings()
-    template_file = settings.get('compose', 'template')
-    template_file = os.path.expanduser(template_file)
+    data = {
+        'type': template,
+        'directory': os.path.expanduser( 
+            settings.get('compose', 'templates') ),
+        'ext':settings.get('compose', 'extension'),
+    }
+    template_file_name = "%(type)s_template%(ext)s" % data
+    template_file = os.path.join(data['directory'], template_file_name)
     f = open(template_file, 'r')
     template_text = f.readlines()
     f.close()
     template_text = ''.join(template_text)
     return template_text
 
-def write_template_to_file(topic, filename):
+def write_template_to_file(topic, filename, template='note'):
     ''' Add templated pre-content to the new note.'''
 
     today = datetime.date.today()
     today = today.strftime(get_date_format())
     underline = '=' * len(topic)
     summary = "%s\n%s\nCreated %s" % (topic, underline, today)
+    print summary
 
     data = {}
     data['topic'] =  topic
@@ -1252,7 +1259,7 @@ def write_template_to_file(topic, filename):
     data['today'] = today
     data['underline'] = underline
     # data['tags'] = tags 
-    template_text = get_template_content()
+    template_text = get_template_content(template)
 
     t = Template(template_text)
     file_text = t.safe_substitute(data)
@@ -1265,14 +1272,14 @@ def write_template_to_file(topic, filename):
 
     return last_line
 
-def create_new_note(topic):
+def create_new_note(topic, template='note'):
     ''' Create a new note, non-interative.'''
-    template_text = get_template_content()
+    template_text = get_template_content(template)
     filename = get_filename_for_title(topic, notes_dir = None)
-    last_line = write_template_to_file(topic, filename)
+    last_line = write_template_to_file(topic, filename, template)
     return (filename, last_line)
 
-def new_note_interactive(args, quick, editor, notes_dir=None):
+def new_note_interactive(args, quick, editor, template='note', notes_dir=None):
     '''Without any distractions, create a new file, from a template.
     
     Use a file-system safe filename, based on the title.
@@ -1280,7 +1287,7 @@ def new_note_interactive(args, quick, editor, notes_dir=None):
     If this 'inbox' folder does not exist, create it.
     Include the title in the file, per the template.
     '''
-    template_text = get_template_content()
+    # template_text = get_template_content(template)
 
     # Create data for file
     data = {}
@@ -1292,13 +1299,12 @@ def new_note_interactive(args, quick, editor, notes_dir=None):
 
     filename = get_filename_for_title(topic, notes_dir)
 
-    last_line = write_template_to_file(topic, filename)
+    last_line = write_template_to_file(topic, filename, template)
 
     if not quick:
         open_file(filename, 
                 # editor=editor, 
                 line=last_line)
-    print summary
 
 def to_bar(number, total=10):
     '''Convert a number into a ASCII art progress bar.'''

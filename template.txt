@@ -1,3 +1,0 @@
-$topic
-$underline
-:date: $today
