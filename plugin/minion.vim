@@ -180,7 +180,7 @@ args = {
 
 # Open it in the new location.
 vim.command("e %(item)s" % {'item':filename})
-vim.command("%dj" % last_line)
+vim.command("call cursor(%d, 0)" % (last_line + 1))
 EOF
 endfunction
 
