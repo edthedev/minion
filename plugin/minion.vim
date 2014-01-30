@@ -9,6 +9,18 @@ if !has('python')
 		finish
 	endif
 
+" Setup for Python library imports.
+python << endpython
+import sys
+import os
+import vim
+script_path = vim.eval('s:path')
+lib_path = os.path.join(script_path, '..')
+sys.path.insert(0, lib_path)
+
+import brain_of_minion as brain
+endpython
+
 " =================
 " Minion Functions
 " =================
@@ -19,16 +31,7 @@ let s:path = expand('<sfile>:p:h')
 " -----------------------------------
 
 function! MinionOpen(keywords)
-python << EOF
-
-import sys
-import os
-import vim
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-sys.path.insert(0, lib_path)
-
-import brain_of_minion as brain
+python << endpython
 args = {
 	'keyword_string':vim.eval("a:keywords"),
 }
@@ -42,57 +45,35 @@ for item in match_files:
 	vim.command("bn")
 	# Show the list of open buffers.
 	vim.command("buffers")
-EOF
+endpython
 endfunction
 
 " Archive the current open file.
 " -------------------------------
 function! MinionArchive()
 	let s:current_file = expand('%')
-python << EOF
-import sys
-import os
-import vim
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-print lib_path 
-sys.path.insert(0, lib_path)
-
-import brain_of_minion as brain
-
+python << endpython
 current_file = vim.eval("s:current_file")
 
 # This call will nicely display message on success, already.
 brain.archive(current_file)
-EOF
+endpython
 " Delete the buffer, since we moved the file.
 bd
 " echom "Archived " 
-
 endfunction
 
 " Sort the current file into a folder.
 " -------------------------------------
 function! MinionMove(folder)
 	let s:current_file = expand('%')
-python << EOF
-import sys
-import os
-import vim
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-print lib_path 
-sys.path.insert(0, lib_path)
-
-import brain_of_minion as brain
-
+python << endpython
 args = {
 	'folder':vim.eval("a:folder"),
 	'filename':vim.eval("s:current_file"),
 }
 brain.move_to_folder(**args)
-
-EOF
+endpython
 bd
 endfunction
 
@@ -102,17 +83,7 @@ endfunction
 function! MinionSummary()
 	let s:current_file = expand('%')
 python << EOF
-import sys
-import os
-import vim
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-print lib_path 
-sys.path.insert(0, lib_path)
-
-import brain_of_minion as brain
-
-print brain.folder_summary()
+print brain.folder_summary(limit=12)
 EOF
 bd
 endfunction
@@ -121,22 +92,11 @@ function! MinionHelp()
 	help minion.txt
 endfunction
 
-
 " Rename the current file.
 " -------------------------------------
 function! MinionRename(new_name)
 	let s:current_file = expand('%')
 python << EOF
-import sys
-import os
-import vim
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-print lib_path 
-sys.path.insert(0, lib_path)
-
-import brain_of_minion as brain
-
 new_name = vim.eval("a:new_name")
 new_name = brain.string_to_file_name(new_name)
 args = {
@@ -155,22 +115,11 @@ EOF
 bd
 endfunction
 
-
 " Create a new note file in the inbox
 " -------------------------------------
 function! MinionNote(keywords)
 	let s:current_file = expand('%')
 python << EOF
-import sys
-import os
-import vim
-script_path = vim.eval('s:path')
-lib_path = os.path.join(script_path, '..')
-print lib_path 
-sys.path.insert(0, lib_path)
-
-import brain_of_minion as brain
-
 # Create the file
 new_name = vim.eval("a:keywords")
 args = {
@@ -183,7 +132,6 @@ vim.command("e %(item)s" % {'item':filename})
 vim.command("call cursor(%d, 0)" % (last_line + 1))
 EOF
 endfunction
-
 
 " ================
 " Minion Commands
