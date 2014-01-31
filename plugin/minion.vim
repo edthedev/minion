@@ -9,6 +9,8 @@ if !has('python')
 		finish
 	endif
 
+let s:path = expand('<sfile>:p:h')
+
 " Setup for Python library imports.
 python << endpython
 import sys
@@ -83,7 +85,7 @@ endfunction
 function! MinionSummary()
 	let s:current_file = expand('%')
 python << EOF
-print brain.folder_summary(limit=12)
+print brain.folder_summary(limit=20)
 EOF
 bd
 endfunction
