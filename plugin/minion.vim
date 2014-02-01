@@ -158,7 +158,7 @@ if !exists('g:minion_map_keys')
 endif
 
 if g:minion_map_keys
-	nnoremap <leader>d :call <sid>minionDelete()<CR>
+	" ":nnoremap <leader>d :call <sid>minionDelete()<CR>
 
 	" Create a new item in the Inbox, and open it immediately.
 	:nnoremap <leader>mn :MinionNote 
