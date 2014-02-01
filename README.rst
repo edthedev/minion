@@ -20,10 +20,31 @@ In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload t
     3. Never lose anything. The find, open and archive commands make sure that files are only a few keypresses away.
     4. (beta) Keep track of upcoming dates. The dates function displays recent and upcoming date strings that appear in files.
 
-Installation and Setup
------------------------
-Copy the example .minion file to your home directory, and edit it as needed.
-Edit your bash/zsh/sh profile to add `source ~/Minion/add_to_your_profile`.
+Installation for command line
+------------------------------------
+Minion requires Python2.
+
+* Clone the source code from GitHub.
+* Copy the example .minion file to your home directory, and edit it as needed.
+* Edit your bash/zsh/sh profile to add `source ~/Minion/add_to_your_profile`.
+
+Installation as a Vim plugin
+-----------------------------
+This plugin is packaged for use with Vundle_.
+This plugin requires Vim_ to be compiled with Python_ support.
+
+.. _Vim: http://vim.org/about.php
+.. _Python: http://python.org
+.. _Vundle: https://github.com/gmarik/vundle/blob/master/README.md 
+
+Install Vundle_ and then add 'edthedev/vim-rst' to your .vimrc.::
+
+    Bundle 'edthedev/minion'
+
+Then, from within Vim, run BundleInstall.::
+
+    :BundleInstall
+
 
 Usage
 -----
