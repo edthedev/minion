@@ -37,7 +37,7 @@ This plugin requires Vim_ to be compiled with Python_ support.
 .. _Python: http://python.org
 .. _Vundle: https://github.com/gmarik/vundle/blob/master/README.md 
 
-Install Vundle_ and then add 'edthedev/vim-rst' to your .vimrc.::
+Install Vundle_ and then add 'edthedev/minion' to your .vimrc.::
 
     Bundle 'edthedev/minion'
 

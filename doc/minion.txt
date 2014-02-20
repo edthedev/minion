@@ -15,7 +15,8 @@ Commands:
 	MinionMove <foldername>
 		Moves the file of the current buffer to a different Minion folder.
 
-	Coming soon: MinionNew <sentence>
+	MinionNote <sentence>
+		Creates a new file in the inbox, named based on the given sentence, and the default extension.
 
 	MinionOpen <keywords>
 		Open all files matching keywords in buffers.
