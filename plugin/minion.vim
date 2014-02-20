@@ -34,16 +34,37 @@ let s:path = expand('<sfile>:p:h')
 
 function! MinionOpen(keywords)
 python << endpython
+do_not_open = ['.jpg', '.jpeg', '.pdf', '.png', '.rtf', '.xls']
 args = {
 	'keyword_string':vim.eval("a:keywords"),
 }
 match_files = brain.get_keyword_files(**args)
 if not match_files:
 	vim.command('echom "No matching results."')
+
+# Add almost everything to buffers.
 for item in match_files:
-	# Add everything to buffers.
+	item_lower = item.lower()
+
+	# Do not open non-text files.
+	skip = False
+	for ext in do_not_open:
+		if ext in item_lower:
+			skip = True	
+
+	if skip:
+		vim.command(
+			'echom "Skipping non-text file %(item)s."' % {
+				'item': item})
+		
+		continue
+
+	# Escape spaces in file names.
 	item = item.replace(' ', '\ ')
+
+	# Open the item in a new buffer.
 	vim.command("badd %(item)s" % {'item':item})
+
 	# Switch to the next buffer, in case we ran from an empty Vim window.
 	vim.command("bn")
 	# Show the list of open buffers.
