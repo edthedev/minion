@@ -42,6 +42,7 @@ if not match_files:
 	vim.command('echom "No matching results."')
 for item in match_files:
 	# Add everything to buffers.
+	item = item.replace(' ', '\ ')
 	vim.command("badd %(item)s" % {'item':item})
 	# Switch to the next buffer, in case we ran from an empty Vim window.
 	vim.command("bn")
