@@ -3,7 +3,7 @@
 #  you can copy the bits below that you want to your profile...
 #    ...or...
 # Just add the following line in your profile (but remove the '#' form the begining):
-# source $HOME/edthedev/add_to_your_profile
+# source ~/minion/add_to_your_profile
 # 
 # Your profile is typically at ~/.profile or ~/.zshrc or ~/.bashrc or ~/.bash_profile
 
@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------------
 # Variables for convenience. 
 export MINION_INSTALL=$HOME/.vim/bundle/minion
-export NOTES_HOME=$HOME/Copy/notes
+export NOTES_HOME=$HOME/Notes
 export INBOX=$NOTES_HOME/inbox
 
 # Include the scripts on your path.

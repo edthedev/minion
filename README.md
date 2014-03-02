@@ -39,7 +39,7 @@ Minion requires Python2.
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
 
-Install Vundle and then add `edthedev/vim-rst` to your .vimrc.:
+Install Vundle and then add `edthedev/vim-rst` to your .vimrc:
 
 `Bundle 'edthedev/minion'`
 
@@ -54,17 +54,17 @@ Create a new note in your inbox folder::
 
 `minion remind Need to Meet with Mr. Gordon on Monday`
 
-Your inbox folder is a subfolder of your NOTES_HOME folder, which is determined by your .minion file, or the `$NOTES_HOME` environment variable. The default value is ~/Notes, but I typically change it to $NOTES_HOME to ~/Dropbox/notes, since I am a Dropbox user.
+Your inbox folder is a subfolder of your `$NOTES_HOME` folder, which is determined by your .minion file, or the `$NOTES_HOME` environment variable. The default value is `~/Notes`, but I typically change it to `$NOTES_HOME` to `~/Dropbox/notes`, since I am a Dropbox user.
 
 Because it is inside a subfolder of the notes folder, the file you just created can now be instantly recalled by minion in various useful ways.
 
 Calling minion with a command line argument will search for that term (or terms):
 
-To list every file that mentions 'gordon'::
+To list every file that mentions 'gordon':
 
 `minion list gordon`
    
-To list every file that mentions 'monday'::
+To list every file that mentions 'monday':
 
 `minion list monday`
    
@@ -101,7 +101,7 @@ This command will step you through your inbox::
 
 `minion sort inbox`
 
-Here are some handy things you can do when stepping through results::
+Here are some handy things you can do when stepping through results:
 
     a - archive - Move the file into the 'Archive.YYYY.MM' folder.
     d - done - Move the file into the 'Archive.YYYY.MM' folder.
