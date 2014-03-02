@@ -25,8 +25,18 @@ Installation for command line
 Minion requires Python2.
 
 * Clone the source code from GitHub.
-* Copy the example .minion file to your home directory, and edit it as needed.
-* Edit your bash/zsh/sh profile to add `source ~/Minion/add_to_your_profile`.
+
+```
+git clone https://github.com/montauk/minion
+```
+
+* Move the example .minion file to your home directory, and edit it as needed.
+
+```
+mv Minion/DOTminion .minion
+```
+
+* Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/Minion/add_to_your_profile`.
 
 Installation as a Vim plugin
 -----------------------------
