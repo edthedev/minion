@@ -22,14 +22,10 @@ In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload t
 
 Minion requires Python2.
 
-1. Clone the source code from GitHub.
-
-`git clone https://github.com/montauk/minion`
+1. Clone the source code from GitHub: `git clone https://github.com/montauk/minion`
 
 
-2. Move the example .minion file to your home directory, and edit it as needed.
-
-`mv Minion/DOTminion .minion`
+2. Move the example .minion file to your home directory, and edit it as needed: `mv Minion/DOTminion .minion`
 
 
 3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/Minion/add_to_your_profile`.
