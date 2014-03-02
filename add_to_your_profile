@@ -11,7 +11,7 @@
 # --------------------------------------------------------------------------------
 # Variables for convenience. 
 export MINION_INSTALL=$HOME/minion
-export NOTES_HOME=$HOME/Notes
+export NOTES_HOME=$HOME/notes
 export INBOX=$NOTES_HOME/inbox
 
 # Include the scripts on your path.

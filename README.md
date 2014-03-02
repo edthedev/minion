@@ -25,12 +25,12 @@ Minion requires Python2.
 1. Clone the source code from GitHub: `git clone https://github.com/montauk/minion`
 
 
-2. Move the example .minion file to your home directory, and edit it as needed: `mv Minion/DOTminion .minion`
+2. Move the example .minion file to your home directory, and edit it as needed: `mv minion/DOTminion .minion`
 
 
-3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/Minion/add_to_your_profile`.
+3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
 
-##Installation as a Vim plugin
+###Installation as a Vim plugin
 
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
