@@ -1,4 +1,4 @@
-##Minion
+###Minion
 
 Minion is a digital assitant that runs on the command line and stores everything in text files. Minion takes notes, tags notes, finds notes, and gets things done.
 
@@ -9,7 +9,7 @@ In particular, Minion is well complimented by the following:
 1. A great text editor. The best editors can be configured to run Minion commands as shortcuts without leaving the editor.
 2. A file folder synchronizer. Minion stores everything in files, so  synchronization software can make Minion content available from any location.
 
-##What Minon Does
+###What Minon Does
 
 In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload thoughts from their minds into a computer for storage, and then recover and act on those thoughts later. Minion is meant to be a first step on that path. Minion takes care of storing, tagging, and retrieving ideas, freeing it's user to focus on thinking.
 
@@ -18,7 +18,7 @@ In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload t
 3. Never lose anything. The find, open and archive commands make sure that files are only a few keypresses away.
 4. (beta) Keep track of upcoming dates. The dates function displays recent and upcoming date strings that appear in files.
 
-##Installation for command line
+###Installation for command line
 
 Minion requires Python2.
 
@@ -34,7 +34,7 @@ Minion requires Python2.
 
 * Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/Minion/add_to_your_profile`.
 
-##Installation as a Vim plugin
+###Installation as a Vim plugin
 
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
@@ -48,7 +48,7 @@ Then, from within Vim, run BundleInstall.:
 `:BundleInstall`
 
 
-##Usage
+###Usage
 
 Create a new note in your inbox folder::
 
@@ -114,7 +114,7 @@ You can combine any number of additional keywords with a single folder move, so 
 
      @email @alfred >later
 
-##Tips
+###Tips
 
 1. Since Minion uses the existing file system to organize your notes, it is completely compatible with other systems that do the same. Minion accepts all incoming changes, so it is perfectly acceptable to use alternate tools to move files around under Minions nose. Minion will adapt and continue to help you create and find files located under the Minion 'NOTES_HOME' directory.
 
