@@ -1,4 +1,4 @@
-#Minion
+##Minion
 
 Minion is a digital assitant that runs on the command line and stores everything in text files. Minion takes notes, tags notes, finds notes, and gets things done.
 
@@ -9,7 +9,7 @@ In particular, Minion is well complimented by the following:
 1. A great text editor. The best editors can be configured to run Minion commands as shortcuts without leaving the editor.
 2. A file folder synchronizer. Minion stores everything in files, so  synchronization software can make Minion content available from any location.
 
-#What Minon Does
+##What Minon Does
 
 In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload thoughts from their minds into a computer for storage, and then recover and act on those thoughts later. Minion is meant to be a first step on that path. Minion takes care of storing, tagging, and retrieving ideas, freeing it's user to focus on thinking.
 
@@ -18,7 +18,7 @@ In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload t
 3. Never lose anything. The find, open and archive commands make sure that files are only a few keypresses away.
 4. (beta) Keep track of upcoming dates. The dates function displays recent and upcoming date strings that appear in files.
 
-#Installation for command line
+##Installation for command line
 
 Minion requires Python2.
 
@@ -34,21 +34,21 @@ Minion requires Python2.
 
 * Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/Minion/add_to_your_profile`.
 
-#Installation as a Vim plugin
+##Installation as a Vim plugin
 
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
 
-Install Vundle and then add `edthedev/vim-rst` to your .vimrc:
+Install Vundle and then add `montauk/minion` to your .vimrc:
 
-`Bundle 'edthedev/minion'`
+`Bundle 'montauk/minion'`
 
 Then, from within Vim, run BundleInstall.:
 
 `:BundleInstall`
 
 
-#Usage
+##Usage
 
 Create a new note in your inbox folder::
 
@@ -82,7 +82,7 @@ This will search for all files with all three search terms, regardless of their 
 
 Configure your preferred editor in either your ~/.minion configuration file or your $EDITOR environment variable. You may also override your setting by calling minion with the --editor= flag. Minion will also detect some binary files and open them with an appropriate viewer on Linux, but this feature is still in Beta.
 
-To see a summary of everything you have stored in Minion folders::
+To see a summary of everything you have stored in Minion folders:
 
     minion summary
 
@@ -109,21 +109,23 @@ Here are some handy things you can do when stepping through results:
     v - view the file inline
     >later - Move the file into a folder next to the inbox called 'later'. If the folder does not exist yet, it will be created.
     @email - Add an @email keyword to the file name, to assist with searching later.
-    You can combine any number of additional keywords with a single folder move, so this command is valid:
-    @email @alfred >later
 
-#Tips
+You can combine any number of additional keywords with a single folder move, so this command is valid:
 
-Since Minion uses the existing file system to organize your notes, it is completely compatible with other systems that do the same. Minion accepts all incoming changes, so it is perfectly acceptable to use alternate tools to move files around under Minions nose. Minion will adapt and continue to help you create and find files located under the Minion 'NOTES_HOME' directory.
+     @email @alfred >later
 
-The file system can be a decent way to stay organized. You may decide to open your favorite file manager once in awhile to take stock or move things quickly. minion is named minion because it serves without question. It won't mind.
+##Tips
 
-Minion will create new folders dynamically as you work, and never loses track of anything. Experiment with your categories and tags until you find what works for you. 
+1. Since Minion uses the existing file system to organize your notes, it is completely compatible with other systems that do the same. Minion accepts all incoming changes, so it is perfectly acceptable to use alternate tools to move files around under Minions nose. Minion will adapt and continue to help you create and find files located under the Minion 'NOTES_HOME' directory.
 
-Use minion with Dropbox or a similar service to keep all of your reminders in sync.
+2. The file system can be a decent way to stay organized. You may decide to open your favorite file manager once in awhile to take stock or move things quickly. minion is named minion because it serves without question. It won't mind.
 
-If you use mutt for your email, remember that you can save messages or entire message chains into one of your minion managed directories, and minion will treat them just like any other full text reminder. 
+3. Minion will create new folders dynamically as you work, and never loses track of anything. Experiment with your categories and tags until you find what works for you. 
 
-When downloading instructions that you want to follow later, remember that minion does not mind an occasional pdf file dropped into a minion managed directory, so long as all the description you need is contained in the file name (since minion can only read the file names of, not the contents of binary files such as pdf files).
+4. Use minion with **Dropbox** or a similar service to keep all of your reminders in sync.
 
-HTML files are text inside, so minion can search them. Sometimes saving an entire webpage's raw HTML into a minion directory is a good way to set a reminder.
+5. If you use **mutt** for your email, remember that you can save messages or entire message chains into one of your minion managed directories, and minion will treat them just like any other full text reminder. 
+
+6. When downloading instructions that you want to follow later, remember that minion does not mind an occasional pdf file dropped into a minion managed directory, so long as all the description you need is contained in the file name (since minion can only read the file names of, not the contents of binary files such as pdf files).
+
+7. HTML files are text inside, so minion can search them. Sometimes saving an entire webpage's raw HTML into a minion directory is a good way to set a reminder.
