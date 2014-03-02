@@ -1,0 +1,59 @@
+*minion.txt* You create content. Minion stores, finds and sorts it.
+
+Commands:
+
+	MinionArchive 
+		Archive the file of the current buffer.
+		Moves the file to folder called archives.YYYY.MM
+
+	MinionHelp 
+		Display this file.
+
+	MinionInbox 
+		Open all files in the INBOX in buffers.
+
+	MinionMove <foldername>
+		Moves the file of the current buffer to a different Minion folder.
+
+	Coming soon: MinionNew <sentence>
+
+	MinionOpen <keywords>
+		Open all files matching keywords in buffers.
+
+	MinionRename <sentence>
+		Rename the current file based on the given sentence.
+		Spaces are replaced with dashes.
+		The default text extension is added.
+
+	MinionSummary 
+		Display counts of files in the ten minion folders 
+		containing the most files.
+
+Configuration:
+
+	~/.minion
+
+		Contains settings to configure Minion.
+
+Default Keyboard Mappings:
+
+	To disable minion default keyboard mappings:
+
+		let g:minion_map_keys = 0
+
+	<Leader>ma - MinionArchive
+
+	<Leader>mh - MinionHelp
+
+	<Leader>mi - MinionInbox
+
+	<Leader>mm - MinionMove
+
+	Coming soon: <Leader>mn - MinionNew
+
+	<leader>mo - MinionOpen
+
+	<leader>mr - MinionRename
+
+	<leader>ms - MinionSummary
+
