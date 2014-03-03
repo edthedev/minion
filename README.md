@@ -30,6 +30,8 @@ Minion requires Python2.
 
 3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
 
+4. (Maybe) set note directory in `brain_of_minion.py`?
+
 #### Or: Installation as a Vim plugin
 *You can use minion in the command line as well as in VIM, just be sure to keep
 your configuration files set to one method!*

@@ -47,7 +47,7 @@ def get_settings():
 # Default settings
     settings = SafeConfigParser()
     settings.add_section('notes')
-    settings.set('notes', 'home', '~/Dropbox/Notes')
+    settings.set('notes', 'home', '~/minion/notes')
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
     settings.set('compose', 'templates', default_template_dir)
