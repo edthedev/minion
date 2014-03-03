@@ -2,7 +2,7 @@
 home = ~/minion/notes
 
 [compose]
-templates = ~/.vim/bundle/minion/templates
+templates = ~/minion/templates
 extension = .txt
 editor = vim
 
