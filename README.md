@@ -31,6 +31,8 @@ Minion requires Python2.
 3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
 
 #### Or: Installation as a Vim plugin
+*You can use minion in the command line as well as in VIM, just be sure to keep
+your configuration files set to one method!*
 
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
