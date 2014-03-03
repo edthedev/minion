@@ -39,9 +39,19 @@ Install Vundle and then add `montauk/minion` to your .vimrc:
 
 `Bundle 'montauk/minion'`
 
-Then, from within Vim, run BundleInstall.:
+Then, from within Vim, run BundleInstall:
 
 `:BundleInstall`
+
+Copy and set .minion file accordingly:
+
+`mv ~/.vim/bundle/minion/DOTminion ~/.minion`
+
+Change the `MINION_INSTALL` variable to `$HOME/.vim/bundle/minion` in
+`~/.vim/bundle/minion/add_to_your_profile`.
+
+Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
+
 
 
 ##Usage
