@@ -30,6 +30,25 @@ Minion requires Python2.
 
 3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
 
+	If you use `fish` add the following to your ~/.config/fish/config.fish
+
+		```
+		set -x MINION_INSTALL $HOME/minion
+		set -x NOTES_HOME $HOME/Notes
+		set -x INBOX $NOTES_HOME/inbox
+
+		if [ -d "$MINION_INSTALL" ]
+    			set -x PATH $MINION_INSTALL $PATH
+		end
+
+		alias mn="minion"
+		alias icannotfind="minion --open --archive --full"
+		alias newnote="minion --new-note"
+		alias open="minion --open"
+		alias remind="minion --new-note --quick"
+		alias summary="minion --count inbox; minion --list --show-tags=False today;minion --count next; minion --count soon; minion --count someday" 
+		```
+
 4. (Maybe) set note directory in `brain_of_minion.py`?
 
 #### Or: Installation as a Vim plugin
