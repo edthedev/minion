@@ -32,7 +32,6 @@ Minion requires Python2.
 
 	If you use `fish` add the following to your ~/.config/fish/config.fish
 
-		```
 		set -x MINION_INSTALL $HOME/minion
 		set -x NOTES_HOME $HOME/Notes
 		set -x INBOX $NOTES_HOME/inbox
@@ -47,8 +46,7 @@ Minion requires Python2.
 		alias open="minion --open"
 		alias remind="minion --new-note --quick"
 		alias summary="minion --count inbox; minion --list --show-tags=False today;minion --count next; minion --count soon; minion --count someday" 
-		```
-
+		
 4. (Maybe) set note directory in `brain_of_minion.py`?
 
 #### Or: Installation as a Vim plugin
