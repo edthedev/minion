@@ -1,5 +1,5 @@
 [notes]
-home = ~/Minion/Notes
+home = ~/minion/notes
 
 [compose]
 templates = ~/.vim/bundle/minion/templates
