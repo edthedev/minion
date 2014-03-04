@@ -79,19 +79,21 @@ Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
 1. Create a note:
 
-	minion note $NOTENAME
+ `minion note $NOTENAME`
 
 2. This opens the file $NOTENAME.txt which shoud look like this:
 
-	test
-	====
-	:date: 2014-03-04
+ ```
+ test
+ ====
+ :date: 2014-03-04
+ ```
 
 3. Change the date accordingly. 
 
 4. List all notes with the according date:
 
-	minion date .
+ `minion date .`
 
 ##Usage
 
