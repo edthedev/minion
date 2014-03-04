@@ -91,7 +91,7 @@ Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
 3. Change the date accordingly. 
 
-4. List all notes with the according date:
+4. List all notes with their according dates:
 
  `minion date .`
 
