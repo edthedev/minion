@@ -75,7 +75,7 @@ Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
 ##Commands
 
-###Setting and using dates
+###Setting and using `dates`
 
 1. Create a note:
 
