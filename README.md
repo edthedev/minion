@@ -95,6 +95,11 @@ Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
  `minion dates .`
 
+### Print the contents of all matching files to standard output.
+
+ `minion view foo | more`
+ `minion view foo --max = 1| more`
+
 ##Usage
 
 Create a new note in your inbox folder::
