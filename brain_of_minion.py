@@ -682,6 +682,15 @@ def get_editor(filename, multiple=False,
 
     return editor 
 
+def file_to_stdout(filename):
+    ''' Print the contents of the file to standard output. '''
+    f = open(filename, 'r')
+    content = f.read()
+    f.close()
+    print content
+# One extra line break is wise, in case the file does not end with one.
+    print '\n'
+
 def open_file(filename, 
         line=0, 
         multiple = False, 

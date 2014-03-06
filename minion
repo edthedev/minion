@@ -21,6 +21,7 @@ Usage:
     minion sort [--editor=<editor>] <text> ...
     minion strays
     minion summary [--archives] [--max=<max>] 
+    minion view [--archives] [--max=<max>] <text> ...
     minion tags
 
 Options:
@@ -50,6 +51,7 @@ Command descriptions:
     sort - step through results matching <text>
             tag, rename, and sort files into folders
     summary - list all folders and the item counts in those folders
+    view - print the contents of all matches to the terminal standard output
     tags - list all tags
 
 """
@@ -536,6 +538,17 @@ def minion_open(args):
             )
     else:
         brain_of_minion.display_output(title=filter, output=match_files)
+
+def minion_view(args):
+    ''' Dump the contents of the chosen file(s) to standard out. '''
+    match_files = brain_of_minion.find_files(filter=args['<text>'], 
+        archives=args['--archives'])
+    print "Outputting contents of %(number)d matches to search terms '%(terms)s'.".format(
+            number = len(match_files),
+            terms = args['<text>'],
+            )
+    for filename in match_files:
+        brain_of_minion.file_to_stdout(filename)
 
 def minion_log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
