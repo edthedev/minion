@@ -73,7 +73,27 @@ Change the `MINION_INSTALL` variable to `$HOME/.vim/bundle/minion` in
 
 Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
+##Commands
 
+###Setting and using `dates`
+
+1. Create a note:
+
+ `minion note $NOTENAME`
+
+2. This opens the file $NOTENAME.txt which shoud look like this:
+
+ ```
+ test
+ ====
+ :date: 2014-03-04
+ ```
+
+3. Change the date accordingly. 
+
+4. List all notes with their according dates:
+
+ `minion date .`
 
 ##Usage
 

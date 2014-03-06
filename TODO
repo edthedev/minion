@@ -8,3 +8,12 @@
 	and being able to output all classes by entering:
 
 		`minion dates @university`
+	
+2. Add command to output contents of notes in the command line.
+
+	Should work the same as `minion open`, but insted of opening the
+	file in an editor output it with the `more` command.
+
+	Example: `minion view $FILE` 
+
+	
