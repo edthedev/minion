@@ -1,0 +1,12 @@
+[notes]
+home = ~/minion/notes
+
+[compose]
+templates = ~/minion/templates
+extension = .txt
+editor = vim
+
+[date]
+format = %%Y-%%m-%%d
+
+

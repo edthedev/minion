@@ -1,0 +1,10 @@
+1. Documentation for dates
+
+	In order to document more useful examples it would be great to know how
+	setting dates works with minion, for examples such as:
+
+		`minion remind 2014-03-06 Class at 9:15 @university`
+
+	and being able to output all classes by entering:
+
+		`minion dates @university`
