@@ -19,6 +19,6 @@ if [ -d "$MINION_INSTALL" ] ; then
 	export PATH="$MINION_INSTALL:$PATH"
 fi
 # Include some handy aliases in your profile.
-if [ -d $MINION_INSTALL/aliases_for_minion ]:
+if [ -d $MINION_INSTALL/aliases_for_minion ]; then
 	source $MINION_INSTALL/aliases_for_minion
 fi
