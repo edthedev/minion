@@ -7,6 +7,7 @@ Usage:
     minion command <command> <filename>
     minion dates <text> ...
     minion find [--archives] [--files] <text> ...
+    minion favorites
     minion folder <text> ... 
     minion folders 
     minion journal [--folder=<folder>] [--editor=<editor>] <text> ...
@@ -38,6 +39,7 @@ Command descriptions:
     count - display a count of the results
     dates - display matching files with dates, in date order
     find - synonym for list 
+    favories - like summary, but displays only folders configured as favorites
     folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
@@ -417,6 +419,11 @@ def format_2_cols(tuple_list):
         output.append(line)
     output = '\n'.join(output)
     return output
+
+if args['favorites']:
+    summary = brain_of_minion.get_favorites_summary()
+    output = format_2_cols(summary)
+    print output
 
 if args['summary']:
     # print brain_of_minion.folder_summary()

@@ -44,15 +44,18 @@ def get_settings():
 
     minion_file = os.path.expanduser('~/.minion')
 
-# Default settings
+# Default notes settings
     settings = SafeConfigParser()
     settings.add_section('notes')
     settings.set('notes', 'home', '~/minion/notes')
+    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
+# Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
     settings.set('compose', 'templates', default_template_dir)
     settings.set('compose', 'extension', '.txt')
     settings.set('compose', 'editor', 'vim')
+# Default date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
 
@@ -153,6 +156,19 @@ def get_total_file_count(include_archives = False):
     total_files = find_files(archives = include_archives)
     total=len(total_files)
     return total
+
+def get_favorites_summary():
+    ''' Return the count of items in each of the favorite folders. '''
+    settings = get_settings()
+    favorites = settings.get('notes', 'favorites').replace(' ', '')
+    favs = favorites.split(',')
+    results = []
+    summary = get_folder_summary()
+    for line in summary:
+        for fav in favs:
+            if fav in line:
+                results.append(line)
+    return results
 
 def get_folder_summary(archives=False):
     summary = []
