@@ -421,9 +421,7 @@ def format_2_cols(tuple_list):
     return output
 
 if args['favorites']:
-    summary = brain_of_minion.get_favorites_summary()
-    output = format_2_cols(summary)
-    print output
+    print brain_of_minion.print_favorites_summary()
 
 if args['summary']:
     # print brain_of_minion.folder_summary()

@@ -112,6 +112,14 @@ EOF
 bd
 endfunction
 
+function! MinionFavorites()
+	let s:current_file = expand('%')
+python << EOF
+print brain.print_favorites_summary()
+EOF
+bd
+endfunction
+
 function! MinionHelp()
 	help minion.txt
 endfunction
@@ -162,6 +170,7 @@ endfunction
 " ================
 
 command! -nargs=0 MinionArchive call MinionArchive()
+command! -nargs=0 MinionFavorites call MinionFavorites()
 command! -nargs=0 MinionHelp call MinionHelp()
 command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
@@ -196,6 +205,9 @@ if g:minion_map_keys
 
 	" Archive the current file and close it.
 	:nnoremap <Leader>ma :MinionArchive<Cr>
+
+	" Display a summary of favorite Minion managed folders.
+	:nnoremap <Leader>mf :MinionFavorites<Cr>
 
 	" Move the current file to a new folder.
 	:nnoremap <Leader>mm :MinionMove 

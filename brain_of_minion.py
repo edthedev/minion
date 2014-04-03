@@ -1407,3 +1407,8 @@ def folder_summary(archives = False, limit = 10):
     summary = summary[:limit]
     output = format_2_cols(summary)
     return output
+
+def print_favorites_summary():
+    summary = get_favorites_summary()
+    output = format_2_cols(summary)
+    return output
