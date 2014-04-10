@@ -20,7 +20,7 @@ In Vernor Vinge's novel, 'The Forever War', chess players can instantly upload t
 
 ##Installation for command line
 
-Minion requires Python2.
+Minion requires [Python2](http://python.org).
 
 1. Clone the source code from GitHub: `git clone https://github.com/montauk/minion`
 
@@ -47,7 +47,17 @@ Minion requires Python2.
 		alias remind="minion --new-note --quick"
 		alias summary="minion --count inbox; minion --list --show-tags=False today;minion --count next; minion --count soon; minion --count someday" 
 		
-4. (Maybe) set note directory in `brain_of_minion.py`?
+4. Edit `~/.minion` to set your notes directory.
+
+	[notes]
+	home = ~/Documents
+
+5. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
+
+	[compose]
+	templates = /Users/edward/.vim/bundle/minion/plugin/../templates
+	extension = .md
+	editor = vim
 
 #### Or: Installation as a Vim plugin
 *You can use minion in the command line as well as in VIM, just be sure to keep
@@ -56,9 +66,9 @@ your configuration files set to one method!*
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
 
-Install Vundle and then add `montauk/minion` to your .vimrc:
+Install Vundle and then add `edthedev/minion` to your .vimrc:
 
-`Bundle 'montauk/minion'`
+`Bundle 'edthedev/minion'`
 
 Then, from within Vim, run BundleInstall:
 
@@ -75,30 +85,8 @@ Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
 ##Commands
 
-###Setting and using `dates`
 
-1. Create a note:
 
- `minion note $NOTENAME`
-
-2. This opens the file $NOTENAME.txt which shoud look like this:
-
- ```
- test
- ====
- :date: 2014-03-04
- ```
-
-3. Change the date accordingly. 
-
-4. List all notes with their according dates:
-
- `minion dates .`
-
-### Print the contents of all matching files to standard output.
-
- `minion view foo | more`
- `minion view foo --max = 1| more`
 
 ##Usage
 
@@ -166,15 +154,40 @@ You can combine any number of additional keywords with a single folder move, so 
 
      @email @alfred >later
 
+###Setting and using `dates`
+
+1. Create a note:
+
+ `minion note NOTENAME`
+
+2. This opens the file NOTENAME.txt which shoud look like this:
+
+ ```
+ NOTENAME
+ ====
+ :date: 2014-03-04
+ ```
+
+3. Change the date accordingly. 
+
+4. List all notes with their according dates:
+
+ `minion dates txt`
+
+### Print the contents of all files matching 'foo' to standard output.
+
+ `minion view foo | more`
+ `minion view foo --max = 1| more`
+
 ##Tips
 
-1. Since Minion uses the existing file system to organize your notes, it is completely compatible with other systems that do the same. Minion accepts all incoming changes, so it is perfectly acceptable to use alternate tools to move files around under Minions nose. Minion will adapt and continue to help you create and find files located under the Minion 'NOTES_HOME' directory.
+1. Since Minion uses the existing file system to organize your notes, it is compatible with other systems that do the same. Minion accepts all incoming changes, so it is perfectly acceptable to use alternate tools to move files around under Minions nose. Minion will adapt and continue to help you create and find files located under the Minion 'NOTES_HOME' directory.
 
 2. The file system can be a decent way to stay organized. You may decide to open your favorite file manager once in awhile to take stock or move things quickly. minion is named minion because it serves without question. It won't mind.
 
 3. Minion will create new folders dynamically as you work, and never loses track of anything. Experiment with your categories and tags until you find what works for you. 
 
-4. Use minion with **Dropbox** or a similar service to keep all of your reminders in sync.
+4. Use minion with [Dropbox](http://dropbox.com), [Copy.com](http://copy.com) or a similar service to keep all of your reminders in sync.
 
 5. If you use **mutt** for your email, remember that you can save messages or entire message chains into one of your minion managed directories, and minion will treat them just like any other full text reminder. 
 
