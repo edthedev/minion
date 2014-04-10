@@ -32,6 +32,50 @@ EDITORS = NON_TEXT_VIEWERS
 GRAPHICAL_EDITORS = EDITORS
 GRAPHICAL_EDITORS['default'] = 'gvim'
 
+def list_stray_files(count=2):
+    ''' Find all files whose folder only has one of two files. '''
+    summary = []
+    notes_home = get_notes_home()
+    folders = os.listdir(notes_home)
+    results = []
+    for folder in folders:
+        if not 'archive' in folder:
+            full_folder = os.path.join(notes_home, folder)
+            if os.path.isdir(full_folder):
+                files = os.listdir(full_folder)
+                if len(files) <= count:
+                    for filename in files:
+                        results.append(os.path.join(full_folder, filename))
+
+    # summary.sort(reverse = True)
+    return results
+
+def sort_files_interactive(match_files):
+    ''' Interactively sort the list of files. '''
+    print get_inbox_menu()
+    total = len(match_files)
+    to_open = []
+    weekend = not is_work_time()
+    ignore_tags = get_ignore_tags(worktime=not weekend)
+    count = 0
+    to_open = []
+    for item in match_files:
+        count += 1
+# Show progress...
+        # print "-- %d/%d" % (count, total)
+        print to_bar(count, total)
+# The main call...
+        files_to_open = doInboxInteractive(item)
+        to_open.extend( files_to_open )
+
+    if len(to_open) > 0:
+        print "Files to open: %s" % '\n'.join(to_open)
+        for item in to_open:
+            open_file(item, 
+                    multiple=True,
+                    #  editor=args['--editor']
+                    )
+
 def get_setting(section, key):
     settings = get_settings()
 
@@ -1114,12 +1158,17 @@ def string_to_file_name(text, ext=None):
 def get_unique_name(filename):
     final_name = filename
     while os.path.exists(final_name):
-        directory, short_name = os.path.split(final_name)
+        print final_name
+        directory = os.path.dirname(final_name)
+        short_name = os.path.basename(final_name)
+        print short_name
         import uuid
         uid = str(uuid.uuid1())
         short_name = short_name.replace('.', \
                 '.' + uid + '.', 1)
         final_name = os.path.join(directory, short_name)
+        print "Name conflict. Renamed to " + final_name
+        import pdb; pdb.set_trace()
     return final_name
 
 def rename_file(filename, new_name):
@@ -1135,20 +1184,28 @@ def rename_file(filename, new_name):
 def move_to_folder(filename, folder):
     ''' Move the file to a difference folder. '''
     try:
+        origin = os.path.dirname(filename)
         destination = get_folder(folder)
-        print "Moving to " + destination
         short_name = os.path.basename(filename)
+        print "Moving to " + destination
         final_name = os.path.join(destination, short_name)
         final_name = get_unique_name(final_name)
         shutil.move(filename, final_name)
+        remove_empty_folder(origin)
         print "Moved %s to %s" % (filename, final_name)
-        return final_name 
+        return final_name
     except Exception as ex:
         raise ex
         destination = get_inbox()
         new_file_name = "%s/%s" % (destination, os.path.basename(filename))
         print "Error: Moved %s to inbox." % filname
         shutil.move(filename, destination)
+
+def remove_empty_folder(folder):
+    ''' If the file being moved out was the last file there, remove the folder. '''
+    if len(os.listdir(folder)) == 0:
+        os.rmdir(folder)
+        print "Removed empty forlder " + folder + "."
 
 #def archive(filename):
 #    archive_dir = get_folder('archive') 
