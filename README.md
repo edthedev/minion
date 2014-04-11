@@ -39,20 +39,27 @@ Minion requires [Python2](http://python.org).
 		if [ -d "$MINION_INSTALL" ]
     			set -x PATH $MINION_INSTALL $PATH
 		end
-
-		alias mn="minion"
-		alias icannotfind="minion --open --archive --full"
-		alias newnote="minion --new-note"
-		alias open="minion --open"
-		alias remind="minion --new-note --quick"
-		alias summary="minion --count inbox; minion --list --show-tags=False today;minion --count next; minion --count soon; minion --count someday" 
 		
-4. Edit `~/.minion` to set your notes directory.
+		# Some optional aliases, to get started.
+		# Uncomment the ones you want.
+		alias mn="minion"
+		# alias icannotfind="minion open --archive --full"
+		# alias newnote="minion note"
+		# alias open="minion open"
+		# alias remind="minion remind"
+		# alias summary="minion summary" 
+		# alias favorites="minion favorites"
+		
+4. Run Minion once to ensure that a default `~/.minion` file gets created.
+
+	`minion dates .`
+
+5. Edit `~/.minion` to set your notes directory.
 
 	[notes]
 	home = ~/Documents
 
-5. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
+6. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
 
 	[compose]
 	templates = /Users/edward/.vim/bundle/minion/plugin/../templates
