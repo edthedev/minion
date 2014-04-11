@@ -839,10 +839,10 @@ def get_inbox():
         os.mkdir(inbox)
     return inbox
 
-def get_keyword_files(keyword_string):
+def get_keyword_files(keyword_string, archives=False):
     ''' Get all files that match space-separated keywords. '''
     keywords = keyword_string.split(' ')
-    match_files = find_files(filter=keywords, archives=False)
+    match_files = find_files(filter=keywords, archives=archives)
     return match_files
 
 def get_inbox_files():

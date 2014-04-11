@@ -32,11 +32,12 @@ let s:path = expand('<sfile>:p:h')
 " " Open all Inbox files in buffers.
 " -----------------------------------
 
-function! MinionOpen(keywords)
+function! MinionOpen(keywords, archives)
 python << endpython
 do_not_open = ['.jpg', '.jpeg', '.pdf', '.png', '.rtf', '.xls']
 args = {
 	'keyword_string':vim.eval("a:keywords"),
+	'archives':(vim.eval("a:archives")=="true"),
 }
 match_files = brain.get_keyword_files(**args)
 if not match_files:
@@ -175,8 +176,9 @@ command! -nargs=0 MinionHelp call MinionHelp()
 command! -nargs=0 MinionInbox call MinionInbox('inbox')
 command! -nargs=1 MinionMove call MinionMove(<f-args>)
 command! -nargs=1 MinionNote call MinionNote(<f-args>)
-command! -nargs=1 MinionOpen call MinionOpen(<f-args>)
+command! -nargs=1 MinionOpen call MinionOpen(<f-args>, "false")
 command! -nargs=1 MinionRename call MinionRename(<f-args>)
+command! -nargs=1 MinionSearch call MinionOpen(<f-args>, "true")
 command! -nargs=0 MinionSummary call MinionSummary()
 
 " ==========================
@@ -199,7 +201,7 @@ if g:minion_map_keys
 
 	" Open files from a Minion sub-folder.
 	:nnoremap <leader>mo :MinionOpen 
-
+	
 	" Open all items in the Minion Inbox
 	:nnoremap <Leader>mi :MinionOpen inbox<Cr>
 
