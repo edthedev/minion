@@ -1168,7 +1168,7 @@ def get_unique_name(filename):
                 '.' + uid + '.', 1)
         final_name = os.path.join(directory, short_name)
         print "Name conflict. Renamed to " + final_name
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
     return final_name
 
 def rename_file(filename, new_name):
