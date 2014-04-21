@@ -99,6 +99,7 @@ def get_settings():
     settings.set('compose', 'templates', default_template_dir)
     settings.set('compose', 'extension', '.txt')
     settings.set('compose', 'editor', 'vim')
+    settings.set('compose', 'tagline', ':tags:')
 # Default date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
@@ -967,16 +968,42 @@ def applyCommandToLine(filename, line, command):
         pass
     return line
 
+def parse_tags(line):
+    raise "TODO parse_tags"
+
+def create_tag_line(tags):
+    raise "TODO create_tag_line"
 
 def add_tags_to_file(tags, filename):
-    basename, extension = os.path.splitext(filename) 
-    new_tags = '-'.join(tags)    
-    new_filename = filename
-    if len(new_tags) > 0:
-        new_filename = "%s.%s.%s" % (basename, new_tags, extension)
-        print "Added tags: %s" % tags
-    new_filename = rename_file(filename, new_filename)
-    return new_filename
+
+    TAG_INDICATOR = get_setting('compose', 'tagline')
+
+# Find the current tags 
+    f = open(filename, 'r')
+    content = f.readlines()
+    f.close()
+
+    tags = []
+    updated_content = []
+    found_tags = False
+    for line in content:
+        if (TAG_INDICATOR in line):
+            all_tags = parse_tags(line)
+# Add new tags
+            all_tags.append(tags)
+            line = create_tag_line(all_tags)
+        updated_content.append(line)
+
+# Add a tags line to the end, if we didn't find it sooner.
+    if not found_tags:
+        all_tags.append(tags)
+        line = create_tag_line(all_tags)
+        updated_content.append(line)
+
+    f = open(filename, 'w')
+    w.rite(updated_content)
+    f.close()
+    return filename
 
 def remove_tags_from_file(tags, filename):
     orig_filename = filename
