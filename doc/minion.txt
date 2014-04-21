@@ -30,6 +30,15 @@ Commands:
 		Display counts of files in the ten minion folders 
 		containing the most files.
 
+Useful related Vim commands:
+
+	The MinionOpen and MinionSearch commands result in many open buffers.
+	:buffers - Show a list of all open buffers.
+	:bn - Switch to next open buffer.
+	:bp - Switch to previous open buffer.
+	:b3 - Switch to open buffer number 3.
+	:bufdo bdelete - Close all open buffers.
+
 Configuration:
 
 	~/.minion
