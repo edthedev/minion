@@ -166,6 +166,36 @@ vim.command("call cursor(%d, 0)" % (last_line + 1))
 EOF
 endfunction
 
+" Add tags to a minion file.
+" ---------------------------
+" TODO: Consider: Tags probably should modify the file content, not the file name.
+" 			Pro: Filename tags allow tagging PDF files.
+" 			Con: Filename tags move the file, which you might be editing in
+" 			another editor.
+" 			Pro: Searching for filename tags is faster.
+" 			Con: Full text search is actually still pretty quick for this use
+" 			case.
+" 			Con: Adding significance to the filename can lead to other
+" 			incompatibilities with other systems.
+" 			Con: Let's let other systems own the filename, not Minion.
+function! MinionTag(keywords)
+	let s:current_file = expand('%')
+python << EOF
+# Create the file
+args = {
+	'tags':vim.eval("a:keywords").split(' '),
+	'filename':vim.eval("s:current_file"),
+}
+new_filename = brain.add_tags_to_file(**args)
+
+# Open it in the new location.
+vim.command("bd")
+vim.command("e %(item)s" % {'item':new_filename})
+# vim.command("call cursor(%d, 0)" % (last_line + 1))
+EOF
+endfunction
+
+
 " ================
 " Minion Commands
 " ================
@@ -180,6 +210,7 @@ command! -nargs=1 MinionOpen call MinionOpen(<f-args>, "false")
 command! -nargs=1 MinionRename call MinionRename(<f-args>)
 command! -nargs=1 MinionSearch call MinionOpen(<f-args>, "true")
 command! -nargs=0 MinionSummary call MinionSummary()
+command! -nargs=1 MinionTag call MinionTag(<f-args>)
 
 " ==========================
 " Minion Keyboard Shortcuts
