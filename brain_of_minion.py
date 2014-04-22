@@ -975,10 +975,17 @@ def parse_tags(line, TAG_INDICATOR):
     return tags
 
 def create_tag_line(tags, TAG_INDICATOR):
+# Unique-ify
+    tags = list(set(tags))
+# Remove any line breaks
     # TODO: Find a way to support multiple lines of tags, someday, maybe.
-    if TAG_INDICATOR not in tags:
-        tags.insert(0, TAG_INDICATOR)
     tags = [x.replace('\n', ' ') for x in tags]
+
+    # Always put the tag indicator at the start.
+    if TAG_INDICATOR in tags:
+        tags.pop(tags.index(TAG_INDICATOR))
+
+    tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
 
 def add_tags_to_file(tags, filename):
