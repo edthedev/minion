@@ -457,14 +457,13 @@ def remove_archives(file_list):
 def get_remove_tags(text_string):
     tag_re = re.compile("-@\w*")
     tags = tag_re.findall(text_string)
-    tags = [x.replace('-@', '@') for x in tags]
+    tags = [x.lstrip('-@') for x in tags]
     return tags
 
 def get_tags(text_string):
-    # tag_re = re.compile("[^-]@\w*")
-    tag_re = re.compile("[-]*@\w*")
+    tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
-    results = [x.replace('-@', '-').lstrip('@') for x in tags]
+    results = [x.lstrip('@') for x in tags]
     return results
 
 def tagAfter(first, second):
@@ -976,13 +975,11 @@ def parse_tags(line, TAG_INDICATOR):
     return tags
 
 def create_tag_line(tags, TAG_INDICATOR):
-    import pdb; pdb.set_trace()
     if TAG_INDICATOR not in tags:
         tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
 
 def add_tags_to_file(tags, filename):
-    import pdb; pdb.set_trace()
     if len(tags) == 0:
         return filename
 
@@ -1000,7 +997,7 @@ def add_tags_to_file(tags, filename):
         if (TAG_INDICATOR in line):
             all_tags = parse_tags(line, TAG_INDICATOR)
 # Add new tags
-            all_tags.append(tags)
+            all_tags.extend(tags)
             line = create_tag_line(all_tags, TAG_INDICATOR)
         updated_content.append(line)
 
@@ -1009,6 +1006,8 @@ def add_tags_to_file(tags, filename):
         line = create_tag_line(tags, TAG_INDICATOR)
         updated_content.append(line)
 
+    # Remove 
+    updated_content = [line.rstrip('\n') for line in updated_content]
     updated_string = '\n'.join(updated_content)
     f = open(filename, 'w')
     f.write(updated_string)
@@ -1205,7 +1204,6 @@ def get_unique_name(filename):
                 '.' + uid + '.', 1)
         final_name = os.path.join(directory, short_name)
         print "Name conflict. Renamed to " + final_name
-        # import pdb; pdb.set_trace()
     return final_name
 
 def rename_file(filename, new_name):
