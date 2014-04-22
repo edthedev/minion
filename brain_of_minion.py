@@ -977,7 +977,7 @@ def parse_tags(line, TAG_INDICATOR):
 def create_tag_line(tags, TAG_INDICATOR):
     if TAG_INDICATOR not in tags:
         tags.insert(0, TAG_INDICATOR)
-    tags = [x.rstrip('\n') for x in tags]
+    tags = [x.replace('\n', ' ') for x in tags]
     return ' '.join(tags)
 
 def add_tags_to_file(tags, filename):
