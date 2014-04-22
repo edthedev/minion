@@ -186,13 +186,9 @@ args = {
 	'tags':vim.eval("a:keywords").split(' '),
 	'filename':vim.eval("s:current_file"),
 }
-new_filename = brain.add_tags_to_file(**args)
-
-# Open it in the new location.
-vim.command("bd")
-vim.command("e %(item)s" % {'item':new_filename})
-# vim.command("call cursor(%d, 0)" % (last_line + 1))
+brain.add_tags_to_file(**args)
 EOF
+e %
 endfunction
 
 
@@ -251,8 +247,9 @@ if g:minion_map_keys
 	" Display a summary of Minion managed folders.
 	:nnoremap <Leader>ms :MinionSummary<Cr>
 
-	" New Note
-	" :nnoremap <Leader>mn :!~/.vim/bundle/Minion/bin/minion --new-note
+	" Add tags to the current Minion File.
+	"  (possible now that the file is not renamed.)
+	:nnoremap <leader>mt :MinionTag 
 
 	" Review this file
 	" ":nnoremap <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>
