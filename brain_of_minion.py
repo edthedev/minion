@@ -975,6 +975,7 @@ def parse_tags(line, TAG_INDICATOR):
     return tags
 
 def create_tag_line(tags, TAG_INDICATOR):
+    # TODO: Find a way to support multiple lines of tags, someday, maybe.
     if TAG_INDICATOR not in tags:
         tags.insert(0, TAG_INDICATOR)
     tags = [x.replace('\n', ' ') for x in tags]
