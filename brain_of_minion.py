@@ -988,6 +988,46 @@ def create_tag_line(tags, TAG_INDICATOR):
     tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
 
+def remove_tags_from_file(tags, filename):
+    if len(tags) == 0:
+        return filename
+
+    TAG_INDICATOR = get_setting('compose', 'tagline')
+
+# Find the current tags 
+    f = open(filename, 'r')
+    content = f.readlines()
+    f.close()
+
+    all_tags = []
+    updated_content = []
+    found_tags = False
+    for line in content:
+        if (TAG_INDICATOR in line):
+            found_tags = True
+            all_tags = parse_tags(line, TAG_INDICATOR)
+            for tag in tags:
+                all_tags.pop(all_tags.index(tag))
+            line = create_tag_line(all_tags, TAG_INDICATOR)
+
+        updated_content.append(line)
+
+    # Write back to the file
+    updated_content = [line.rstrip('\n') for line in updated_content]
+    updated_string = '\n'.join(updated_content)
+    f = open(filename, 'w')
+    f.write(updated_string)
+    f.close()
+    return filename
+
+#    orig_filename = filename
+#    new_filename = filename
+#    for remove_tag in tags:
+#        new_filename = new_filename.replace(remove_tag, '')
+#        print "Removed tags: %s" % tags
+#    new_filename = rename_file(orig_filename, new_filename)
+    return new_filename
+
 def add_tags_to_file(tags, filename):
     if len(tags) == 0:
         return filename
@@ -1027,14 +1067,6 @@ def add_tags_to_file(tags, filename):
     f.close()
     return filename
 
-def remove_tags_from_file(tags, filename):
-    orig_filename = filename
-    new_filename = filename
-    for remove_tag in tags:
-        new_filename = new_filename.replace(remove_tag, '')
-        print "Removed tags: %s" % tags
-    new_filename = rename_file(orig_filename, new_filename)
-    return new_filename
 
 
 def archive(filename):
