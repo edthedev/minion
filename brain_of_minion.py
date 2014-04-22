@@ -985,6 +985,9 @@ def add_tags_to_file(tags, filename):
 
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
+    if ' ' in TAG_INDICATOR:
+        print "WARNING: Spaces in the [compose] tagline= setting may cause tag duplication."
+
 # Find the current tags 
     f = open(filename, 'r')
     content = f.readlines()
