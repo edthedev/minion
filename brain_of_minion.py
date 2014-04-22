@@ -461,9 +461,11 @@ def get_remove_tags(text_string):
     return tags
 
 def get_tags(text_string):
-    tag_re = re.compile("[^-]@\w*")
+    # tag_re = re.compile("[^-]@\w*")
+    tag_re = re.compile("[-]*@\w*")
     tags = tag_re.findall(text_string)
-    return tags
+    results = [x.replace('-@', '-').lstrip('@') for x in tags]
+    return results
 
 def tagAfter(first, second):
     big_number = random.randint(0, 100000)
@@ -968,13 +970,21 @@ def applyCommandToLine(filename, line, command):
         pass
     return line
 
-def parse_tags(line):
-    raise "TODO parse_tags"
+def parse_tags(line, TAG_INDICATOR):
 
-def create_tag_line(tags):
-    raise "TODO create_tag_line"
+    tags = line.split(' ')
+    return tags
+
+def create_tag_line(tags, TAG_INDICATOR):
+    import pdb; pdb.set_trace()
+    if TAG_INDICATOR not in tags:
+        tags.insert(0, TAG_INDICATOR)
+    return ' '.join(tags)
 
 def add_tags_to_file(tags, filename):
+    import pdb; pdb.set_trace()
+    if len(tags) == 0:
+        return filename
 
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
@@ -983,25 +993,25 @@ def add_tags_to_file(tags, filename):
     content = f.readlines()
     f.close()
 
-    tags = []
+    all_tags = []
     updated_content = []
     found_tags = False
     for line in content:
         if (TAG_INDICATOR in line):
-            all_tags = parse_tags(line)
+            all_tags = parse_tags(line, TAG_INDICATOR)
 # Add new tags
             all_tags.append(tags)
-            line = create_tag_line(all_tags)
+            line = create_tag_line(all_tags, TAG_INDICATOR)
         updated_content.append(line)
 
 # Add a tags line to the end, if we didn't find it sooner.
     if not found_tags:
-        all_tags.append(tags)
-        line = create_tag_line(all_tags)
+        line = create_tag_line(tags, TAG_INDICATOR)
         updated_content.append(line)
 
+    updated_string = '\n'.join(updated_content)
     f = open(filename, 'w')
-    w.rite(updated_content)
+    f.write(updated_string)
     f.close()
     return filename
 
