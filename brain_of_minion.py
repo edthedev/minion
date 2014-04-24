@@ -663,12 +663,32 @@ def isProject(filename):
             return True
     return False
 
+def has_tag(filename, tag):
+    ''' Return true if the file's tags line has the given tag. '''
+    f = open(filename, 'r')
+    content = f.readlines()
+# print content
+    f.close()
+
+    TAG_INDICATOR = get_setting('compose', 'tagline')
+
+    for line in content:
+        if TAG_INDICATOR in line:
+            if tag in line:
+                return True
+    return False
+
 def limit_notes(choice, notes, full=False):
+    ''' Only return notes who have the text in choice in at least one of:
+            The :tags: line in the file.
+            or
+            The filename.
+    '''
     new_array = []
     for note in notes:
         choice = choice.lower()
         low_note = note.lower()
-        if choice in low_note:
+        if (choice in low_note) or has_tag(note, choice):
             if 'swp' not in note:
                 new_array.append(note)
         else:
@@ -841,10 +861,10 @@ def get_inbox():
         os.mkdir(inbox)
     return inbox
 
-def get_keyword_files(keyword_string, archives=False):
+def get_keyword_files(keyword_string, archives=False, full_text=False):
     ''' Get all files that match space-separated keywords. '''
     keywords = keyword_string.split(' ')
-    match_files = find_files(filter=keywords, archives=archives)
+    match_files = find_files(filter=keywords, archives=archives, full_text=full_text)
     return match_files
 
 def get_inbox_files():
@@ -1180,7 +1200,7 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
         else:
             if not item.endswith('~'):
                 files.append("%s/%s" % (directory, item))
-    
+
     if not archives:
         files = remove_archives(files)
 
