@@ -1265,8 +1265,12 @@ def get_unique_name(filename):
         print short_name
         import uuid
         uid = str(uuid.uuid1())
-        short_name = short_name.replace('.', \
-                '.' + uid + '.', 1)
+        if '.' in short_name:
+            short_name = short_name.replace('.', \
+                    '.' + uid + '.', 1)
+        else:
+# In case there is no dot.
+            short_name = short_name + uid
         final_name = os.path.join(directory, short_name)
         print "Name conflict. Renamed to " + final_name
     return final_name
