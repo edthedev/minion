@@ -1185,16 +1185,16 @@ def hasCalendarTag(text):
             return True
     return False
 
-def get_files(directory=None, archives=False):
+def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
     files = []
-    dirList = os.listdir(directory)
+    dir_list = os.listdir(directory)
     # dirList.sort()
-    for item in dirList:
+    for item in dir_list:
         dirName = os.path.join(directory, item)
         if os.path.isdir(dirName):
             files.extend(
-                find_files(dirName,
+                get_files(dirName,
                     archives=archives)
                     )
         else:
@@ -1213,14 +1213,27 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
 
     files = get_files(directory, archives)
 
-    for tag in filter:
-        files = limit_notes(tag, files, full=full_text)
+    if not find_any:
+        for tag in filter:
+            files = limit_notes(tag, files, full=full_text)
+    else:
+        raw_files = files
+        files = []
+        for f in files:
+            if has_any_tag(filter):
+                files.append(f)
 
     if weekend is not None:
         ignore_tags = get_ignore_tags(worktime=not weekend)
         files = ignoreTags(files, ignore_tags)
 
     return files
+
+def has_any_tag(filename, tags):
+    for tag in tags:
+        if has_tag(filename, tag):
+            return True
+    return False
 
 def getIgnoreString(worktime=False):
     return "-i %s" % ' -i '.join(get_ignore_tags(worktime))

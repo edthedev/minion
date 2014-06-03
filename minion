@@ -38,7 +38,7 @@ Options:
 Command descriptions:
     count - display a count of the results
     dates - display matching files with dates, in date order
-    find - synonym for list 
+    find - like list, but returns *any* match to *any* given keyword.
     favories - like summary, but displays only folders configured as favorites
     folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
@@ -230,34 +230,40 @@ if args['dates']:
     brain_of_minion.display_output('Upcoming Dates', upcoming)
 
 # List the results
-if args['list'] or args['find']:
+
+if args['find'] or args['list']:
+    find_any = False
+    if args['find']:
+        find_any = True
+    match_files = brain.find_files(filter=filter,
+            archives=args['--archives'],
+            find_any=find_any)
+
+    #if len(match_files) == 0:
+    #    print "Found no matches. Searching archives..."
+    #match_files = brain.find_files(filter=filter,
+    #        archives=True,
+    #        find_any=find_any)
 
     # Set archives if no finds...
-    match_files = get_match_files()
-    if len(match_files) == 0:
-        print "Found no matches. Searching archives..."
-        match_files = brain_of_minion.find_files(filter=args['<text>'], 
-                archives=True,
-                find_any=True)
-        total = brain_of_minion.get_total_file_count(include_archives = True)
-    else:
-        total = brain_of_minion.get_total_file_count(include_archives = False)
+    total = brain.get_total_file_count(args['--archives'])
 
     # Display results / total 
     match_template = \
 "{matching} of {total} files match search {search} in directory {directory}"
     print match_template.format( \
-        directory = brain_of_minion.get_notes_home(),
+        directory = brain.get_notes_home(),
         matching=len(match_files), 
-        search=','.join(args['<text>']), 
+        search=','.join(filter), 
         total = total)
-    
+
     # Display results
     # print match_files
-    brain_of_minion.display_output(title=filter, 
+    brain.display_output(title=filter, 
         output=match_files, 
         raw_files=args['--files'],
     )
+
     sys.exit(0)
 
 # publish your articles.
@@ -327,7 +333,6 @@ if args['sample']:
     if len(match_files) > 5:
         match_files = random.sample(match_files, 5)
     brain_of_minion.display_output(title=filter, output=match_files)
-
 
 def minion_sort(args):
     '''Interactively sort all matches.
