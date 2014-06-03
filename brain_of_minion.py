@@ -1219,8 +1219,8 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
     else:
         raw_files = files
         files = []
-        for f in files:
-            if has_any_tag(filter):
+        for f in raw_files:
+            if has_any_tag(f, filter):
                 files.append(f)
 
     if weekend is not None:
