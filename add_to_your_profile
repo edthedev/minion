@@ -22,3 +22,5 @@ fi
 if [ -d $MINION_INSTALL/aliases_for_minion ]; then
 	source $MINION_INSTALL/aliases_for_minion
 fi
+
+alias mn="minion"
