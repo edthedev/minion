@@ -1185,24 +1185,33 @@ def hasCalendarTag(text):
             return True
     return False
 
-def find_files(directory=None, archives=False, filter=[], full_text=False, weekend=None):
-    if directory == None:
-        directory = get_notes_home()
-
+def get_files(directory=None, archives=False):
+    ''' Called by find_files to get a list of files, before sorting. '''
     files = []
     dirList = os.listdir(directory)
     # dirList.sort()
     for item in dirList:
         dirName = os.path.join(directory, item)
         if os.path.isdir(dirName):
-            files.extend(find_files(dirName, 
-                archives=archives, full_text=full_text))
+            files.extend(
+                find_files(dirName,
+                    archives=archives)
+                    )
         else:
             if not item.endswith('~'):
                 files.append("%s/%s" % (directory, item))
 
     if not archives:
         files = remove_archives(files)
+
+    return files
+
+def find_files(directory=None, archives=False, filter=[], full_text=False, weekend=None, find_any=False):
+    ''' Find matching files... '''
+    if directory == None:
+        directory = get_notes_home()
+
+    files = get_files(directory, archives)
 
     for tag in filter:
         files = limit_notes(tag, files, full=full_text)

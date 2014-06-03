@@ -1,5 +1,7 @@
 #!/bin/bash
 alias mn="minion"
+alias today="minion list today `date +%Y-%m-%d`"
+
 # alias archive="minion --archive"
 # alias cleanup="minion --review waiting; minion --review someday; minion --review soon"
 # alias context="minion --list $@"
