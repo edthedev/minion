@@ -1423,6 +1423,7 @@ def get_template_content(template):
     }
     template_file_name = "%(type)s_template%(ext)s" % data
     template_file = os.path.join(data['directory'], template_file_name)
+# TODO: Recover gracefully if the expected template is missing.
     f = open(template_file, 'r')
     template_text = f.readlines()
     f.close()
