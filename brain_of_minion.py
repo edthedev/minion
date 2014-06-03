@@ -1231,6 +1231,8 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
 
 def has_any_tag(filename, tags):
     for tag in tags:
+        if tag in filename:
+            return True
         if has_tag(filename, tag):
             return True
     return False
