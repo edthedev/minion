@@ -25,6 +25,21 @@ NON_TEXT_VIEWERS= {
         '.pdf':'evince',
         '.xls':'libreoffice',
         }
+
+import platform
+if 'Darwin' in platform.platform():
+# Mac OSX 10.9 preferred apps:
+    NON_TEXT_VIEWERS= {
+            'default':'/usr/bin/open',
+            '.pdf':'/usr/bin/open',
+            '.jpg':'/usr/bin/open',
+            '.jpeg':'/usr/bin/open',
+            '.xls':'/usr/bin/open',
+            '.xlsx':'/usr/bin/open',
+            '.doc':'/usr/bin/open',
+            '.docx':'/usr/bin/open',
+            }
+
 TERMINAL_APP = ['vim', 'cat %s | less']
 REPLACE_APP = ['cat %s | less']
 
@@ -790,12 +805,13 @@ def open_file(filename,
 def preview_file(filename):
     viewer = get_viewer(filename)
     LOGGER.info("Viewing file: " + filename + " with " + viewer)
-    if viewer in REPLACE_APP:
-        os.system(viewer % filename)
-    elif viewer in TERMINAL_APP:
-        os.system("%s %s" % (viewer, filename))
-    else:
-        subprocess.call([viewer, filename])
+    # if viewer in REPLACE_APP:
+    #    os.system(viewer % filename)
+    #elif viewer in TERMINAL_APP:
+    #    os.system("%s %s" % (viewer, filename))
+    #else:
+    # import pdb; pdb.set_trace()
+    subprocess.call([viewer, filename])
 
 #def previewFile(filename, lines):
 #    result = displayNice(filename)
