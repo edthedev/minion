@@ -34,6 +34,7 @@ if 'Darwin' in platform.platform():
             '.doc':'/usr/bin/open',
             '.docx':'/usr/bin/open',
             '.gdoc':'/usr/bin/open',
+            '.gdraw':'/usr/bin/open',
             '.gsheet':'/usr/bin/open',
             '.gslides':'/usr/bin/open',
             '.jpg':'/usr/bin/open',
