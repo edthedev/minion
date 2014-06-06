@@ -31,13 +31,15 @@ if 'Darwin' in platform.platform():
 # Mac OSX 10.9 preferred apps:
     NON_TEXT_VIEWERS= {
             'default':'/usr/bin/open',
-            '.pdf':'/usr/bin/open',
-            '.jpg':'/usr/bin/open',
-            '.jpeg':'/usr/bin/open',
-            '.xls':'/usr/bin/open',
-            '.xlsx':'/usr/bin/open',
             '.doc':'/usr/bin/open',
             '.docx':'/usr/bin/open',
+            '.gdoc':'/usr/bin/open',
+            '.gsheet':'/usr/bin/open',
+            '.jpg':'/usr/bin/open',
+            '.jpeg':'/usr/bin/open',
+            '.pdf':'/usr/bin/open',
+            '.xls':'/usr/bin/open',
+            '.xlsx':'/usr/bin/open',
             }
 
 TERMINAL_APP = ['vim', 'cat %s | less']
