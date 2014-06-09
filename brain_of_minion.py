@@ -67,6 +67,7 @@ def get_global_data():
     data['today'] = today.strftime(date_format)
     this_week = today - datetime.timedelta(days=today.weekday())
     data['week'] = this_week.strftime(date_format)
+    data['day_of_week'] = today.weekday()
     return data
 
 GLOBAL_DATA = get_global_data()
@@ -1266,7 +1267,7 @@ def find_files(directory=None, archives=False, filter=[], full_text=False, weeke
 
 def has_any_tag(filename, tags):
     for tag in tags:
-        if tag in filename:
+        if tag.lower() in filename.lower():
             return True
         if has_tag(filename, tag):
             return True
