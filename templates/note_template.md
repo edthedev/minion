@@ -1,2 +1,2 @@
-# $topic
-:date: $today
+# {topic}
+:date: {today}

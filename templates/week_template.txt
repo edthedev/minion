@@ -1,0 +1,22 @@
+Weekly Plan for {week}
+{underline}
+:date: {today}
+
+Customers
+----------
+
+Strategy and Planning
+----------------------
+
+Projects
+---------
+
+Management
+-----------
+
+My Professional Development
+----------------------------
+
+Other
+------
+

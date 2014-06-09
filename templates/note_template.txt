@@ -1,3 +1,3 @@
-$topic
-$underline
-:date: $today
+{topic}
+{underline}
+:date: {today}
