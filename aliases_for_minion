@@ -2,6 +2,6 @@
 alias mn="minion"
 alias remind="minion remind $@"
 alias rem="minion remind $@"
-alias today="minion find urgent today `date +%Y-%m-%d`"
+alias today="minion find urgent today `date +%Y-%m-%d` goal"
 alias goals="minion open goals"
 alias where_in_the_world_is="minion find --archives $@"
