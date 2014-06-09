@@ -1,7 +1,14 @@
 #!/bin/bash
+# Keystrokes have value.
 alias mn="minion"
+
+# Let's add content.
+alias journal="minion template journal $@"
 alias remind="minion remind $@"
 alias rem="minion remind $@"
-alias today="minion find urgent today `date +%Y-%m-%d` goal"
+alias weekly_plan="minion template week"
+
+# Let's review content.
 alias goals="minion open goals"
+alias today="minion find urgent today `date +%Y-%m-%d` goal"
 alias where_in_the_world_is="minion find --archives $@"
