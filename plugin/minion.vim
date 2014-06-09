@@ -159,6 +159,7 @@ args = {
 	'topic':vim.eval("a:keywords"),
 }
 (filename, last_line) = brain.create_new_note(**args)
+filename = filename.replace(' ', '\ ')
 
 # Open it in the new location.
 vim.command("e %(item)s" % {'item':filename})
