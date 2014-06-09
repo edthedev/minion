@@ -10,7 +10,7 @@ Usage:
     minion favorites
     minion folder <text> ... 
     minion folders 
-    minion journal [--folder=<folder>] [--editor=<editor>] <text> ...
+    minion journal [--folder=<folder>] <text> ...
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
@@ -23,6 +23,7 @@ Usage:
     minion strays
     minion summary [--archives] [--max=<max>] 
     minion view [--archives] [--max=<max>] <text> ...
+    minion week
     minion tags
 
 Options:
@@ -55,6 +56,7 @@ Command descriptions:
     strays - interactively sort any files whose folder only contains a few items.
     summary - list all folders and the item counts in those folders
     view - print the contents of all matches to the terminal standard output
+    week - plan your week with the minion week tepmlate
     tags - list all tags
 """
 
@@ -280,16 +282,22 @@ if args['publish']:
 
 
 def minion_journal(args):
-    '''Start a journal article, which always includes the current date
-    in the filename.'''
-    notes_dir = get_notes_dir(args)
-    today_string = datetime.datetime.today().strftime(get_date_format())
-    args['<text>'] = ['Journal ' + today_string] + args['<text>']
-    brain_of_minion.new_note_interactive(args['<text>'], 
-            quick=args['remind'],
-            editor=args['--editor'],
-            template='journal',
-            notes_dir=notes_dir)
+    '''Start a journal article, which always includes the current date in the filename.'''
+    args['<text>'] = ['Journal {today}'] + args['<text>']
+    (filename, last_line) = brain.create_new_note(
+        ' '.join(args['<text>']),
+        template='journal',
+    )
+    brain.open_file(filename, last_line)
+
+def minion_week(args):
+    '''Start a weekly plan article, which always includes the current date in the filename.'''
+    filename_text = 'Weekly plan for {week}'
+    (filename, last_line) = brain.create_new_note(
+        filename_text,
+        template='week',
+    )
+    brain.open_file(filename, last_line)
 
 def minion_remind(args):
     '''Set a quick reminder.'''

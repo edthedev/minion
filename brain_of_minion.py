@@ -15,6 +15,59 @@ from collections import defaultdict
 import logging
 LOGGER = logging.getLogger(__name__)
 
+def get_settings():
+    minion_file = os.path.expanduser('~/.minion')
+
+# Default notes settings
+    settings = SafeConfigParser()
+    settings.add_section('notes')
+    settings.set('notes', 'home', '~/minion/notes')
+    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
+# Default composition settings
+    settings.add_section('compose')
+    default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
+    settings.set('compose', 'templates', default_template_dir)
+    settings.set('compose', 'extension', '.txt')
+    settings.set('compose', 'editor', 'vim')
+    settings.set('compose', 'tagline', ':tags:')
+# Default date format
+    settings.add_section('date')
+    settings.set('date', 'format', '%%Y-%%m-%%d')
+
+# Load if available, write defaults if not.
+    if os.path.exists(minion_file):
+        settings.read([minion_file])
+    else:
+        f = open(minion_file, 'w')
+        settings.write(f)
+        f.close()
+
+    # SETTINGS_OBJ = settings
+    return settings
+
+
+
+def get_setting(section, key):
+    settings = get_settings()
+
+    return settings.get(section, key)
+
+def get_date_format():
+    return get_setting('date', 'format')
+
+def get_global_data():
+    ''' Return global data common to many template operations.
+    '''
+    date_format = get_date_format()
+    today = datetime.datetime.today()
+    data = {}
+    data['today'] = today.strftime(date_format)
+    this_week = today - datetime.timedelta(days=today.weekday())
+    data['week'] = this_week.strftime(date_format)
+    return data
+
+GLOBAL_DATA = get_global_data()
+
 # Linux preferred apps:
 NON_TEXT_VIEWERS= {
         'default':'cat %s | less',
@@ -95,44 +148,6 @@ def sort_files_interactive(match_files):
                     #  editor=args['--editor']
                     )
 
-def get_setting(section, key):
-    settings = get_settings()
-
-    return settings.get(section, key)
-
-# SETTINGS_OBJ = None
-def get_settings():
-    # if SETTINGS_OBJ:
-    #    return SETTINGS_OBJ
-
-    minion_file = os.path.expanduser('~/.minion')
-
-# Default notes settings
-    settings = SafeConfigParser()
-    settings.add_section('notes')
-    settings.set('notes', 'home', '~/minion/notes')
-    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
-# Default composition settings
-    settings.add_section('compose')
-    default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
-    settings.set('compose', 'templates', default_template_dir)
-    settings.set('compose', 'extension', '.txt')
-    settings.set('compose', 'editor', 'vim')
-    settings.set('compose', 'tagline', ':tags:')
-# Default date format
-    settings.add_section('date')
-    settings.set('date', 'format', '%%Y-%%m-%%d')
-
-# Load if available, write defaults if not.
-    if os.path.exists(minion_file):
-        settings.read([minion_file])
-    else:
-        f = open(minion_file, 'w')
-        settings.write(f)
-        f.close()
-
-    # SETTINGS_OBJ = settings
-    return settings
 
 EDITORS['default'] = get_setting('compose', 'editor')
 
@@ -814,7 +829,6 @@ def preview_file(filename):
     #elif viewer in TERMINAL_APP:
     #    os.system("%s %s" % (viewer, filename))
     #else:
-    # import pdb; pdb.set_trace()
     subprocess.call([viewer, filename])
 
 #def previewFile(filename, lines):
@@ -849,8 +863,6 @@ def preview_file(filename):
 #    return output
 #
 
-def get_date_format():
-    return get_setting('date', 'format')
 
 def get_date_format():
     settings = get_settings()
@@ -1296,8 +1308,12 @@ def string_to_file_name(text, ext=None):
 
     new_name = text.replace(' ', '-').replace('/', '-')
     # if not (new_name.endswith('.txt') or new_name.endswith('.pdf')):
+
+    new_name = new_name.format(**GLOBAL_DATA)
+
     if not new_name.endswith(ext):
         new_name = '%s%s' % (new_name, ext)
+
     return new_name
 
 def get_unique_name(filename):
@@ -1477,23 +1493,20 @@ def get_template_content(template):
 def write_template_to_file(topic, filename, template='note'):
     ''' Add templated pre-content to the new note.'''
 
-    today = datetime.date.today()
-    today = today.strftime(get_date_format())
     underline = '=' * len(topic)
-    summary = "%s\n%s\nCreated %s" % (topic, underline, today)
-    print summary
 
-    data = {}
+    data = GLOBAL_DATA
     data['topic'] =  topic
-    data['filename'] = filename 
+    data['filename'] = filename
     data['topic_underline'] = underline
-    data['today'] = today
     data['underline'] = underline
     # data['tags'] = tags 
     template_text = get_template_content(template)
 
-    t = Template(template_text)
-    file_text = t.safe_substitute(data)
+    summary = "{filename}\n{underline}\nCreated {today}".format(**data)
+    print summary
+
+    file_text = template_text.format(**data)
 
     f = open(filename, 'a')
     f.write(file_text)
@@ -1507,10 +1520,12 @@ def create_new_note(topic, template='note'):
     ''' Create a new note, non-interative.'''
     template_text = get_template_content(template)
     filename = get_filename_for_title(topic, notes_dir = None)
-    last_line = write_template_to_file(topic, filename, template)
+    last_line = 0
+    if not os.path.exists(filename):
+        last_line = write_template_to_file(topic, filename, template)
     return (filename, last_line)
 
-def new_note_interactive(args, quick, editor, template='note', notes_dir=None):
+def new_note_interactive(args, quick=False, editor='vim', template='note', notes_dir=None):
     '''Without any distractions, create a new file, from a template.
     
     Use a file-system safe filename, based on the title.
