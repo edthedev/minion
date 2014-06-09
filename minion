@@ -10,7 +10,6 @@ Usage:
     minion favorites
     minion folder <text> ... 
     minion folders 
-    minion journal [--folder=<folder>] <text> ...
     minion here [--editor=<editor>] <text> ...  
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
@@ -23,8 +22,8 @@ Usage:
     minion strays
     minion summary [--archives] [--max=<max>] 
     minion view [--archives] [--max=<max>] <text> ...
-    minion week
     minion tags
+    minion template [--folder=<folder>] <template> [<text>] ...
 
 Options:
     -a --archives           Search archive folders for matches. 
@@ -58,6 +57,7 @@ Command descriptions:
     view - print the contents of all matches to the terminal standard output
     week - plan your week with the minion week tepmlate
     tags - list all tags
+    template - start a note from a specialized template. Try 'week' and 'journal' to get started.
 """
 
 # #babyTeddySays: m'0']..p p j\[ ''
@@ -280,6 +280,16 @@ if args['publish']:
     if success != None:
         print "Published to " + success + "."
 
+
+def minion_template(args):
+    '''Start an article from a specialized template.'''
+    title = brain.get_title_from_template(args['<template>'])
+    args['<text>'].insert(0, title)
+    (filename, last_line) = brain.create_new_note(
+        ' '.join(args['<text>']),
+        template=args['<template>'],
+    )
+    brain.open_file(filename, last_line)
 
 def minion_journal(args):
     '''Start a journal article, which always includes the current date in the filename.'''

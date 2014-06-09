@@ -45,7 +45,10 @@ def get_settings():
     # SETTINGS_OBJ = settings
     return settings
 
-
+def get_title_from_template(template):
+    ''' Sometimes the best place to find the filename is the first line of the template.'''
+    first_line = get_template_content(template).split('\n')[0]
+    return first_line.format(**GLOBAL_DATA)
 
 def get_setting(section, key):
     settings = get_settings()
