@@ -291,24 +291,6 @@ def minion_template(args):
     )
     brain.open_file(filename, last_line)
 
-def minion_journal(args):
-    '''Start a journal article, which always includes the current date in the filename.'''
-    args['<text>'] = ['Journal {today}'] + args['<text>']
-    (filename, last_line) = brain.create_new_note(
-        ' '.join(args['<text>']),
-        template='journal',
-    )
-    brain.open_file(filename, last_line)
-
-def minion_week(args):
-    '''Start a weekly plan article, which always includes the current date in the filename.'''
-    filename_text = 'Weekly plan for {week}'
-    (filename, last_line) = brain.create_new_note(
-        filename_text,
-        template='week',
-    )
-    brain.open_file(filename, last_line)
-
 def minion_remind(args):
     '''Set a quick reminder.'''
     notes_dir = get_notes_dir(args)
