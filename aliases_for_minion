@@ -6,7 +6,7 @@ alias mn="minion"
 alias journal="minion template journal $@"
 alias remind="minion remind $@"
 alias rem="minion remind $@"
-alias weekly_plan="minion template week"
+alias week="minion template week"
 
 # Let's review content.
 alias goals="minion open goals"
