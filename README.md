@@ -9,6 +9,10 @@ In particular, Minion is well complimented by the following:
 1. A great text editor. The best editors can be configured to run Minion commands as shortcuts without leaving the editor.
 2. A file folder synchronizer. Minion stores everything in files, so  synchronization software can make Minion content available from any location.
 
+## Latest Thoughts
+
+Minion is a great tool for 'being caught up', but I would like it to grow toward being a great tool for being effective. As part of this, I hope to soon be able to provide built-in functionality, or suggested use cases for using Minion to track goals as well as tasks. At the moment, I'm experimenting with just adding a tag called 'goal' to some files, and making command line aliases treat that tag in ways that increase visibility of goal items.
+
 ##What Minon Does
 
 In Vernor Vinge's novel, 'The Peace War', chess players can instantly upload thoughts from their minds into a computer for storage, and then recover and act on those thoughts later. Minion is meant to be a first step on that path. Minion takes care of storing, tagging, and retrieving ideas, freeing it's user to focus on thinking.
