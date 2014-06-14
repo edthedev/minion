@@ -3,23 +3,19 @@ Weekend Plan for {saturday}
 :date: {today}
 
 Goals
-----------------------
+------
 
-Needs
-----------
+Commitments
+------------
 
-Wants
-----------
+Options
+--------
 
-Projects
----------
-
-Social
------------
-
-Personal Development
-----------------------------
+Open Projects
+--------------
 
 Other
 ------
 
+Waiting
+--------
