@@ -65,8 +65,10 @@ def get_global_data():
     today = datetime.datetime.today()
     data = {}
     data['today'] = today.strftime(date_format)
-    this_week = today - datetime.timedelta(days=today.weekday())
-    data['week'] = this_week.strftime(date_format)
+    monday = today - datetime.timedelta(days=today.weekday())
+    for i, day in enumerate( ('sunday', 'monday', 'tuesday', 'wednesday', 
+            'thursday', 'friday', 'saturday', 'sunday')):
+        data[day] = (monday + datetime.timedelta(days=i-1)).strftime(date_format)
     data['day_of_week'] = today.weekday()
     return data
 

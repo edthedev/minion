@@ -1,20 +1,23 @@
-Weekly Plan for {monday}
+Weekend Plan for {saturday}
 ==============================
 :date: {today}
 
-Customers
+Goals
+----------------------
+
+Needs
 ----------
 
-Strategy and Planning
-----------------------
+Wants
+----------
 
 Projects
 ---------
 
-Management
+Social
 -----------
 
-My Professional Development
+Personal Development
 ----------------------------
 
 Other
