@@ -45,10 +45,12 @@ def get_settings():
     # SETTINGS_OBJ = settings
     return settings
 
-def get_title_from_template(template):
+def get_title_from_template(template, topic=None):
     ''' Sometimes the best place to find the filename is the first line of the template.'''
     first_line = get_template_content(template).split('\n')[0]
-    return first_line.format(**GLOBAL_DATA)
+    data = {'topic': topic}
+    data.update(GLOBAL_DATA)
+    return first_line.format(**data)
 
 def get_setting(section, key):
     settings = get_settings()
@@ -1315,7 +1317,10 @@ def string_to_file_name(text, ext=None):
     new_name = text.replace(' ', '-').replace('/', '-')
     # if not (new_name.endswith('.txt') or new_name.endswith('.pdf')):
 
-    new_name = new_name.format(**GLOBAL_DATA)
+    data = {'topic': text, 
+            'ext': ext }
+    data.update(GLOBAL_DATA)
+    new_name = new_name.format(**data)
 
     if not new_name.endswith(ext):
         new_name = '%s%s' % (new_name, ext)
