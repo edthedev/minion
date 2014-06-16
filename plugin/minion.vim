@@ -167,6 +167,25 @@ vim.command("call cursor(%d, 0)" % (last_line + 1))
 EOF
 endfunction
 
+" " Create a new template file in the inbox
+" ------------------------------------------------------
+"  i.e. weekly, weekend, journal
+function! MinionTemplate(template, topic)
+python << EOF
+template = vim.eval("a:template")
+topic = vim.eval("a:topic")
+title = brain.get_title_from_template(template, topic)
+(filename, last_line) = brain.create_new_note(
+	title + ' ' + topic,
+	template=template,
+)
+filename = filename.replace(' ', '\ ')
+# Open it in the new location.
+vim.command("e %(item)s" % {'item':filename})
+vim.command("call cursor(%d, 0)" % (last_line + 1))
+EOF
+endfunction
+
 " Add tags to a minion file.
 " ---------------------------
 " TODO: Consider: Tags probably should modify the file content, not the file name.
@@ -208,6 +227,7 @@ command! -nargs=1 MinionRename call MinionRename(<f-args>)
 command! -nargs=1 MinionSearch call MinionOpen(<f-args>, "true")
 command! -nargs=0 MinionSummary call MinionSummary()
 command! -nargs=1 MinionTag call MinionTag(<f-args>)
+command! -nargs=0 MinionWeek call MinionTemplate('week', '')
 
 " ==========================
 " Minion Keyboard Shortcuts
@@ -251,6 +271,9 @@ if g:minion_map_keys
 	" Add tags to the current Minion File.
 	"  (possible now that the file is not renamed.)
 	:nnoremap <leader>mt :MinionTag 
+
+	" Start or open the weekly plan.
+	:nnoremap <leader>mw :MinionWeek
 
 	" Review this file
 	" ":nnoremap <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>
