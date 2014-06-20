@@ -1467,7 +1467,16 @@ def getDateString():
         return datetime.datetime.today().strftime("%a, %x %H:%M %p")
 
 def getUpdatedString():
-        return "\nUpdated: %s" % datetime.datetime.today().strftime("%H:%M %p, %a, %x")
+        return "\nUpdated: %s" % \
+                datetime.datetime.today().strftime("%H:%M %p, %a, %x")
+
+def find_file(filename):
+    home = get_notes_home()
+    for root, directories, names in os.walk(home):
+        for f in names:
+            if f == filename:
+                return os.path.join(root, f)
+    return None
 
 def get_filename_for_title(topic, notes_dir=None):
      # Get location for new file
@@ -1478,7 +1487,11 @@ def get_filename_for_title(topic, notes_dir=None):
 
     topic_filename = string_to_file_name(topic)
 
-    filename = "%s/%s" %(notes_dir, topic_filename)
+    existing_filename = find_file(topic_filename)
+    if existing_filename:
+        return existing_filename
+
+    filename = os.path.join(notes_dir, topic_filename)
 
     return filename
 
