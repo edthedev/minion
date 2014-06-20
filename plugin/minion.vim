@@ -176,7 +176,7 @@ template = vim.eval("a:template")
 topic = vim.eval("a:topic")
 title = brain.get_title_from_template(template, topic)
 (filename, last_line) = brain.create_new_note(
-	title + ' ' + topic,
+    topic,	
 	template=template,
 )
 filename = filename.replace(' ', '\ ')
