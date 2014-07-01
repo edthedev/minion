@@ -2,14 +2,17 @@ Weekly Plan for {monday}
 ==============================
 :date: {today}
 
-Customers
-----------
+Commitments
+------------
 
-Strategy and Planning
+Deliverables This Week
+-----------------------
+
+Deliverables Schedule
 ----------------------
 
-Projects
----------
+Goals
+------
 
 Management
 -----------
@@ -17,6 +20,9 @@ Management
 My Professional Development
 ----------------------------
 
-Other
+Next Week
+----------
+
+Later
 ------
 
