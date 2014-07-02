@@ -26,22 +26,18 @@ In Vernor Vinge's novel, 'The Peace War', chess players can instantly upload tho
 
 Minion requires [Python2](http://python.org).
 
-1. Clone the source code from GitHub: `git clone https://github.com/montauk/minion`
-
+1. Clone the source code from GitHub: `git clone https://github.com/edthedev/minion`
 
 2. Move the example .minion file to your home directory, and edit it as needed: `mv minion/DOTminion .minion`
-
 
 3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
 
 	If you use `fish` add the following to your ~/.config/fish/config.fish
 
 		set -x MINION_INSTALL $HOME/minion
-		set -x NOTES_HOME $HOME/Notes
-		set -x INBOX $NOTES_HOME/inbox
 
 		if [ -d "$MINION_INSTALL" ]
-    			set -x PATH $MINION_INSTALL $PATH
+			set -x PATH $MINION_INSTALL $PATH
 		end
 		
 		# Some optional aliases, to get started.
@@ -77,27 +73,34 @@ your configuration files set to one method!*
 This plugin is packaged for use with
 [Vundle](https://github.com/gmarik/vundle/blob/master/README.md). This plugin requires [Vim](http://vim.org/about.php) to be compiled with [Python]( http://python.org) support.
 
-Install Vundle and then add `edthedev/minion` to your .vimrc:
+1. Install Vundle and then add `edthedev/minion` to your .vimrc:
 
 `Bundle 'edthedev/minion'`
 
-Then, from within Vim, run BundleInstall:
+2. Then, from within Vim, run BundleInstall:
 
 `:BundleInstall`
 
-Copy and set .minion file accordingly:
+3. Copy and set .minion file accordingly:
 
 `mv ~/.vim/bundle/minion/DOTminion ~/.minion`
 
-Change the `MINION_INSTALL` variable to `$HOME/.vim/bundle/minion` in
+4. Edit `~/.minion` to set your notes directory.
+
+	[notes]
+	home = ~/Documents
+
+5. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
+
+	[compose]
+	templates = /Users/edward/.vim/bundle/minion/plugin/../templates
+	extension = .md
+	editor = vim
+
+6. Change the `MINION_INSTALL` variable to `$HOME/.vim/bundle/minion` in
 `~/.vim/bundle/minion/add_to_your_profile`.
 
-Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
-
-##Commands
-
-
-
+7. Edit your bash profile to add `source ~/.vim/bundle/minion/add_to_your_profile`.
 
 ##Usage
 
