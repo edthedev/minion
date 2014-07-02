@@ -878,22 +878,18 @@ def get_date_format():
     return settings.get('date', 'format')
 
 def get_notes_home():
-    # if os.environ.has_key('NOTES_HOME'):
-    #     notes_home = os.environ['NOTES_HOME']
-    # else:
-    #     notes_home = '~/notes'
-    #     print "Notes home has been set to %s. Export the NOTES_HOME variable to suppress this message." % notes_home
+#    notes_home = None
+## Favor environment variable
+#    if os.environ.has_key('NOTES_HOME'):
+#        notes_home = os.environ['NOTES_HOME']
+# Then favor .minion config setting.
+#    if not notes_home:
     settings = get_settings()
-
     notes_home = settings.get('notes', 'home')
-    
     notes_home = os.path.expanduser(notes_home)
     if not os.path.exists(notes_home):
         os.mkdir(notes_home)
     return notes_home
-
-
-
 
 def get_inbox():
     inbox = "%s/inbox" % get_notes_home()
