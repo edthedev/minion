@@ -2,13 +2,13 @@
 # To add all of the Ed The Dev scripts to your path, 
 #  you can copy the bits below that you want to your profile...
 #    ...or...
-# Just add the following line in your profile (but remove the '#' form the begining):
+# Just add the following line in your profile (but remove the '#' from the begining):
 # source ~/minion/add_to_your_profile
+#    ...or... , if installed as a vim plugin, ...
+# source ~/.vim/bundle/minion/add_to_your_profile
 # 
 # Your profile is typically at ~/.profile or ~/.zshrc or ~/.bashrc or ~/.bash_profile
 
-# Org(anizer) scripts allow you to set reminders, sort them, and see summaries of them.
-# --------------------------------------------------------------------------------
 # Variables for convenience. 
 export MINION_INSTALL=$HOME/.vim/bundle/minion
 export NOTES_HOME=$HOME/notes
@@ -19,6 +19,6 @@ if [ -d "$MINION_INSTALL" ] ; then
 	export PATH="$MINION_INSTALL:$PATH"
 fi
 # Include some handy aliases in your profile.
-if [ -d $MINION_INSTALL/aliases_for_minion ]; then
+if [ -f $MINION_INSTALL/aliases_for_minion ]; then
 	source $MINION_INSTALL/aliases_for_minion
 fi
