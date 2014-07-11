@@ -1,6 +1,6 @@
 #!/bin/bash
 # To add all of the Ed The Dev scripts to your path, 
-#  you can copy the bits below that you want to your profile...
+# you can copy the bits below that you want to your profile...
 #    ...or...
 # Just add the following line in your profile (but remove the '#' from the begining):
 # source ~/minion/add_to_your_profile
@@ -12,7 +12,6 @@
 # Variables for convenience. 
 export MINION_INSTALL=$HOME/.vim/bundle/minion
 export NOTES_HOME=$HOME/notes
-export INBOX=$NOTES_HOME/inbox
 
 # Include the scripts on your path.
 if [ -d "$MINION_INSTALL" ] ; then
