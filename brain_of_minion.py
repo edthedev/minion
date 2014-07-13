@@ -68,7 +68,7 @@ def get_global_data():
     data = {}
     data['today'] = today.strftime(date_format)
     monday = today - datetime.timedelta(days=today.weekday())
-    for i, day in enumerate( ('sunday', 'monday', 'tuesday', 'wednesday', 
+    for i, day in enumerate( ('sunday', 'monday', 'tuesday', 'wednesday',
             'thursday', 'friday', 'saturday', 'sunday')):
         data[day] = (monday + datetime.timedelta(days=i-1)).strftime(date_format)
     data['day_of_week'] = today.weekday()
@@ -151,7 +151,7 @@ def sort_files_interactive(match_files):
     if len(to_open) > 0:
         print "Files to open: %s" % '\n'.join(to_open)
         for item in to_open:
-            open_file(item, 
+            open_file(item,
                     multiple=True,
                     #  editor=args['--editor']
                     )
@@ -174,10 +174,10 @@ def get_first_date(filename):
     }
 
     # TODO: Handle dates in the filename itself.
-   
-    # Find dates in the contents 
+
+    # Find dates in the contents
     content = ""
-    _, extension = os.path.splitext(filename) 
+    _, extension = os.path.splitext(filename)
     extension.lower()
     if not extension in NON_TEXT_VIEWERS:
         f = open(filename, 'r')
@@ -194,7 +194,7 @@ def get_first_date(filename):
             form = recognizers[key]
             for match in matches:
                 try:
-                    new_date = datetime.datetime.strptime(match, form) 
+                    new_date = datetime.datetime.strptime(match, form)
                     # Assume current year, if unsure.
                     # if new_date.year == 1900:
                         # new_date.year = datetime.datetime.today().year
@@ -216,8 +216,8 @@ def get_first_date(filename):
 def limit_to_year(year, file_list):
     '''Return only files from the list whose first date is within
     the specified year.
-    
-    Sorts the list by date, while at it. 
+
+    Sorts the list by date, while at it.
     '''
     results = defaultdict(list)
     for filename in file_list:
@@ -225,7 +225,7 @@ def limit_to_year(year, file_list):
         if hasattr(first_date, 'year'):
             if str(first_date.year) == str(year):
                 results[first_date].append(filename)
-    
+
     # TODO: Sort the collection
     sorted_results = []
     for _, files in results.items():
@@ -236,7 +236,7 @@ def limit_to_year(year, file_list):
 
 def get_total_file_count(include_archives = False):
     '''Return the count of the total number of files available to Minion.
-    
+
     This is useful for context when a search unexpectedly returns no results.
     '''
     total_files = []
@@ -266,12 +266,12 @@ def get_folder_summary(archives=False):
             full_folder = os.path.join(notes_home, folder)
             if os.path.isdir(full_folder):
                 files = os.listdir(full_folder)
-        # matches = match_files = find_files(filter=folder, 
+        # matches = match_files = find_files(filter=folder,
         #         archives = archives)
                 summary.append( (len(files), folder) )
 
     summary.sort(reverse = True)
-    return summary 
+    return summary
 
 def select_file(match_files, max_files = 10):
     '''Interactively select a file from the given list.
@@ -290,7 +290,7 @@ def select_file(match_files, max_files = 10):
             print "\n".join(match_files)
         choice = raw_input('Selection? ')
         if '!' in choice:
-            break    
+            break
         prev_matches = match_files
         less_match_files = limit_notes(choice, match_files, True)
         if len(less_match_files) == 0:
@@ -303,8 +303,8 @@ def select_file(match_files, max_files = 10):
 
 def publish(filename, target='?', editor='vim'):
     '''Runs SCP to copy the file to the target.'''
-    
-    # Fetch some publish target shortcuts from out settings file. 
+
+    # Fetch some publish target shortcuts from out settings file.
     settings = get_settings()
 
     target_string = settings.get('publish', 'targets')
@@ -334,8 +334,8 @@ def remind(text):
 
 class WebTemplate(object):
     def __init__(self, template="", data={}):
-        self.Template = template 
-        self.Data = data 
+        self.Template = template
+        self.Data = data
     def __str__(self):
         return self.webify(self.Data)
     def render(self):
@@ -378,7 +378,7 @@ def getStatus():
 
 def is_work_time():
     today = datetime.datetime.today()
-    weekend = (today.weekday() > 4)    
+    weekend = (today.weekday() > 4)
     if weekend:
         return False
     if today.hour >= 8 and today.hour < 17:
@@ -424,7 +424,7 @@ def getIgnoredTags(script_name=''):
 
 #@route('/folders')
 # def webFolders(location=None):
-#    return webify(getFolders(location)) 
+#    return webify(getFolders(location))
 
 def getFolders(location=None):
     if location == None:
@@ -441,7 +441,7 @@ def ignoreTags(file_list, tags=[]):
         if success:
             match_files.append(f)
     return match_files
-    
+
 def getTaggedLines(tags, filename):
     f = open(filename)
     lines = f.readlines()
@@ -489,9 +489,9 @@ def sampleTagged(tags):
             matching_lines = getTaggedLines(tags, sample_file)
             if len(matching_lines) > 0:
                 sample_text += '\n' + random.choice(matching_lines)
-        return [sample_text] 
+        return [sample_text]
     else:
-        return [] 
+        return []
 
 def remove_archives(file_list):
     return remove_notes(file_list, ['archive'])
@@ -551,7 +551,7 @@ def sort_by_tag(file_list):
                     placed = True
                     all_tags[tag] = [item]
     return all_tags
-                    
+
     #def remove_duplicate_tasks(tagged_dict):
         #length_by_key = {}
         #for key in tagged_dict:
@@ -571,15 +571,15 @@ def display_output(title, output, by_tag=False, raw_files=False, max_display=Non
         output_lines = []
         for key in output:
             items = [
-                str(key), 
+                str(key),
                 str(output[key]),
-                ]       
+                ]
             line = '\t-\t'.join(items)
             output_lines.append(line)
 
         output = separator.join(output_lines)
 
-    # Print lists with one item per line 
+    # Print lists with one item per line
 
     if type(output) is list:
         if max_display:
@@ -643,7 +643,7 @@ def remove_tags_from_string(filename):
 #    tags = input_string.split(' ')
 #    #proper_tags = []
 #    #for tag in tags:
-#    #    if 
+#    #    if
 #    return tags
 #
 #!/bin/python2.5
@@ -654,7 +654,7 @@ def getMatchingFiles(search_terms, file_list):
     for f in file_list:
         success = True
         for term in lower_terms:
-            success = success and (term in f.lower()) 
+            success = success and (term in f.lower())
         if success:
             match_files.append(f)
     return match_files
@@ -684,9 +684,9 @@ def sampleTagged(tags):
             matching_lines = getTaggedLines(tags, sample_file)
             if len(matching_lines) > 0:
                 sample_text += '\n' + random.choice(matching_lines)
-        return [sample_text] 
+        return [sample_text]
     else:
-        return [] 
+        return []
 
 def getTaggedFiles(tags, full=False):
     all_files = getAllFiles(archives=False)
@@ -694,11 +694,11 @@ def getTaggedFiles(tags, full=False):
         all_files = limit_notes(tag, all_files, full)
     return all_files
 
-def getCurrentProjects(): 
+def getCurrentProjects():
     current_projects = getTaggedFiles(['@project'])
     current_projects.extend(getTaggedFiles(['.org']))
     return current_projects
-    
+
 def isProject(filename):
     for tag in ['.org', 'project']:
         if tag in filename:
@@ -767,7 +767,7 @@ def getAllFiles(archives=True, folder=None):
         folder = get_notes_home()
     files = find_files(folder)
     if not archives:
-        return removeArchives(files) 
+        return removeArchives(files)
     else:
         return files
 
@@ -785,14 +785,14 @@ def get_viewer(filename):
     return get_editor(filename, view=True)
 
 def get_editor(filename, multiple=False,
-        graphical = False, 
+        graphical = False,
         view=False):
     apps = EDITORS
     if view:
         apps = NON_TEXT_VIEWERS
     if graphical:
         apps = GRAPHICAL_EDITORS
-    
+
     extension = os.path.splitext(filename)[1]
     extension = extension.lower()
     print extension
@@ -804,7 +804,7 @@ def get_editor(filename, multiple=False,
         except:
             editor = apps['default']
 
-    return editor 
+    return editor
 
 def file_to_stdout(filename):
     ''' Print the contents of the file to standard output. '''
@@ -815,12 +815,12 @@ def file_to_stdout(filename):
 # One extra line break is wise, in case the file does not end with one.
     print '\n'
 
-def open_file(filename, 
-        line=0, 
-        multiple = False, 
+def open_file(filename,
+        line=0,
+        multiple = False,
         graphical = False):
     print "Opening %s" % filename
-    program = get_editor(filename, 
+    program = get_editor(filename,
             multiple, graphical)
     if program == 'vim':
         subprocess.call([program, filename, "+%d" % (line + 2)])
@@ -878,12 +878,6 @@ def get_date_format():
     return settings.get('date', 'format')
 
 def get_notes_home():
-#    notes_home = None
-## Favor environment variable
-#    if os.environ.has_key('NOTES_HOME'):
-#        notes_home = os.environ['NOTES_HOME']
-# Then favor .minion config setting.
-#    if not notes_home:
     settings = get_settings()
     notes_home = settings.get('notes', 'home')
     notes_home = os.path.expanduser(notes_home)
@@ -971,7 +965,7 @@ def getUpcoming(full=False):
     results.extend(this_month)
     this_month_project_cal = limit_notes(choice=current_month, notes=project_calendar)
     results.extend(this_month_project_cal)
-    
+
 # Get results for next month.
     if len(results) < 5 or full:
         next_month_tag = getNextMonth()
@@ -984,14 +978,14 @@ def getUpcoming(full=False):
     else:
         return results[:5]
 
-def getCurrentProjects(): 
+def getCurrentProjects():
     current_projects = getTaggedFiles(['@project'])
     current_projects.extend(getTaggedFiles(['.org']))
     return current_projects
-    
+
 
 def makeProject(filename):
-    basename, extension = os.path.splitext(filename) 
+    basename, extension = os.path.splitext(filename)
     new_filename = "%s.org" % (basename)
     shutil.move(filename, new_filename)
     print "Renamed to %s" % new_filename
@@ -1050,7 +1044,7 @@ def remove_tags_from_file(tags, filename):
 
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
-# Find the current tags 
+# Find the current tags
     f = open(filename, 'r')
     content = f.readlines()
     f.close()
@@ -1093,7 +1087,7 @@ def add_tags_to_file(tags, filename):
     if ' ' in TAG_INDICATOR:
         print "WARNING: Spaces in the [compose] tagline= setting may cause tag duplication."
 
-# Find the current tags 
+# Find the current tags
     f = open(filename, 'r')
     content = f.readlines()
     f.close()
@@ -1115,7 +1109,7 @@ def add_tags_to_file(tags, filename):
         line = create_tag_line(tags, TAG_INDICATOR)
         updated_content.append(line)
 
-    # Remove 
+    # Remove
     updated_content = [line.rstrip('\n') for line in updated_content]
     updated_string = '\n'.join(updated_content)
     f = open(filename, 'w')
@@ -1157,7 +1151,7 @@ def apply_command_to_file(filename, command):
     # Add tags
     add_tags = get_tags(command)
     filename = add_tags_to_file(add_tags, filename)
-   
+
     # Remove tags
     remove_tags = get_remove_tags(command)
     filename = remove_tags_from_file(remove_tags, filename)
@@ -1183,7 +1177,7 @@ def apply_command_to_file(filename, command):
     return filename
 
 # TODO: Remove references to handling files in 'project' mode?
-# It was not working out well. Better to encourage users 
+# It was not working out well. Better to encourage users
 # to use one file per task.
 def reviewProjectInteractive(filename):
     f = open(filename, 'r')
@@ -1193,7 +1187,7 @@ def reviewProjectInteractive(filename):
     current_line = 0
     for line in content:
         current_line +=1
-        if 'TODO' in line: 
+        if 'TODO' in line:
             percentage = '%d/%d' % (current_line, total_lines)
             display_output(percentage, line, by_tag=False)
             choice = raw_input('Action? ')
@@ -1212,7 +1206,7 @@ def doInboxInteractive(item):
     return to_open
 
 def getCalendarTags():
-    return ['@Jan', '@Feb', '@Mar', '@Apr', '@May', '@Jun', '@Jul', '@Aug', '@Sep', '@Oct', '@Nov', '@Dec', ':Jan', ':Feb', ':Mar', ':Apr', ':May', ':Jun', ':Jul', ':Aug', ':Sep', ':Oct', ':Nov', ':Dec']    
+    return ['@Jan', '@Feb', '@Mar', '@Apr', '@May', '@Jun', '@Jul', '@Aug', '@Sep', '@Oct', '@Nov', '@Dec', ':Jan', ':Feb', ':Mar', ':Apr', ':May', ':Jun', ':Jul', ':Aug', ':Sep', ':Oct', ':Nov', ':Dec']
 
 def hasCalendarTag(text):
     month_tags = getCalendarTags()
@@ -1313,7 +1307,7 @@ def string_to_file_name(text, ext=None):
     new_name = text.replace(' ', '-').replace('/', '-')
     # if not (new_name.endswith('.txt') or new_name.endswith('.pdf')):
 
-    data = {'topic': text, 
+    data = {'topic': text,
             'ext': ext }
     data.update(GLOBAL_DATA)
     new_name = new_name.format(**data)
@@ -1379,7 +1373,7 @@ def remove_empty_folder(folder):
         print "Removed empty forlder " + folder + "."
 
 #def archive(filename):
-#    archive_dir = get_folder('archive') 
+#    archive_dir = get_folder('archive')
 #    cleaned_name = filename.replace('urgent', 'complete')
 #    if filename != cleaned_name:
 #        shutil.move(filename, cleaned_name)
@@ -1497,7 +1491,7 @@ def get_template_content(template):
     settings = get_settings()
     data = {
         'type': template,
-        'directory': os.path.expanduser( 
+        'directory': os.path.expanduser(
             settings.get('compose', 'templates') ),
         'ext':settings.get('compose', 'extension'),
     }
@@ -1520,7 +1514,7 @@ def write_template_to_file(topic, filename, template='note'):
     data['filename'] = filename
     data['topic_underline'] = underline
     data['underline'] = underline
-    # data['tags'] = tags 
+    # data['tags'] = tags
     template_text = get_template_content(template)
 
     summary = "{filename}\n{underline}\nCreated {today}".format(**data)
@@ -1547,7 +1541,7 @@ def create_new_note(topic, template='note'):
 
 def new_note_interactive(args, quick=False, editor='vim', template='note', notes_dir=None):
     '''Without any distractions, create a new file, from a template.
-    
+
     Use a file-system safe filename, based on the title.
     Use a pre-configured 'inbox' for the files initial location.
     If this 'inbox' folder does not exist, create it.
@@ -1568,13 +1562,13 @@ def new_note_interactive(args, quick=False, editor='vim', template='note', notes
     last_line = write_template_to_file(topic, filename, template)
 
     if not quick:
-        open_file(filename, 
-                # editor=editor, 
+        open_file(filename,
+                # editor=editor,
                 line=last_line)
 
 def to_bar(number, total=10):
     '''Convert a number into a ASCII art progress bar.'''
-    pct_complete = number * 1.0 / total 
+    pct_complete = number * 1.0 / total
     print pct_complete
     result ='%s/%s [' % (number, total)
 
@@ -1587,7 +1581,7 @@ def to_bar(number, total=10):
             result += EMPTY
     result+= ']'
     return result
-    
+
 def numbers_to_bars(text):
     '''Convert all numbers in the string into
     ASCII art progress bars.'''
@@ -1598,7 +1592,7 @@ def numbers_to_bars(text):
         try:
             bit = int(arg)
         except:
-            output += arg + ' '	
+            output += arg + ' '
         if bit != None:
             output += to_bar(bit) + ' '
     return output
@@ -1610,7 +1604,7 @@ def format_2_cols(tuple_list):
     output = []
 
     col_max = {}
-    
+
     # Find longest column members
     for tup in tuple_list:
         line = ""
@@ -1637,8 +1631,8 @@ def format_2_cols(tuple_list):
 
             # Padded line item.
             while len(item) < col_max[col]:
-                item += PADDING 
-            line += item 
+                item += PADDING
+            line += item
         output.append(line)
     output = '\n'.join(output)
     return output

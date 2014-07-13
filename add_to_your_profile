@@ -11,7 +11,6 @@
 
 # Variables for convenience. 
 export MINION_INSTALL=$HOME/.vim/bundle/minion
-export NOTES_HOME=$HOME/notes
 
 # Include the scripts on your path.
 if [ -d "$MINION_INSTALL" ] ; then
