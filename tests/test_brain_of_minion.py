@@ -2,7 +2,7 @@
 import os
 import sys
 import unittest
-from mock import MagicMock, mock_open, patch
+from mock import MagicMock, mock_open, patch, call
 from ConfigParser import SafeConfigParser
 
 # Ensure we can load the brain library.
@@ -92,7 +92,7 @@ class TestRemind(unittest.TestCase):
         ''' Test setting a reminder. '''
         brain.remind("Remind me of this thing")
         open_mock.assert_has_calls([call(os.path.join(os.path.expanduser('~'), 'minion/notes/inbox/Remind-me-of-this-thing.txt'), 'a')])
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
 
 #class TestWebTemplate(unittest.TestCase):
 #    def test___init__(self):
