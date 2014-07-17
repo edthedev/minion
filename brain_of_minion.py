@@ -1402,10 +1402,10 @@ def getCalendarItems(filename):
                 results.append(line)
     return results
 
-if __name__ == '__main__':
-    import bottle
-    bottle.debug(True)
-    run(host='localhost', port=8080)
+#if __name__ == '__main__':
+#   import bottle
+#    bottle.debug(True)
+#    run(host='localhost', port=8080)
 import subprocess
 import os
 
