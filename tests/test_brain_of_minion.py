@@ -1,12 +1,37 @@
 '''Unit tests for Brain of Minion '''
-import unittest
 import os
 import sys
+import unittest
+from mock import MagicMock, mock_open, patch
+from ConfigParser import SafeConfigParser
 
-# Ensure we can load the library.
+# Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
-
 import brain_of_minion as brain
+
+### Mock objects
+
+my_mock_open = mock_open()
+my_mock_os = MagicMock()
+def mock_settings():
+   
+# Default notes settings
+    settings = SafeConfigParser()
+    settings.add_section('notes')
+    settings.set('notes', 'home', '~/minion/notes')
+    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
+# Default composition settings
+    settings.add_section('compose')
+    settings.set('compose', 'templates', '~/minion/templates')
+    settings.set('compose', 'extension', '.txt')
+    settings.set('compose', 'editor', 'vim')
+    settings.set('compose', 'tagline', ':tags:')
+# Default date format
+    settings.add_section('date')
+    settings.set('date', 'format', '%%Y-%%m-%%d')
+
+    # SETTINGS_OBJ = settings
+    return settings
 
 class TestGetSetting(unittest.TestCase):
     def test_get_setting(self):
@@ -58,11 +83,17 @@ class TestGetSetting(unittest.TestCase):
 #        # self.assertEqual(expected, publish(filename, target, editor))
 #        assert False # TODO: implement your test here
 #
-#class TestRemind(unittest.TestCase):
-#    def test_remind(self):
-#        # self.assertEqual(expected, remind(text))
-#        assert False # TODO: implement your test here
-#
+
+@patch('__builtin__.open', new_callable=mock_open)
+@patch('brain_of_minion.get_settings', new=mock_settings)
+@patch('os.mkdir')
+class TestRemind(unittest.TestCase):
+    def test_remind(self, mkdir_mock, open_mock):
+        ''' Test setting a reminder. '''
+        brain.remind("Remind me of this thing")
+        open_mock.assert_has_calls([call(os.path.join(os.path.expanduser('~'), 'minion/notes/inbox/Remind-me-of-this-thing.txt'), 'a')])
+        import pdb; pdb.set_trace()
+
 #class TestWebTemplate(unittest.TestCase):
 #    def test___init__(self):
 #        # web_template = WebTemplate(template, data)
