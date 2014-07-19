@@ -525,10 +525,6 @@ def sampleTagged(tags):
     if len(non_cal_files) > 0:
         sample_file = random.choice(non_cal_files)
         sample_text = sample_file
-        if isProject(sample_file):
-            matching_lines = getTaggedLines(tags, sample_file)
-            if len(matching_lines) > 0:
-                sample_text += '\n' + random.choice(matching_lines)
         return [sample_text]
     else:
         return []
@@ -550,13 +546,6 @@ def get_tags(text_string):
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
     return results
-
-
-def isProject(filename):
-    for tag in ['.org', 'project']:
-        if tag in filename:
-            return True
-    return False
 
 
 def removeWorkNotes(files, worktime=True):
@@ -685,14 +674,6 @@ def remove_tags_from_string(filename):
     return tag_free_name
 
 
-# def parseTags(input_string):
-#    input_string = input_string.replace('\n' ,' ')
-#    tags = input_string.split(' ')
-#    #proper_tags = []
-#    #for tag in tags:
-#    #    if
-#    return tags
-
 def getMatchingFiles(search_terms, file_list):
     lower_terms = [item.lower() for item in search_terms]
     match_files = []
@@ -703,12 +684,6 @@ def getMatchingFiles(search_terms, file_list):
         if success:
             match_files.append(f)
     return match_files
-
-
-def getCurrentProjects():
-    current_projects = getTaggedFiles(['@project'])
-    current_projects.extend(getTaggedFiles(['.org']))
-    return current_projects
 
 
 def has_tag(filename, tag):
@@ -903,46 +878,6 @@ def getMonthName(number):
     return datetime.date(1900, number, 1).strftime('%B')
 
 
-def getUpcoming(full=False):
-    results = []
-
-    project_calendar = []
-    current_projects = getCurrentProjects()
-
-    for project_file in current_projects:
-        project_calendar.extend(getCalendarItems(project_file))
-
-    # Get results for this month.
-    current_month = getCurrentMonth()
-    this_month = getTaggedFiles([current_month])
-    results.extend(this_month)
-    this_month_project_cal = limit_notes(choice=current_month,
-                                         notes=project_calendar)
-    results.extend(this_month_project_cal)
-
-    # Get results for next month.
-    if len(results) < 5 or full:
-        next_month_tag = getNextMonth()
-        next_month = getTaggedFiles([next_month_tag])
-        results.extend(next_month)
-        next_month_project_cal = limit_notes(
-            choice=next_month_tag,
-            notes=project_calendar)
-        results.extend(next_month_project_cal)
-    if full:
-        return results
-    else:
-        return results[:5]
-
-
-def makeProject(filename):
-    basename, extension = os.path.splitext(filename)
-    new_filename = "%s.org" % (basename)
-    shutil.move(filename, new_filename)
-    print "Renamed to %s" % new_filename
-    return new_filename
-
-
 def expand_short_command(command):
     commands = {
         'a': '>wiki/archive',
@@ -957,19 +892,6 @@ def expand_short_command(command):
     if command in commands:
         return commands[command]
     return command
-
-
-def applyCommandToLine(filename, line, command):
-    command = expand_short_command(command)
-    if '!rename' in command:
-        line = raw_input('Updated line?')
-        command = command.replace('!rename', '')
-    if ':' in line:
-        line = '%s %s' % (line, command)
-    if '>archive' in command:
-        # line = toggleDone(line)
-        pass
-    return line
 
 
 def parse_tags(line, TAG_INDICATOR):
@@ -1078,7 +1000,6 @@ def apply_command_to_file(filename, command):
     command = expand_short_command(command)
     # Rename:
     if '!review' in command:
-        reviewProjectInteractive(filename)
         doInboxInteractive(filename)
     if '!rename' in command:
         new_name = command.replace('!rename', '')
@@ -1119,25 +1040,6 @@ def apply_command_to_file(filename, command):
         doInboxInteractive(filename)
 
     return filename
-
-
-# TODO: Remove references to handling files in 'project' mode?
-# It was not working out well. Better to encourage users
-# to use one file per task.
-def reviewProjectInteractive(filename):
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
-    total_lines = len(content)
-    current_line = 0
-    for line in content:
-        current_line += 1
-        if 'TODO' in line:
-            percentage = '%d/%d' % (current_line, total_lines)
-            display_output(percentage, line, by_tag=False)
-            choice = raw_input('Action? ')
-            if len(choice) > 0:
-                applyCommandToLine(filename, current_line, choice)
 
 
 def doInboxInteractive(item):
