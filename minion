@@ -39,7 +39,7 @@ Command descriptions:
     count - display a count of the results
     dates - display matching files with dates, in date order
     find - like list, but returns *any* match to *any* given keyword.
-    favories - like summary, but displays only folders configured as favorites
+    favorites - like summary, but displays only folders configured as favorites
     folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
@@ -56,7 +56,7 @@ Command descriptions:
             a few items.
     summary - list all folders and the item counts in those folders
     view - print the contents of all matches to the terminal standard output
-    week - plan your week with the minion week tepmlate
+    week - plan your week with the minion week template
     tags - list all tags
     template - start a note from a specialized template. Try 'week' and
             'journal' to get started.
@@ -69,20 +69,25 @@ Command descriptions:
 # http://www.opensource.org/licenses/UoI-NCSA
 # Created: 2011-04-28
 
-# import pudb; pu.db
 
+###############################################################################
+# IMPORTS
+###############################################################################
+
+# import pudb; pu.db
 import os
 import random
 import datetime
-
 # DocOpt is awesome. https://github.com/docopt/docopt
 from docopt import docopt
-
-import brain_of_minion
 import brain_of_minion as brain
-
 from brain_of_minion import get_date_format
 import sys
+
+
+###############################################################################
+# CONSTANTS
+###############################################################################
 
 CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
  Clean Inbox
@@ -94,22 +99,13 @@ CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*
 *~*~*~*~*~*~*
 '''
 
-# Parse the input arguments; see docopt manual on github.com
-args = docopt(__doc__, version='1.0')
 
-# Get notes home
-directory = brain_of_minion.get_notes_home()
-
-# Search terms to filter by.
-filter = args['<text>']
-if args['<text>'] == 'all':
-    args['<text>'] = None
-
-# Everything after this point requires searching for matches...
-
+###############################################################################
+# HELPER FUNCTIONS
+###############################################################################
 
 def get_match_files():
-    match_files = brain_of_minion.find_files(
+    match_files = brain.find_files(
         filter=args['<text>'],
         archives=args['--archives'])
     return match_files
@@ -131,6 +127,203 @@ def date_sort(filename):
         return brain.get_first_date(filename)
     return datetime.datetime.now()
 
+
+def get_notes_dir(args):
+    notes_dir = None
+    if args['--folder']:
+        folder = os.path.expanduser(args['--folder'])
+        notes_home = brain.get_notes_home()
+        notes_dir = os.path.join(notes_home, folder)
+    return notes_dir
+
+
+def format_2_cols(tuple_list):
+    SEPARATOR = " - "
+    PADDING = ' '
+    output = []
+
+    col_max = {}
+
+    # Find longest column members
+    for tup in tuple_list:
+        line = ""
+        col = 0
+        for item in tup:
+            item = str(item)
+            col += 1
+            if item not in col_max:
+                col_max[col] = 0
+            if len(item) > col_max[col]:
+                col_max[col] = len(item)
+
+    # Build the string
+    for tup in tuple_list:
+        col = 0
+        line = ""
+        for item in tup:
+            item = str(item)
+            col += 1
+
+            # Separator when needed.
+            if len(line) != 0:
+                line += SEPARATOR
+
+            # Padded line item.
+            while len(item) < col_max[col]:
+                item += PADDING
+            line += item
+        output.append(line)
+    output = '\n'.join(output)
+    return output
+
+
+###############################################################################
+# ENTRY POINT FUNCTIONS
+###############################################################################
+
+def minion_template(args):
+    '''Start an article from a specialized template.'''
+    title = brain.get_title_from_template(args['<template>'],
+                                          topic=args['<text>'])
+    args['<text>'].insert(0, title)
+    (filename, last_line) = brain.create_new_note(
+        ' '.join(args['<text>']),
+        template=args['<template>'],
+    )
+    brain.open_file(filename, last_line)
+
+
+def minion_remind(args):
+    '''Set a quick reminder.'''
+    notes_dir = get_notes_dir(args)
+    brain.new_note_interactive(
+        args['<text>'],
+        quick=args['remind'],
+        template='note',
+        notes_dir=notes_dir)
+
+
+def minion_here(args):
+    '''Create a Minion style now in the current working directory.'''
+    notes_dir = os.curdir
+    brain.new_note_interactive(
+        args['<text>'],
+        quick=args['remind'],
+        template='note',
+        notes_dir=notes_dir)
+
+
+def minion_note(args):
+    '''Create a Minion note.'''
+    notes_dir = get_notes_dir(args)
+    brain.new_note_interactive(
+        args['<text>'],
+        quick=args['remind'],
+        template='note',
+        notes_dir=notes_dir)
+
+
+def minion_sort(args):
+    '''Interactively sort all matches.
+    '''
+    match_files = get_match_files()
+    total = len(match_files)
+    if total == 0:
+        print CLEAN_INBOX_MESSAGE
+        sys.exit()
+    else:
+        print brain.getOutput('cal')
+        brain.sort_files_interactive(match_files)
+
+
+def minion_open(args):
+    match_files = brain.find_files(
+        filter=args['<text>'],
+        archives=args['--archives'])
+
+    if len(match_files) > 0:
+        (choice_path, filename) = brain.select_file(match_files, args['--max'])
+        brain.open_file(filename)
+    else:
+        brain.display_output(title=filter, output=match_files)
+
+
+def minion_strays(args):
+    ''' Run an interactive sort on the contents of any folders that
+        only have one or two items.
+    '''
+    match_files = brain.list_stray_files()
+    total = len(match_files)
+    if total == 0:
+        print CLEAN_STRAYS_MESSAGE
+        sys.exit()
+    else:
+        print brain.getOutput('cal')
+        brain.sort_files_interactive(match_files)
+
+
+def minion_view(args):
+    ''' Dump the contents of the chosen file(s) to standard out. '''
+    match_files = brain.find_files(
+        filter=args['<text>'],
+        archives=args['--archives'])
+    print "Outputting contents of %(number)d matches to search terms \
+        '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
+    for filename in match_files:
+        brain.file_to_stdout(filename)
+
+
+def minion_log(args):
+    '''Add a quick additional line to an existing (or new) Minion file.'''
+    filename = ''
+    match_files = brain.find_files(
+        filter=[args['<log>']],
+        archives=args['--archives'])
+    if len(match_files) > 1:
+        title = ("Too many matches for log "
+                 "function with keyword '{}'").format(args['<log>'])
+        brain.display_output(title, match_files, max_display=10)
+        return False
+    elif len(match_files) == 1:
+        filename = match_files[0]
+    else:
+        print "Creating new log file..."
+        filename = brain.get_filename_for_title(args['<log>'])
+
+    data = dict()
+    data.update(args)
+    data['date'] = datetime.datetime.today().strftime(get_date_format())
+    data['time'] = datetime.datetime.today().strftime("%H:%M")
+    data['<comment>'] = ' '.join(args['<comment>'])
+    # TODO: select_file should probably create the file if it does not exist...
+    #  This would allow merging the 'note' and 'open' commands, resulting in
+    #  less duplication with new notes, and less need to call collect.
+    # TODO: Make this fetch from config file.
+    # TODO: Make match template fetch from config file too...
+    new_line_template = "\n{date} {time} : {<comment>}"
+    new_line = new_line_template.format(**data)
+
+    print "Appending new line to %s" % filename
+    f = open(filename, 'a')
+    f.write(new_line)
+    f.close()
+    print new_line
+
+
+###############################################################################
+# MAIN SCRIPT
+###############################################################################
+
+# Parse the input arguments; see docopt manual on github.com
+args = docopt(__doc__, version='1.0')
+
+# Search terms to filter by.
+filter = args['<text>']
+if args['<text>'] == 'all':
+    args['<text>'] = None
+
+# Everything after this point requires searching for matches...
+
 # Collect stories
 if args['collect']:
     if '<year>' in args:
@@ -144,8 +337,7 @@ if args['collect']:
             len(match_files),
             filter,
             str(YEAR),
-            )
-
+        )
     else:
         collected_matches = match_files
         collection_title = 'Collected-%s' % (' '.join(filter))
@@ -174,16 +366,14 @@ if args['collect']:
     brain.display_output('Created Collection', collected_filename)
 
 
-# Display a count of the matches
-
 if args['command'] and args['<command>'] and args['<filename>']:
-    brain_of_minion.apply_command_to_file(
+    brain.apply_command_to_file(
         args['<filename>'],
         args['<command>'])
 
 if args['count']:
     search_terms = "%s: %s" % (
-        os.path.basename(directory), ','.join(args['<text>'])
+        os.path.basename(brain.get_notes_home()), ','.join(args['<text>'])
     )
     match_files = get_match_files()
     count = len(match_files)
@@ -191,15 +381,14 @@ if args['count']:
     sys.exit()
 
 if args['dates']:
-    total = brain_of_minion.get_total_file_count(include_archives=False)
+    total = brain.get_total_file_count(include_archives=False)
     events = dict()
     match_files = get_match_files()
     for filename in match_files:
-        date = brain_of_minion.get_first_date(filename)
+        date = brain.get_first_date(filename)
         if date:
             try:
-                # date = date.strftime(get_date_format())
-                if events.has_key(date):
+                if date in events:
                     events[date].append(filename)
                 else:
                     events[date] = [filename]
@@ -223,9 +412,9 @@ if args['dates']:
     # for key in events:
     #     print key.strftime(get_date_format()) + "\t" + events[key]
 
-    brain_of_minion.display_output('Recent Dates', recent)
-    brain_of_minion.display_output('Today', today_str)
-    brain_of_minion.display_output('Upcoming Dates', upcoming)
+    brain.display_output('Recent Dates', recent)
+    brain.display_output('Today', today_str)
+    brain.display_output('Upcoming Dates', upcoming)
 
 # List the results
 
@@ -233,31 +422,26 @@ if args['find'] or args['list']:
     find_any = False
     if args['find']:
         find_any = True
-    match_files = brain.find_files(filter=filter,
-            archives=args['--archives'],
-            find_any=find_any)
-
-    #if len(match_files) == 0:
-    #    print "Found no matches. Searching archives..."
-    #match_files = brain.find_files(filter=filter,
-    #        archives=True,
-    #        find_any=find_any)
+    match_files = brain.find_files(filter=filter, archives=args['--archives'],
+                                   find_any=find_any)
 
     # Set archives if no finds...
     total = brain.get_total_file_count(args['--archives'])
 
     # Display results / total
-    match_template = \
-"{matching} of {total} files match search {search} in directory {directory}"
-    print match_template.format( \
-        directory = brain.get_notes_home(),
+    notes_home = brain.get_notes_home()
+    match_template = "{matching} of {total} files match search \
+        {search} in directory {directory}"
+    print match_template.format(
+        directory=notes_home,
         matching=len(match_files),
         search=','.join(filter),
-        total = total)
+        total=total)
 
     # Display results
     # print match_files
-    brain.display_output(title=filter,
+    brain.display_output(
+        title=filter,
         output=match_files,
         raw_files=args['--files'],
     )
@@ -267,178 +451,45 @@ if args['find'] or args['list']:
 # publish your articles.
 if args['publish']:
     match_files = get_match_files()
-    (choice_path, filename) = brain_of_minion.select_file(match_files)
-    # brain_of_minion.open_file(filename, editor = args['--editor'])
-    success = brain_of_minion.publish_file(filename,
-#             editor = args['--editor'],
-            target = args['<target>'],
-        )
-    if success != None:
+    (choice_path, filename) = brain.select_file(match_files)
+    success = brain.publish_file(filename, target=args['<target>'])
+    if success is not None:
         print "Published to " + success + "."
 
-
-def minion_template(args):
-    '''Start an article from a specialized template.'''
-    title = brain.get_title_from_template(args['<template>'], topic=args['<text>'])
-    args['<text>'].insert(0, title)
-    (filename, last_line) = brain.create_new_note(
-        ' '.join(args['<text>']),
-        template=args['<template>'],
-    )
-    brain.open_file(filename, last_line)
-
-
-def minion_remind(args):
-    '''Set a quick reminder.'''
-    notes_dir = get_notes_dir(args)
-    brain_of_minion.new_note_interactive(args['<text>'],
-            quick=args['remind'],
-            editor=args['--editor'],
-            template='note',
-            notes_dir=notes_dir)
-
-
-def get_notes_dir(args):
-    notes_dir = None
-    if args['--folder']:
-        folder = \
-            os.path.expanduser(args['--folder'])
-        notes_home = brain_of_minion.get_notes_home()
-        notes_dir = os.path.join( notes_home, folder)
-    return notes_dir
-
-
-def minion_here(args):
-    '''Create a Minion style now in the current working directory.'''
-    notes_dir = os.curdir
-    brain_of_minion.new_note_interactive(args['<text>'],
-            quick=args['remind'],
-            editor=args['--editor'],
-            template='note',
-            notes_dir=notes_dir)
-
-def minion_note(args):
-    '''Create a Minion note.'''
-    notes_dir = get_notes_dir(args)
-    brain_of_minion.new_note_interactive(args['<text>'],
-            quick=args['remind'],
-            editor=args['--editor'],
-            template='note',
-            notes_dir=notes_dir)
-
-# List just a sample of the matches
 if args['sample']:
     match_files = get_match_files()
     if len(match_files) > 5:
         match_files = random.sample(match_files, 5)
-    brain_of_minion.display_output(title=filter, output=match_files)
-
-def minion_sort(args):
-    '''Interactively sort all matches.
-    '''
-    match_files = get_match_files()
-    total = len(match_files)
-    if total == 0:
-        print CLEAN_INBOX_MESSAGE
-        sys.exit()
-    else:
-        print brain_of_minion.getOutput('cal')
-        brain_of_minion.sort_files_interactive(match_files)
-
-def format_2_cols(tuple_list):
-    SEPARATOR = " - "
-    PADDING = ' '
-    output = []
-
-    col_max = {}
-
-    # Find longest column members
-    for tup in tuple_list:
-        line = ""
-        col = 0
-        for item in tup:
-            item = str(item)
-            col += 1
-            if not item in col_max:
-                col_max[col] = 0
-            if len(item) > col_max[col]:
-                col_max[col] = len(item)
-
-    # Build the string
-    for tup in tuple_list:
-        col = 0
-        line = ""
-        for item in tup:
-            item = str(item)
-            col += 1
-
-            # Separator when needed.
-            if len(line) != 0:
-                line += SEPARATOR
-
-            # Padded line item.
-            while len(item) < col_max[col]:
-                item += PADDING
-            line += item
-        output.append(line)
-    output = '\n'.join(output)
-    return output
+    brain.display_output(title=filter, output=match_files)
 
 if args['favorites']:
-    print brain_of_minion.print_favorites_summary()
+    print brain.print_favorites_summary()
 
 if args['summary']:
-    # print brain_of_minion.folder_summary()
-    summary = brain_of_minion.get_folder_summary(archives = args['--archives'])
+    summary = brain.get_folder_summary(archives=args['--archives'])
     limit = int(args['--max'])
     summary = summary[:limit]
     output = format_2_cols(summary)
     print output
-    # brain_of_minion.display_output('Summary', output)
-    # for (count, folder) in summary:
-    #    print "%s\t\t\t-\t%d" % (folder, count)
 
-# Single box or all boxes...
-
-def choose_files(minion_options):
-    """Return a set of files to search within,
-        based on the options given on the command line."""
-    if minion_options.filename != None:
-        return [minion_options.filename]
-    else:
-        return brain_of_minion.find_files(directory=minion_options.directory,
-            archives=minion_options.archive,
-            filter=minion_options.filter,
-            full_text=minion_options.full,
-            weekend=weekend)
-
-# if options.directory == None:
-#     options.directory = brain_of_minion.get_notes_home()
-#     if len(ARGS) == 0:
-#         options.directory = brain_of_minion.get_inbox()
-# options.directory = brain_of_minion.get_notes_home()
 if args['folder']:
-    # TODO: Do interactive inbox search, but for directories, notfiles
+    # TODO: Do interactive inbox search, but for directories, not files
     pass
 
-
 if args['folders']:
-
     updated_files = []
     # match_files = get_match_files()
-    match_files = brain_of_minion.find_files()
-
+    match_files = brain.find_files()
     # All poorly used folders
     too_few = 5
-    notes_home = brain_of_minion.get_notes_home()
-    for folder in os.listdir(brain_of_minion.get_notes_home()):
+    notes_home = brain.get_notes_home()
+    for folder in os.listdir(brain.get_notes_home()):
         folder = os.path.join(notes_home, folder)
         if os.path.isdir(folder):
             if len(os.listdir(folder)) < too_few:
-                items = brain_of_minion.find_files(filter=folder)
+                items = brain.find_files(filter=folder)
                 for item in items:
                     updated_files.append(item)
-
 
     match_files = updated_files
 
@@ -446,143 +497,43 @@ if args['folders']:
     count = 0
     for item in match_files:
         count += 1
-        print brain_of_minion.to_bar(count, total)
-        files_to_open = brain_of_minion.doInboxInteractive(item)
-
-
+        print brain.to_bar(count, total)
+        files_to_open = brain.doInboxInteractive(item)
 
 if args['tags']:
-
-    # TODO: Rid of this. Concept of 'tags' does not play well with the filesystem.
+    # TODO: Rid of this. Concept of 'tags' does not play well with the
+    #       filesystem.
     # TODO: Switch to simply using any word as a 'tag'.
     # So what is 'poorly tagged'? Too short of a name? Too many common words?
 
     # A 'tag cloud' would be pretty awesome...
     boring = ['the', 'this']
-    notes_home = brain_of_minion.get_notes_home()
-    all_files = brain_of_minion.find_files()
+    notes_home = brain.get_notes_home()
+    all_files = brain.find_files()
     word_count = dict()
     for filename in all_files:
         filename = filename.replace(notes_home, '')
-        filename = filename.replace('/', '-').replace('.','-')
+        filename = filename.replace('/', '-').replace('.', '-')
         words = filename.split('-')
         print words
         for word in words:
-            if word_count.has_key(word):
-               word_count[word] += 1
+            if word in word_count:
+                word_count[word] += 1
             else:
                 word_count[word] = 1
     # word_count.sort()
     print word_count
 
-#    # All poorly tagged files...
-#    updated_files = []
-#    match_files = brain_of_minion.find_files()
-#    for item in match_files:
-#        if len(brain_of_minion.get_tags(item)) < 2:
-#            updated_files.append(item)
-#    match_files = updated_files
-#
-#    total = len(match_files)
-#    count = 0
-#    for item in match_files:
-#        count += 1
-#        print brain_of_minion.to_bar(count, total)
-#        files_to_open = brain_of_minion.doInboxInteractive(item)
-#
-
-
-
-def minion_open(args):
-
-    # match_files = get_match_files()
-    match_files = brain_of_minion.find_files(filter=args['<text>'],
-        archives=args['--archives'])
-
-    if len(match_files) > 0:
-        (choice_path, filename) = \
-                brain_of_minion.select_file( \
-                match_files, args['--max'])
-        # brain_of_minion.open_file(filename, editor = args['--editor'])
-        brain_of_minion.open_file(filename,
-            # editor = args['--editor'])
-            )
-    else:
-        brain_of_minion.display_output(title=filter, output=match_files)
-
-
-def minion_strays(args):
-    ''' Run an interactive sort on the contents of any folders that only have one or two items.
-    '''
-    match_files = brain_of_minion.list_stray_files()
-    total = len(match_files)
-    if total == 0:
-        print CLEAN_STRAYS_MESSAGE
-        sys.exit()
-    else:
-        print brain_of_minion.getOutput('cal')
-        brain_of_minion.sort_files_interactive(match_files)
-
-
-def minion_view(args):
-    ''' Dump the contents of the chosen file(s) to standard out. '''
-    match_files = brain_of_minion.find_files(filter=args['<text>'],
-        archives=args['--archives'])
-    print "Outputting contents of %(number)d matches to search terms '%(terms)s'.".format(
-            number = len(match_files),
-            terms = args['<text>'],
-            )
-    for filename in match_files:
-        brain_of_minion.file_to_stdout(filename)
-
-def minion_log(args):
-    '''Add a quick additional line to an existing (or new) Minion file.'''
-    filename = ''
-    match_files = brain_of_minion.find_files(filter=[args['<log>']],
-            archives=args['--archives'])
-    if len(match_files) > 1:
-        title = ("Too many matches for log "
-        "function with keyword '{}'").format(args['<log>'])
-        brain_of_minion.display_output(title, match_files, max_display=10)
-        return False
-    elif len(match_files) == 1:
-        filename = match_files[0]
-    else:
-        print "Creating new log file..."
-        filename = brain_of_minion.get_filename_for_title(args['<log>'])
-
-    # import ipdb; ipdb.set_trace()
-
-    # (choice_path, filename) = brain_of_minion.select_file(match_files)
-    data = dict()
-    data.update(args)
-    data['date'] = datetime.datetime.today().strftime(get_date_format())
-    data['time'] = datetime.datetime.today().strftime("%H:%M")
-    data['<comment>'] = ' '.join(args['<comment>'])
-# TODO: select_file should probably create the file if it does not exist...
-#  This would allow merging the 'note' and 'open' commands, resulting in
-#    less duplication with new notes, and less need to call collect.
-    # TODO: Make this fetch from config file.
-# TODO: Make match template fetch from config file too...
-    new_line_template = "\n{date} {time} : {<comment>}"
-    new_line = new_line_template.format(**data)
-
-    print "Appending new line to %s" % filename
-    f = open(filename, 'a')
-    f.write(new_line)
-    f.close()
-    print new_line
 
 # Run all the things!!!!
 if __name__ == '__main__':
-# Run any method named in the keyword args.
-# Cool hack: use DocOpt args to call methods in this file.
-#      Note that this only avails those methods whose name matches a
-#      documented arg.
+    # Run any method named in the keyword args.
+    # Cool hack: use DocOpt args to call methods in this file.
+    # Note that this only avails those methods whose name matches a documented
+    #     arg.
     for method in dir():
         argname = method.replace('minion_', '')
         if (argname in args) and args[argname]:
-            # print "ARGNAME" + argname
             if hasattr(locals()[method], '__call__'):
                 print "Running {}".format(method)
                 locals()[method](args)
