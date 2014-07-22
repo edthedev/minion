@@ -1076,14 +1076,14 @@ def hasCalendarTag(text):
 
 def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
-    allowed_exts_string =\
+    included_exts_string =\
         GLOBAL_SETTINGS.get('notes', 'notes_included_extensions').\
         replace(' ', '')
-    disallowed_exts_string =\
+    excluded_exts_string =\
         GLOBAL_SETTINGS.get('notes', 'notes_excluded_extensions').\
         replace(' ', '')
-    allowed_exts = allowed_exts_string.split(',')
-    disallowed_exts = disallowed_exts_string.split(',')
+    included_exts = included_exts_string.split(',')
+    excluded_exts = excluded_exts_string.split(',')
 
     dir_list = os.listdir(directory)
     files = []
@@ -1093,14 +1093,14 @@ def get_files(directory, archives=False):
             files.extend(get_files(dirName, archives=archives))
         else:
             file_excluded = False
-            for disallowed_ext in disallowed_exts:
-                if item.endswith(disallowed_ext):
+            for excluded_ext in excluded_exts:
+                if item.endswith(excluded_ext):
                     file_excluded = True
                     break
             if not file_excluded:
                 file_included = False
-                for allowed_ext in allowed_exts:
-                    if (('*' in allowed_ext) or item.endswith(allowed_ext)):
+                for included_ext in included_exts:
+                    if (('*' in included_ext) or item.endswith(included_ext)):
                         file_included = True
                         break
             if not file_excluded and file_included:
