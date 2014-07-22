@@ -81,6 +81,8 @@ def get_settings():
     settings.add_section('notes')
     settings.set('notes', 'home', '~/minion/notes')
     settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
+    settings.set('notes', 'notes_included_extensions', '*')
+    settings.set('notes', 'notes_excluded_extensions', '~')
     # Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -104,7 +106,11 @@ def get_settings():
     return settings
 
 
+GLOBAL_SETTINGS = get_settings()
+
+
 def get_title_from_template(template, topic=None):
+
     ''' Sometimes the best place to find the filename is
         the first line of the template.'''
     first_line = get_template_content(template).split('\n')[0]
@@ -1070,15 +1076,34 @@ def hasCalendarTag(text):
 
 def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
-    files = []
+    allowed_exts_string =\
+        GLOBAL_SETTINGS.get('notes', 'notes_included_extensions').\
+        replace(' ', '')
+    disallowed_exts_string =\
+        GLOBAL_SETTINGS.get('notes', 'notes_excluded_extensions').\
+        replace(' ', '')
+    allowed_exts = allowed_exts_string.split(',')
+    disallowed_exts = disallowed_exts_string.split(',')
+
     dir_list = os.listdir(directory)
-    # dirList.sort()
+    files = []
     for item in dir_list:
         dirName = os.path.join(directory, item)
         if os.path.isdir(dirName):
             files.extend(get_files(dirName, archives=archives))
         else:
-            if not item.endswith('~'):
+            file_excluded = False
+            for disallowed_ext in disallowed_exts:
+                if item.endswith(disallowed_ext):
+                    file_excluded = True
+                    break
+            if not file_excluded:
+                file_included = False
+                for allowed_ext in allowed_exts:
+                    if (('*' in allowed_ext) or item.endswith(allowed_ext)):
+                        file_included = True
+                        break
+            if not file_excluded and file_included:
                 files.append("%s/%s" % (directory, item))
 
     if not archives:
