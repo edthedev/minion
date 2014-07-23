@@ -976,8 +976,8 @@ def add_tags_to_file(tags, filename):
             all_tags = parse_tags(line, TAG_INDICATOR)
             # Add new tags
             all_tags.extend(tags)
-            tag_line = create_tag_line(all_tags, TAG_INDICATOR)
-        updated_content.append(tag_line)
+            line = create_tag_line(all_tags, TAG_INDICATOR)
+        updated_content.append(line)
 
     # Add a tags line to the end, if we didn't find it sooner.
     if not found_tags:
@@ -985,7 +985,7 @@ def add_tags_to_file(tags, filename):
         updated_content.append(tag_line)
 
     # Remove
-    updated_content = [line.rstrip('\n') for line in updated_content]
+    updated_content = [line2.rstrip('\n') for line2 in updated_content]
     updated_string = '\n'.join(updated_content)
     f = open(filename, 'w')
     f.write(updated_string)
