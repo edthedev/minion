@@ -1,3 +1,5 @@
+# For unit testing
+ENV
 htmlcov
 *.py[co]
 
