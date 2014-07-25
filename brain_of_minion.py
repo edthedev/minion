@@ -23,6 +23,7 @@ LOGGER = logging.getLogger(__name__)
 ################################################################################
 # GLOBAL CONSTANTS
 ################################################################################
+CONFIG_FILE = '~/.minion'
 
 # Linux preferred apps:
 NON_TEXT_VIEWERS = {
@@ -73,8 +74,8 @@ WAITING = ':WAITING:'
 # FUNCTIONS
 ################################################################################
 
-def get_settings():
-    minion_file = os.path.expanduser('~/.minion')
+def _settings_parser():
+    ''' Create the parser for the settings file. '''
 
     # Default notes settings
     settings = SafeConfigParser()
@@ -94,6 +95,13 @@ def get_settings():
     # Default date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
+
+    return settings
+
+def get_settings():
+    minion_file = os.path.expanduser(CONFIG_FILE)
+
+    settings = _settings_parser()
 
     # Load if available, write defaults if not.
     if os.path.exists(minion_file):

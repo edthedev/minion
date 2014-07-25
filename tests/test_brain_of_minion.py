@@ -14,24 +14,8 @@ import brain_of_minion as brain
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
 def mock_settings():
-   
-# Default notes settings
-    settings = SafeConfigParser()
-    settings.add_section('notes')
-    settings.set('notes', 'home', '~/minion/notes')
-    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
-# Default composition settings
-    settings.add_section('compose')
-    settings.set('compose', 'templates', '~/minion/templates')
-    settings.set('compose', 'extension', '.txt')
-    settings.set('compose', 'editor', 'vim')
-    settings.set('compose', 'tagline', ':tags:')
-# Default date format
-    settings.add_section('date')
-    settings.set('date', 'format', '%%Y-%%m-%%d')
-
-    # SETTINGS_OBJ = settings
-    return settings
+    ''' Always return the default settings. '''
+    return brain._settings_parser()
 
 class TestGetSetting(unittest.TestCase):
     def test_get_setting(self):
