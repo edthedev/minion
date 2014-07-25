@@ -2,6 +2,7 @@
 [run]
 # Don't test the mock library.
 omit = *mock*
+		test_*
 branch = True
 
 [report]
