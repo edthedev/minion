@@ -1,14 +1,34 @@
 Running the test suite
 -----------------------
 
+Setup a test environment::
+
+    >sudo pip install virtualenv
+    >cd minion/tests
+    >virtualenv ENV
+
+
+Activate the environment.
+
+    >source ENV/bin/activate
+    >pip install -r requirements.txt
+
 Ensure your PYTHONPATH is set::
 
 	>cd minion/tests
 	>cd ..
 	>export PYTHONPATH=`pwd`
 
+Optionally you can add a line to minion/test/ENV/bin/activate to set your PYTHONPATH automatically, next time::
+    
+    # If you installed in your home directory
+    export PYTHONPATH="~/minion"
+    # or if you installed with Vundle
+    export PYTHONPATH="~/.vim/bundle/minion"
+
 Run the tests::
 
+    >pip install mock
     >cd minion/tests
     >python test_brain_of_minion.py
 
