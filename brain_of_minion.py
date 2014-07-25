@@ -1261,7 +1261,6 @@ def getCalendarItems(filename):
                 results.append(line)
     return results
 
-
 def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
         return display_options
