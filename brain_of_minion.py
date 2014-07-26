@@ -16,13 +16,14 @@ from collections import defaultdict
 import logging
 import platform
 
-
 LOGGER = logging.getLogger(__name__)
-
 
 ################################################################################
 # GLOBAL CONSTANTS
 ################################################################################
+
+TODAY = date.today()
+
 CONFIG_FILE = '~/.minion'
 
 # Linux preferred apps:
@@ -143,15 +144,14 @@ def get_global_data():
     ''' Return global data common to many template operations.
     '''
     date_format = get_date_format()
-    today = date.today()
     data = {}
-    data['today'] = today.strftime(date_format)
-    monday = today - timedelta(days=today.weekday())
+    data['today'] = TODAY.strftime(date_format)
+    monday = TODAY - timedelta(days=TODAY.weekday())
     for i, day in enumerate(('sunday', 'monday', 'tuesday', 'wednesday',
                              'thursday', 'friday', 'saturday', 'sunday')):
         data[day] = (monday + timedelta(days=i-1)).\
             strftime(date_format)
-    data['day_of_week'] = today.weekday()
+    data['day_of_week'] = TODAY.weekday()
     return data
 
 
