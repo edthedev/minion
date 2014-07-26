@@ -28,6 +28,15 @@ The topic is: {topic}
 Goals
 ------
 '''
+class TestFetchMethods(unittest.TestCase):
+    ''' Run some basic search methods. 
+    
+    This is just a kick the tires kind of test set.
+    We won't assert much - just make sure we run things to avoid typos.
+    
+    '''
+    def test_strays(self):
+        results = brain.list_stray_files()
 
 class TestGetSetting(unittest.TestCase):
 
