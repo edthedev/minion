@@ -196,7 +196,7 @@ def sort_files_interactive(match_files):
             open_file(item, multiple=True)
 
 
-def get_first_date(filename):
+def get_first_date(content):
     '''Return the earliest date written in the file name or contents.
     '''
     recognizers = {
@@ -210,14 +210,6 @@ def get_first_date(filename):
     # TODO: Handle dates in the filename itself.
 
     # Find dates in the contents
-    content = ""
-    _, extension = os.path.splitext(filename)
-    extension.lower()
-    if extension not in NON_TEXT_VIEWERS:
-        f = open(filename, 'r')
-        content = f.read()
-        f.close()
-    content = filename + content
 
     dates = []
     for key in recognizers:
@@ -246,6 +238,21 @@ def get_first_date(filename):
     dates.sort()
     return dates[0]
 
+def get_file_content(filename):
+    ''' Yep. '''
+    content = ""
+
+    # Don't try to get PDF content.
+    _, extension = os.path.splitext(filename)
+    extension.lower()
+    if extension not in NON_TEXT_VIEWERS:
+        f = open(filename, 'r')
+        content = f.read()
+        f.close()
+
+    # Always treat the filename as if part of the content.
+    content = filename + content
+    return content
 
 def limit_to_year(year, file_list):
     '''Return only files from the list whose first date is within
@@ -255,7 +262,8 @@ def limit_to_year(year, file_list):
     '''
     results = defaultdict(list)
     for filename in file_list:
-        first_date = get_first_date(filename)
+        content = get_file_content(filename)
+        first_date = get_first_date(content)
         if hasattr(first_date, 'year'):
             if str(first_date.year) == str(year):
                 results[first_date].append(filename)
