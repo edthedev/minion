@@ -183,7 +183,8 @@ def format_2_cols(tuple_list):
 
 def minion_template(args):
     '''Start an article from a specialized template.'''
-    title = brain.get_title_from_template(args['<template>'],
+    template_content = brain.get_template_content(args['<template>'])
+    title = brain.get_title_from_template_content(template_content,
                                           topic=args['<text>'])
     args['<text>'].insert(0, title)
     (filename, last_line) = brain.create_new_note(
