@@ -5,7 +5,7 @@
 import subprocess
 import shutil
 import os
-import datetime
+from datetime import date, timedelta, datetime
 import re
 import socket
 import ConfigParser
@@ -106,7 +106,7 @@ def get_settings():
     # Load if available, write defaults if not.
     if os.path.exists(minion_file):
         settings.read([minion_file])
-    else:
+    else: # pragma: no cover
         f = open(minion_file, 'w')
         settings.write(f)
         f.close()
@@ -117,11 +117,11 @@ def get_settings():
 GLOBAL_SETTINGS = get_settings()
 
 
-def get_title_from_template(template, topic=None):
+def get_title_from_template_content(content, topic=None):
 
     ''' Sometimes the best place to find the filename is
         the first line of the template.'''
-    first_line = get_template_content(template).split('\n')[0]
+    first_line = content.split('\n')[0]
     data = {'topic': topic}
     data.update(GLOBAL_DATA)
     return first_line.format(**data)
@@ -143,13 +143,13 @@ def get_global_data():
     ''' Return global data common to many template operations.
     '''
     date_format = get_date_format()
-    today = datetime.datetime.today()
+    today = date.today()
     data = {}
     data['today'] = today.strftime(date_format)
-    monday = today - datetime.timedelta(days=today.weekday())
+    monday = today - timedelta(days=today.weekday())
     for i, day in enumerate(('sunday', 'monday', 'tuesday', 'wednesday',
                              'thursday', 'friday', 'saturday', 'sunday')):
-        data[day] = (monday + datetime.timedelta(days=i-1)).\
+        data[day] = (monday + timedelta(days=i-1)).\
             strftime(date_format)
     data['day_of_week'] = today.weekday()
     return data
@@ -228,7 +228,7 @@ def get_first_date(filename):
             form = recognizers[key]
             for match in matches:
                 try:
-                    new_date = datetime.datetime.strptime(match, form)
+                    new_date = datetime.strptime(match, form)
                     # Assume current year, if unsure.
                     # if new_date.year == 1900:
                     #     new_date.year = datetime.datetime.today().year
@@ -420,7 +420,7 @@ def getStatus():
 
 
 def is_work_time():
-    today = datetime.datetime.today()
+    today = date.today()
     weekend = (today.weekday() > 4)
     if weekend:
         return False
@@ -517,17 +517,17 @@ def getTaggedFiles(tags, full=False):
 
 def getTodayTags():
     today_tags = [
-        ":%s" % datetime.datetime.today().strftime('%B%d'),
-        "@%s" % datetime.datetime.today().strftime('%B%d'),
+        ":%s" % date.today().strftime('%B%d'),
+        "@%s" % date.today().strftime('%B%d'),
     ]
     return today_tags
 
 
 def getTomorrowTags():
     return [
-        "@%s" % (datetime.datetime.today() + datetime.timedelta(days=1))
+        "@%s" % (date.today() + timedelta(days=1))
         .strftime('%B%d'),
-        ":%s" % (datetime.datetime.today() + datetime.timedelta(days=1))
+        ":%s" % (date.today() + timedelta(days=1))
         .strftime('%B%d'),
     ]
 
@@ -860,7 +860,7 @@ def get_folder(folder):
     '''
     # Convert 'archive' to 'archive.2012.08'
     if folder == 'archive':
-        year_month = datetime.datetime.today().strftime("%y.%m")
+        year_month = date.today().strftime("%y.%m")
         folder = "archive.%s" % (year_month)
 
     notes_home = get_notes_home()
@@ -880,16 +880,16 @@ def limit_notes_interactive(notes):
 
 
 def getCurrentMonth():
-    return getMonthName(datetime.datetime.today().month)
+    return getMonthName(date.today().month)
 
 
 def getNextMonth():
-    return getMonthName((datetime.datetime.today() +
-                         datetime.timedelta(weeks=4)).month)
+    return getMonthName((date.today() +
+                         timedelta(weeks=4)).month)
 
 
 def getMonthName(number):
-    return datetime.date(1900, number, 1).strftime('%B')
+    return date(1900, number, 1).strftime('%B')
 
 
 def expand_short_command(command):
@@ -1308,12 +1308,12 @@ def toggleWaiting(line):
 
 
 def getDateString():
-        return datetime.datetime.today().strftime("%a, %x %H:%M %p")
+        return date.today().strftime("%a, %x %H:%M %p")
 
 
 def getUpdatedString():
         return "\nUpdated: %s" % \
-            datetime.datetime.today().strftime("%H:%M %p, %a, %x")
+            date.today().strftime("%H:%M %p, %a, %x")
 
 
 def find_file(filename):
@@ -1341,7 +1341,6 @@ def get_filename_for_title(topic, notes_dir=None):
     filename = os.path.join(notes_dir, topic_filename)
 
     return filename
-
 
 def get_template_content(template):
     ''' Get the template text for a new note. '''
