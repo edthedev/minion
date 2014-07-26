@@ -5,27 +5,12 @@ import unittest
 from datetime import date
 from mock import MagicMock, mock_open, patch, call
 from ConfigParser import SafeConfigParser
-# from freezegun import freeze_time
 
 # Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
 
 ### Mock objects
-
-class frozen_time(object):
-    def __enter__(self):
-        self.original = brain.TODAY
-        brain.TODAY = date(2013, 01, 01)
-        return self
-
-    def __exit__(self, type, value, traceback):
-        brain.TODAY = self.original
-
-class FakeDate(date):
-    "A manipulable date replacement"
-    def __new__(cls, *args, **kwargs):
-        return date.__new__(date, *args, **kwargs)
 
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
@@ -34,7 +19,7 @@ def mock_settings():
     return brain._settings_parser()
 
 WEEKEND_TEMPLATE_CONTENT = \
-'''Weekend Plan for {saturday}
+'''Weekend Plan for WHATEVER
 ==============================
 :date: {today}
 
@@ -46,14 +31,12 @@ Goals
 
 class TestGetSetting(unittest.TestCase):
 
-#    @freeze_time("2012-01-01")
     def test_get_title(self):
         ''' Confirm getting a title. '''
-        with frozen_time as whatevs:
 
-            title = brain.get_title_from_template_content(WEEKEND_TEMPLATE_CONTENT)
-            expected_title = 'Weekend Plan for 2014-07-25'
-            self.assertEqual(title, expected_title)
+        title = brain.get_title_from_template_content(WEEKEND_TEMPLATE_CONTENT)
+        expected_title = 'Weekend Plan for WHATEVER'
+        self.assertEqual(title, expected_title)
 
     #TODO: Test a full template fill in, including topic.
 
