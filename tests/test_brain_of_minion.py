@@ -2,14 +2,24 @@
 import os
 import sys
 import unittest
+from datetime import date
 from mock import MagicMock, mock_open, patch, call
 from ConfigParser import SafeConfigParser
 
 # Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
+import brain_of_minion
 
 ### Mock objects
+
+
+from datetime import date
+
+class FakeDate(date):
+    "A manipulable date replacement"
+    def __new__(cls, *args, **kwargs):
+        return date.__new__(date, *args, **kwargs)
 
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
@@ -17,7 +27,36 @@ def mock_settings():
     ''' Always return the default settings. '''
     return brain._settings_parser()
 
+WEEKEND_TEMPLATE_CONTENT = \
+'''Weekend Plan for {saturday}
+==============================
+:date: {today}
+
+The topic is: {topic}
+
+Goals
+------
+'''
+
+
 class TestGetSetting(unittest.TestCase):
+
+    @mock.patch('datetime.date', FakeDate)
+    def test_get_title(self):
+        ''' Confirm getting a title. '''
+        FakeDate.today = classmethod(lambda cls: date(2010, 1, 1))
+
+        with patch('brain_of_minion.date') as mock_date:
+
+            mock_date.today.return_value = date(2010, 10, 8)
+            mock_date.side_effect = lambda *args, **kw: date(*args, **kw)
+
+            title = brain_of_minion.get_title_from_template_content(WEEKEND_TEMPLATE_CONTENT)
+            expected_title = 'Weekend Plan for 2014-07-25'
+            self.assertEqual(title, expected_title)
+
+    #TODO: Test a full template fill in, including topic.
+
     def test_get_setting(self):
         ''' Make sure some settings can load.'''
         settings = brain.get_settings()
