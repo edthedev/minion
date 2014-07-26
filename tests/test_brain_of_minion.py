@@ -2,7 +2,7 @@
 import os
 import sys
 import unittest
-from datetime import date
+from datetime import date, datetime
 from mock import MagicMock, mock_open, patch, call
 from ConfigParser import SafeConfigParser
 
@@ -28,6 +28,21 @@ The topic is: {topic}
 Goals
 ------
 '''
+
+EXPECTED_DATE = datetime(2014, 04, 14, 0, 0)
+
+TEST_FILE_CONTENT = \
+'''Weekend Plan for 2014-04-14
+==============================
+:date: 2014-04-14
+
+The topic is: This is a great topic.
+
+Goals
+------
+Wow. Such goals. So accomplish.
+'''
+
 class TestFetchMethods(unittest.TestCase):
     ''' Run some basic search methods. 
     
@@ -37,6 +52,14 @@ class TestFetchMethods(unittest.TestCase):
     '''
     def test_strays(self):
         results = brain.list_stray_files()
+
+class TestParsers(unittest.TestCase):
+    ''' Test some methods that parse through file contents looking for things. 
+    
+    '''
+    def test_get_first_date(self):
+        first_date = brain.get_first_date(TEST_FILE_CONTENT)
+        self.assertEqual(first_date, EXPECTED_DATE)
 
 class TestGetSetting(unittest.TestCase):
 
