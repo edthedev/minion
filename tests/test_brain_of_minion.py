@@ -2,46 +2,24 @@
 import os
 import sys
 import unittest
-from datetime import date, datetime
 from mock import MagicMock, mock_open, patch, call
 from ConfigParser import SafeConfigParser
 
+# Our stuff
 # Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
 
-### Mock objects
+from tests.mock_data import \
+        (mock_settings,
+        WEEKEND_TEMPLATE_CONTENT,
+        EXPECTED_DATE,
+        TEST_FILE_CONTENT,
+        )
 
+### Mock objects
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
-def mock_settings():
-    ''' Always return the default settings. '''
-    return brain._settings_parser()
-
-WEEKEND_TEMPLATE_CONTENT = \
-'''Weekend Plan for WHATEVER
-==============================
-:date: {today}
-
-The topic is: {topic}
-
-Goals
-------
-'''
-
-EXPECTED_DATE = datetime(2014, 04, 14, 0, 0)
-
-TEST_FILE_CONTENT = \
-'''Weekend Plan for 2014-04-14
-==============================
-:date: 2014-04-14
-
-The topic is: This is a great topic.
-
-Goals
-------
-Wow. Such goals. So accomplish.
-'''
 
 class TestFetchMethods(unittest.TestCase):
     ''' Run some basic search methods. 
