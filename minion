@@ -15,7 +15,6 @@ Usage:
     minion log <log> <comment> ...
     minion note [--folder=<folder>] [--editor=<editor>] <text> ...
     minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
-    minion publish [--archives] <target> <text> ...
     minion remind [--folder=<folder>] [--editor=<editor>] <text> ...
     minion sample [--files] <text> ...
     minion sort [--editor=<editor>] <text> ...
@@ -448,20 +447,6 @@ if args['find'] or args['list']:
     )
 
     sys.exit(0)
-
-# publish your articles.
-if args['publish']:
-    match_files = get_match_files()
-    (choice_path, filename) = brain.select_file(match_files)
-    success = brain.publish_file(filename, target=args['<target>'])
-    if success is not None:
-        print "Published to " + success + "."
-
-if args['sample']:
-    match_files = get_match_files()
-    if len(match_files) > 5:
-        match_files = random.sample(match_files, 5)
-    brain.display_output(title=filter, output=match_files)
 
 if args['favorites']:
     print brain.print_favorites_summary()

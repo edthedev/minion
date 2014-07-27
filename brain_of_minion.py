@@ -343,33 +343,6 @@ def select_file(match_files, max_files=10):
 
     return (choice_path, match_files[0])
 
-
-def publish(filename, target='?', editor='vim'):
-    '''Runs SCP to copy the file to the target.'''
-
-    # Fetch some publish target shortcuts from out settings file.
-    settings = get_settings()
-
-    target_string = settings.get('publish', 'targets')
-    converter = settings.get('publish', 'converter')
-    type = settings.get('publish', 'type')
-
-    targets = target_string.split(' ')
-    for full_target in targets:
-        if target in full_target:
-            target = full_target
-
-    # Convert the file to HTML (or whatever).
-    os.system('%s %s' % (converter, filename))
-
-    # Switch to the output file
-    filename = filename.replace('.txt', type)
-
-    # Publish the file.
-    os.system('scp %s %s' % (filename, target))
-    return full_target
-
-
 def remind(text):
     filename = "%s/%s" % (get_inbox(), string_to_file_name(text))
     f = open(filename, 'a')
