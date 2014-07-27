@@ -349,23 +349,6 @@ def remind(text):
     f.write(text)
     return filename
 
-def getIgnoredTags(script_name=''):
-    cp = ConfigParser.ConfigParser()
-
-    settings_file = Template("~/.edthedev/$hostname").substitute(
-        hostname=socket.gethostname())
-    ignore = []
-    settings_file = os.path.expanduser(settings_file)
-    if os.path.exists(settings_file):
-        result = cp.read([settings_file])
-        if len(result) < 1:
-            print "Settings file not loaded. %s" % settings_file
-
-        ignore = cp.get('inbox', 'ignore_tags')
-        ignore = ignore.replace(' ', ',')
-        ignore = ignore.split(',')
-    return ignore
-
 def getFolders(location=None):
     if location is None:
         location = get_notes_home()
