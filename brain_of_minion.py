@@ -349,16 +349,6 @@ def remind(text):
     f.write(text)
     return filename
 
-def is_work_time():
-    today = date.today()
-    weekend = (today.weekday() > 4)
-    if weekend:
-        return False
-    if today.hour >= 8 and today.hour < 17:
-        return True
-    return False
-
-
 # @route('/ignore')
 def get_ignore_tags(worktime=False):
     if worktime:
