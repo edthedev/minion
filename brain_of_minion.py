@@ -904,23 +904,6 @@ def has_any_tag(filename, tags):
             return True
     return False
 
-
-def getIgnoreString(worktime=False):
-    return "-i %s" % ' -i '.join(get_ignore_tags(worktime))
-
-
-def addUpdatedLine(filename):
-    f = open(filename, 'r+')
-    # Get the file length.
-    line = sum(1 for line in f)
-    # Append a timestamp to the file.
-    if '.pdf' not in filename:
-        timestamp = getUpdatedString()
-        f.write(timestamp)
-    f.close()
-    return line
-
-
 def string_to_file_name(text, ext=None):
     if not ext:
         ext = get_setting('compose', 'extension')
