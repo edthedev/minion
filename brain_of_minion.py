@@ -75,13 +75,13 @@ WAITING = ':WAITING:'
 # FUNCTIONS
 ################################################################################
 
-def _settings_parser():
+def _settings_parser(default_notes_dir = '~/minion/notes'):
     ''' Create the parser for the settings file. '''
 
     # Default notes settings
     settings = SafeConfigParser()
     settings.add_section('notes')
-    settings.set('notes', 'home', '~/minion/notes')
+    settings.set('notes', 'home', default_notes_dir)
     settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
     settings.set('notes', 'notes_included_extensions', '*')
     settings.set('notes', 'notes_excluded_extensions', '~')

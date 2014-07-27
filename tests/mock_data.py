@@ -2,9 +2,11 @@
 from datetime import date, datetime
 import brain_of_minion as brain
 
+TEST_DATA_DIRECTORY = '/tmp/test_minion'
+
 def mock_settings():
     ''' Always return the default settings. '''
-    return brain._settings_parser()
+    return brain._settings_parser(TEST_DATA_DIRECTORY)
 
 WEEKEND_TEMPLATE_CONTENT = \
 '''Weekend Plan for WHATEVER

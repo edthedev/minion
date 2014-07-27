@@ -12,6 +12,7 @@ import brain_of_minion as brain
 
 from tests.mock_data import \
         (mock_settings,
+        TEST_DATA_DIRECTORY,
         WEEKEND_TEMPLATE_CONTENT,
         EXPECTED_DATE,
         TEST_FILE_CONTENT,
@@ -21,19 +22,41 @@ from tests.mock_data import \
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
 
+# Use custom settings.
+@patch('brain_of_minion.get_settings', new=mock_settings)
+class TestFileStuff(unittest.TestCase):
+    ''' Run tests that create or look
+    for files.
+    '''
+    def setUp(self):
+        os.mkdir(TEST_DATA_DIRECTORY)
+
+    def test_create_note(self):
+        topic = 'test note 1'
+
+        filename = brain.get_filename_for_title(topic, notes_dir=None)
+
+        brain.create_new_note(topic, template='note')
+        file_count = os.listdir(TEST_DATA_DIRECTORY)
+        import pdb; pdb.set_trace()
+        self.assertEqual(len(file_count), 1)
+
+    def tearDown(self):
+        os.system('rm -rf ' + TEST_DATA_DIRECTORY)
+
 class TestFetchMethods(unittest.TestCase):
     ''' Run some basic search methods. 
-    
+
     This is just a kick the tires kind of test set.
     We won't assert much - just make sure we run things to avoid typos.
-    
+
     '''
     def test_strays(self):
         results = brain.list_stray_files()
 
 class TestParsers(unittest.TestCase):
     ''' Test some methods that parse through file contents looking for things. 
-    
+
     '''
     def test_get_first_date(self):
         first_date = brain.get_first_date(TEST_FILE_CONTENT)
@@ -107,7 +130,9 @@ class TestRemind(unittest.TestCase):
     def test_remind(self, mkdir_mock, open_mock):
         ''' Test setting a reminder. '''
         brain.remind("Remind me of this thing")
-        open_mock.assert_has_calls([call(os.path.join(os.path.expanduser('~'), 'minion/notes/inbox/Remind-me-of-this-thing.txt'), 'a')])
+        open_mock.assert_has_calls([
+            call(os.path.join(os.path.expanduser('~'), 
+                TEST_DATA_DIRECTORY + '/inbox/Remind-me-of-this-thing.txt'), 'a')])
         # import pdb; pdb.set_trace()
 
 #class TestWebTemplate(unittest.TestCase):
