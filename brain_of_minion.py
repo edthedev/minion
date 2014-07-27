@@ -476,19 +476,6 @@ def remove_tags_from_string(filename):
             tag_free_name += char
     return tag_free_name
 
-
-def getMatchingFiles(search_terms, file_list):
-    lower_terms = [item.lower() for item in search_terms]
-    match_files = []
-    for f in file_list:
-        success = True
-        for term in lower_terms:
-            success = success and (term in f.lower())
-        if success:
-            match_files.append(f)
-    return match_files
-
-
 def has_tag(filename, tag):
     ''' Return true if the file's tags line has the given tag. '''
     f = open(filename, 'r')
