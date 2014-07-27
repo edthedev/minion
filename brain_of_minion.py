@@ -994,18 +994,6 @@ def getOutput(command):
         output = p1.communicate()[0]
         return output
 
-
-def appendToFile(filename, content, timestamp=True):
-        f = open(filename, 'a')
-        if timestamp:
-                f.write(getUpdatedString())
-                f.write('\n')
-        f.write(content)
-        f.write('\n')
-        f.close()
-        print "%s updated." % filename
-
-
 def toggleTodo(line):
         if DONE.lower() in line.lower():
                 return line.replace(DONE, TODO).replace(DONE.lower(), TODO).\
