@@ -349,62 +349,8 @@ def remind(text):
     f.write(text)
     return filename
 
-def getTaggedLines(tags, filename):
-    f = open(filename)
-    lines = f.readlines()
-    f.close()
-    result = []
-    for line in lines:
-        low_line = line
-        for tag in tags:
-            match = True
-            if tag not in low_line:
-                match = False
-            if match:
-                result.append(line)
-    return result
-
-
-# @route('/tag/:tags')
-def getTaggedFiles(tags, full=False):
-    all_files = getAllFiles(archives=False)
-    for tag in tags:
-        all_files = limit_notes(tag, all_files, full)
-    return all_files
-
-
-def getTodayTags():
-    today_tags = [
-        ":%s" % date.today().strftime('%B%d'),
-        "@%s" % date.today().strftime('%B%d'),
-    ]
-    return today_tags
-
-
-def getTomorrowTags():
-    return [
-        "@%s" % (date.today() + timedelta(days=1))
-        .strftime('%B%d'),
-        ":%s" % (date.today() + timedelta(days=1))
-        .strftime('%B%d'),
-    ]
-
-
-# # # # # # # # # @route('/sample/:tags')
-def sampleTagged(tags):
-    matching_files = getTaggedFiles(tags, full=False)
-    non_cal_files = remove_notes(matching_files, ['calendar'])
-    if len(non_cal_files) > 0:
-        sample_file = random.choice(non_cal_files)
-        sample_text = sample_file
-        return [sample_text]
-    else:
-        return []
-
-
 def remove_archives(file_list):
     return remove_notes(file_list, ['archive'])
-
 
 def get_remove_tags(text_string):
     tag_re = re.compile("-@\w*")
