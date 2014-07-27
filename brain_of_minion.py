@@ -349,57 +349,6 @@ def remind(text):
     f.write(text)
     return filename
 
-
-class WebTemplate(object):
-    def __init__(self, template="", data={}):
-        self.Template = template
-        self.Data = data
-
-    def __str__(self):
-        return self.webify(self.Data)
-
-    def render(self):
-        web_data = {}
-        for key in self.Data:
-            web_data[key] = self.webify(key, self.Data[key])
-        return Template(self.Template).substitute(web_data)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        yield(bottle.HTTPResponse(str(self)))
-
-    @staticmethod
-    def webify(title, content):
-        result = "<div id=" + title + ">"
-        result += "<h2>" + title + "</h2>"
-        if getattr(content, '__iter__', False):
-            result += "<ul>"
-            for item in content:
-                item = clean_output(item)
-                result += "<li>" + item + "</li>"
-            result += "</ul>"
-        else:
-            result += content
-        result += "</div>"
-        return result
-
-
-# @route('/')
-def getStatus():
-    data = {}
-    data['home'] = get_notes_home()
-    data['inbox_content'] = find_files(get_inbox())
-    page = """
-    Notes home: $home
-    <a href='/tags'>tags</a>
-    <a href='/folders'>folders</a>
-    $inbox_content
-    """
-    return WebTemplate(page, data).render()
-
-
 def is_work_time():
     today = date.today()
     weekend = (today.weekday() > 4)
@@ -447,12 +396,6 @@ def getIgnoredTags(script_name=''):
         ignore = ignore.replace(' ', ',')
         ignore = ignore.split(',')
     return ignore
-
-
-# @route('/folders')
-# def webFolders(location=None):
-#    return webify(getFolders(location))
-
 
 def getFolders(location=None):
     if location is None:
