@@ -956,7 +956,6 @@ def rename_file(filename, new_name):
         print "Renamed " + filename + " to " + new_file
     return new_file
 
-
 def move_to_folder(filename, folder):
     ''' Move the file to a difference folder. '''
     try:
@@ -984,24 +983,6 @@ def remove_empty_folder(folder):
     if len(os.listdir(folder)) == 0:
         os.rmdir(folder)
         print "Removed empty forlder " + folder + "."
-
-
-def recordDone(item):
-    clean_item = clean_output(item)
-    done_file = "%s/done.txt" % (get_notes_home())
-    appendToFile(done_file, clean_item)
-
-
-def getCalendarItems(filename):
-    f = open(filename, 'r')
-    lines = f.readlines()
-    f.close()
-    results = []
-    for line in lines:
-        for cal_tag in getCalendarTags():
-            if cal_tag in line:
-                results.append(line)
-    return results
 
 def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
