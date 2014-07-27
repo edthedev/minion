@@ -531,17 +531,6 @@ def remove_notes(file_list, terms):
             new_list.append(f)
     return new_list
 
-
-def getAllFiles(archives=True, folder=None):
-    if folder is None:
-        folder = get_notes_home()
-    files = find_files(folder)
-    if not archives:
-        return remove_archives(files)
-    else:
-        return files
-
-
 def clean_file_name(text):
     return text.replace(' ', '-').replace('/', '-')
 
