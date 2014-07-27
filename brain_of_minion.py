@@ -1002,7 +1002,6 @@ def find_file(filename):
                 return os.path.join(root, f)
     return None
 
-
 def get_filename_for_title(topic, notes_dir=None):
     # Get location for new file
     if notes_dir is None:
@@ -1174,9 +1173,3 @@ def print_favorites_summary():
     summary = get_favorites_summary()
     output = format_2_cols(summary)
     return output
-
-
-if __name__ == '__main__':
-    import bottle
-    bottle.debug(True)
-    bottle.run(host='localhost', port=8080)
