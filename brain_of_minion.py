@@ -349,24 +349,6 @@ def remind(text):
     f.write(text)
     return filename
 
-def getFolders(location=None):
-    if location is None:
-        location = get_notes_home()
-    folders = os.listdir(location)
-    return folders
-
-
-def ignoreTags(file_list, tags=[]):
-    match_files = []
-    for f in file_list:
-        success = True
-        for term in tags:
-            success = success and (term not in f.lower())
-        if success:
-            match_files.append(f)
-    return match_files
-
-
 def getTaggedLines(tags, filename):
     f = open(filename)
     lines = f.readlines()
