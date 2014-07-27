@@ -28,17 +28,22 @@ class TestFileStuff(unittest.TestCase):
     ''' Run tests that create or look
     for files.
     '''
+
+    @staticmethod
+    def clean_directory():
+        os.system('rm -rf ' + TEST_DATA_DIRECTORY + '/*')
+
     def setUp(self):
         os.mkdir(TEST_DATA_DIRECTORY)
 
     def test_create_note(self):
+        TestFileStuff.clean_directory()
         topic = 'test note 1'
 
         filename = brain.get_filename_for_title(topic, notes_dir=None)
 
         brain.create_new_note(topic, template='note')
         file_count = os.listdir(TEST_DATA_DIRECTORY)
-        import pdb; pdb.set_trace()
         self.assertEqual(len(file_count), 1)
 
     def tearDown(self):
