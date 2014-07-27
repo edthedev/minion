@@ -994,31 +994,6 @@ def getOutput(command):
         output = p1.communicate()[0]
         return output
 
-def toggleTodo(line):
-        if DONE.lower() in line.lower():
-                return line.replace(DONE, TODO).replace(DONE.lower(), TODO).\
-                    replace('Done:', TODO)
-        if TODO.lower() in line.lower():
-                return line.replace(TODO, DONE).replace(TODO.lower(), DONE).\
-                    replace('Todo:', DONE)
-        return TODO + ' ' + line
-
-
-def toggleWaiting(line):
-        if WAITING.lower() in line.lower():
-                return line.replace(WAITING, '').replace('@waiting', '')
-        return WAITING + ' ' + line
-
-
-def getDateString():
-        return date.today().strftime("%a, %x %H:%M %p")
-
-
-def getUpdatedString():
-        return "\nUpdated: %s" % \
-            date.today().strftime("%H:%M %p, %a, %x")
-
-
 def find_file(filename):
     home = get_notes_home()
     for root, directories, names in os.walk(home):
