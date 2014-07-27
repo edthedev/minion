@@ -343,218 +343,14 @@ def select_file(match_files, max_files=10):
 
     return (choice_path, match_files[0])
 
-
-def publish(filename, target='?', editor='vim'):
-    '''Runs SCP to copy the file to the target.'''
-
-    # Fetch some publish target shortcuts from out settings file.
-    settings = get_settings()
-
-    target_string = settings.get('publish', 'targets')
-    converter = settings.get('publish', 'converter')
-    type = settings.get('publish', 'type')
-
-    targets = target_string.split(' ')
-    for full_target in targets:
-        if target in full_target:
-            target = full_target
-
-    # Convert the file to HTML (or whatever).
-    os.system('%s %s' % (converter, filename))
-
-    # Switch to the output file
-    filename = filename.replace('.txt', type)
-
-    # Publish the file.
-    os.system('scp %s %s' % (filename, target))
-    return full_target
-
-
 def remind(text):
     filename = "%s/%s" % (get_inbox(), string_to_file_name(text))
     f = open(filename, 'a')
     f.write(text)
     return filename
 
-
-class WebTemplate(object):
-    def __init__(self, template="", data={}):
-        self.Template = template
-        self.Data = data
-
-    def __str__(self):
-        return self.webify(self.Data)
-
-    def render(self):
-        web_data = {}
-        for key in self.Data:
-            web_data[key] = self.webify(key, self.Data[key])
-        return Template(self.Template).substitute(web_data)
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        yield(bottle.HTTPResponse(str(self)))
-
-    @staticmethod
-    def webify(title, content):
-        result = "<div id=" + title + ">"
-        result += "<h2>" + title + "</h2>"
-        if getattr(content, '__iter__', False):
-            result += "<ul>"
-            for item in content:
-                item = clean_output(item)
-                result += "<li>" + item + "</li>"
-            result += "</ul>"
-        else:
-            result += content
-        result += "</div>"
-        return result
-
-
-# @route('/')
-def getStatus():
-    data = {}
-    data['home'] = get_notes_home()
-    data['inbox_content'] = find_files(get_inbox())
-    page = """
-    Notes home: $home
-    <a href='/tags'>tags</a>
-    <a href='/folders'>folders</a>
-    $inbox_content
-    """
-    return WebTemplate(page, data).render()
-
-
-def is_work_time():
-    today = date.today()
-    weekend = (today.weekday() > 4)
-    if weekend:
-        return False
-    if today.hour >= 8 and today.hour < 17:
-        return True
-    return False
-
-
-# @route('/ignore')
-def get_ignore_tags(worktime=False):
-    if worktime:
-        return [
-            "@home",
-            "@errand",
-            "@house",
-            "@wishlist",
-            "@garage",
-        ]
-    else:
-        return [
-            "@work",
-            "asih",
-            "ssl",
-            "compreg",
-            "owasp",
-            "scanning",
-        ]
-
-
-def getIgnoredTags(script_name=''):
-    cp = ConfigParser.ConfigParser()
-
-    settings_file = Template("~/.edthedev/$hostname").substitute(
-        hostname=socket.gethostname())
-    ignore = []
-    settings_file = os.path.expanduser(settings_file)
-    if os.path.exists(settings_file):
-        result = cp.read([settings_file])
-        if len(result) < 1:
-            print "Settings file not loaded. %s" % settings_file
-
-        ignore = cp.get('inbox', 'ignore_tags')
-        ignore = ignore.replace(' ', ',')
-        ignore = ignore.split(',')
-    return ignore
-
-
-# @route('/folders')
-# def webFolders(location=None):
-#    return webify(getFolders(location))
-
-
-def getFolders(location=None):
-    if location is None:
-        location = get_notes_home()
-    folders = os.listdir(location)
-    return folders
-
-
-def ignoreTags(file_list, tags=[]):
-    match_files = []
-    for f in file_list:
-        success = True
-        for term in tags:
-            success = success and (term not in f.lower())
-        if success:
-            match_files.append(f)
-    return match_files
-
-
-def getTaggedLines(tags, filename):
-    f = open(filename)
-    lines = f.readlines()
-    f.close()
-    result = []
-    for line in lines:
-        low_line = line
-        for tag in tags:
-            match = True
-            if tag not in low_line:
-                match = False
-            if match:
-                result.append(line)
-    return result
-
-
-# @route('/tag/:tags')
-def getTaggedFiles(tags, full=False):
-    all_files = getAllFiles(archives=False)
-    for tag in tags:
-        all_files = limit_notes(tag, all_files, full)
-    return all_files
-
-
-def getTodayTags():
-    today_tags = [
-        ":%s" % date.today().strftime('%B%d'),
-        "@%s" % date.today().strftime('%B%d'),
-    ]
-    return today_tags
-
-
-def getTomorrowTags():
-    return [
-        "@%s" % (date.today() + timedelta(days=1))
-        .strftime('%B%d'),
-        ":%s" % (date.today() + timedelta(days=1))
-        .strftime('%B%d'),
-    ]
-
-
-# # # # # # # # # @route('/sample/:tags')
-def sampleTagged(tags):
-    matching_files = getTaggedFiles(tags, full=False)
-    non_cal_files = remove_notes(matching_files, ['calendar'])
-    if len(non_cal_files) > 0:
-        sample_file = random.choice(non_cal_files)
-        sample_text = sample_file
-        return [sample_text]
-    else:
-        return []
-
-
 def remove_archives(file_list):
     return remove_notes(file_list, ['archive'])
-
 
 def get_remove_tags(text_string):
     tag_re = re.compile("-@\w*")
@@ -568,21 +364,6 @@ def get_tags(text_string):
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
     return results
-
-
-def removeWorkNotes(files, worktime=True):
-    ignore_tags = get_ignore_tags(worktime)
-    return remove_notes(files, ignore_tags)
-
-
-def isValidTag(tag):
-    if tag.isdigit():
-        return False
-    if tag in ['.txt', 'get', 'not', 'it', 'is', 'a', 'at', 'out', 'of', 'and',
-               'on', 'in', 'with', 'about', 'to', 'the', 'from', 'for', 'if']:
-        return False
-    return True
-
 
 def sort_by_tag(file_list):
     all_tags = {'no tags': []}
@@ -695,19 +476,6 @@ def remove_tags_from_string(filename):
             tag_free_name += char
     return tag_free_name
 
-
-def getMatchingFiles(search_terms, file_list):
-    lower_terms = [item.lower() for item in search_terms]
-    match_files = []
-    for f in file_list:
-        success = True
-        for term in lower_terms:
-            success = success and (term in f.lower())
-        if success:
-            match_files.append(f)
-    return match_files
-
-
 def has_tag(filename, tag):
     ''' Return true if the file's tags line has the given tag. '''
     f = open(filename, 'r')
@@ -762,17 +530,6 @@ def remove_notes(file_list, terms):
         if not matches_term:
             new_list.append(f)
     return new_list
-
-
-def getAllFiles(archives=True, folder=None):
-    if folder is None:
-        folder = get_notes_home()
-    files = find_files(folder)
-    if not archives:
-        return remove_archives(files)
-    else:
-        return files
-
 
 def clean_file_name(text):
     return text.replace(' ', '-').replace('/', '-')
@@ -885,20 +642,6 @@ def limit_notes_interactive(notes):
         choice = raw_input('Choice? ')
         notes = limit_notes(choice, notes)
     return notes[0]
-
-
-def getCurrentMonth():
-    return getMonthName(date.today().month)
-
-
-def getNextMonth():
-    return getMonthName((date.today() +
-                         timedelta(weeks=4)).month)
-
-
-def getMonthName(number):
-    return date(1900, number, 1).strftime('%B')
-
 
 def expand_short_command(command):
     commands = {
@@ -1161,23 +904,6 @@ def has_any_tag(filename, tags):
             return True
     return False
 
-
-def getIgnoreString(worktime=False):
-    return "-i %s" % ' -i '.join(get_ignore_tags(worktime))
-
-
-def addUpdatedLine(filename):
-    f = open(filename, 'r+')
-    # Get the file length.
-    line = sum(1 for line in f)
-    # Append a timestamp to the file.
-    if '.pdf' not in filename:
-        timestamp = getUpdatedString()
-        f.write(timestamp)
-    f.close()
-    return line
-
-
 def string_to_file_name(text, ext=None):
     if not ext:
         ext = get_setting('compose', 'extension')
@@ -1230,7 +956,6 @@ def rename_file(filename, new_name):
         print "Renamed " + filename + " to " + new_file
     return new_file
 
-
 def move_to_folder(filename, folder):
     ''' Move the file to a difference folder. '''
     try:
@@ -1259,24 +984,6 @@ def remove_empty_folder(folder):
         os.rmdir(folder)
         print "Removed empty forlder " + folder + "."
 
-
-def recordDone(item):
-    clean_item = clean_output(item)
-    done_file = "%s/done.txt" % (get_notes_home())
-    appendToFile(done_file, clean_item)
-
-
-def getCalendarItems(filename):
-    f = open(filename, 'r')
-    lines = f.readlines()
-    f.close()
-    results = []
-    for line in lines:
-        for cal_tag in getCalendarTags():
-            if cal_tag in line:
-                results.append(line)
-    return results
-
 def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
         return display_options
@@ -1287,43 +994,6 @@ def getOutput(command):
         output = p1.communicate()[0]
         return output
 
-
-def appendToFile(filename, content, timestamp=True):
-        f = open(filename, 'a')
-        if timestamp:
-                f.write(getUpdatedString())
-                f.write('\n')
-        f.write(content)
-        f.write('\n')
-        f.close()
-        print "%s updated." % filename
-
-
-def toggleTodo(line):
-        if DONE.lower() in line.lower():
-                return line.replace(DONE, TODO).replace(DONE.lower(), TODO).\
-                    replace('Done:', TODO)
-        if TODO.lower() in line.lower():
-                return line.replace(TODO, DONE).replace(TODO.lower(), DONE).\
-                    replace('Todo:', DONE)
-        return TODO + ' ' + line
-
-
-def toggleWaiting(line):
-        if WAITING.lower() in line.lower():
-                return line.replace(WAITING, '').replace('@waiting', '')
-        return WAITING + ' ' + line
-
-
-def getDateString():
-        return date.today().strftime("%a, %x %H:%M %p")
-
-
-def getUpdatedString():
-        return "\nUpdated: %s" % \
-            date.today().strftime("%H:%M %p, %a, %x")
-
-
 def find_file(filename):
     home = get_notes_home()
     for root, directories, names in os.walk(home):
@@ -1331,7 +1001,6 @@ def find_file(filename):
             if f == filename:
                 return os.path.join(root, f)
     return None
-
 
 def get_filename_for_title(topic, notes_dir=None):
     # Get location for new file
@@ -1504,9 +1173,3 @@ def print_favorites_summary():
     summary = get_favorites_summary()
     output = format_2_cols(summary)
     return output
-
-
-if __name__ == '__main__':
-    import bottle
-    bottle.debug(True)
-    bottle.run(host='localhost', port=8080)
