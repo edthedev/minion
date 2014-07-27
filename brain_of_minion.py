@@ -349,27 +349,6 @@ def remind(text):
     f.write(text)
     return filename
 
-# @route('/ignore')
-def get_ignore_tags(worktime=False):
-    if worktime:
-        return [
-            "@home",
-            "@errand",
-            "@house",
-            "@wishlist",
-            "@garage",
-        ]
-    else:
-        return [
-            "@work",
-            "asih",
-            "ssl",
-            "compreg",
-            "owasp",
-            "scanning",
-        ]
-
-
 def getIgnoredTags(script_name=''):
     cp = ConfigParser.ConfigParser()
 
