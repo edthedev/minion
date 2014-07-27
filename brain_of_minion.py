@@ -643,20 +643,6 @@ def limit_notes_interactive(notes):
         notes = limit_notes(choice, notes)
     return notes[0]
 
-
-def getCurrentMonth():
-    return getMonthName(date.today().month)
-
-
-def getNextMonth():
-    return getMonthName((date.today() +
-                         timedelta(weeks=4)).month)
-
-
-def getMonthName(number):
-    return date(1900, number, 1).strftime('%B')
-
-
 def expand_short_command(command):
     commands = {
         'a': '>wiki/archive',
