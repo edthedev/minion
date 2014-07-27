@@ -365,21 +365,6 @@ def get_tags(text_string):
     results = [x.lstrip('@') for x in tags]
     return results
 
-
-def removeWorkNotes(files, worktime=True):
-    ignore_tags = get_ignore_tags(worktime)
-    return remove_notes(files, ignore_tags)
-
-
-def isValidTag(tag):
-    if tag.isdigit():
-        return False
-    if tag in ['.txt', 'get', 'not', 'it', 'is', 'a', 'at', 'out', 'of', 'and',
-               'on', 'in', 'with', 'about', 'to', 'the', 'from', 'for', 'if']:
-        return False
-    return True
-
-
 def sort_by_tag(file_list):
     all_tags = {'no tags': []}
     file_list = list(set(file_list))
