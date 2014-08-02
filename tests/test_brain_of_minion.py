@@ -14,16 +14,7 @@ from mock_data import mock_settings
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
 
-from tests.mock_data import \
-        (mock_settings,
-        TEST_DATA_DIRECTORY,
-        WEEKEND_TEMPLATE_CONTENT,
-        EXPECTED_DATE,
-        TEST_FILE_CONTENT,
-        TEST_FILE_CONTENT_WITH_TAGS,
-        TEST_TAGS,
-        TEST_TAG_LINE,
-        )
+from tests.mock_data import *
 
 ### Mock objects
 my_mock_open = mock_open()
@@ -79,10 +70,8 @@ class TestGetSetting(unittest.TestCase):
 
     def test_get_title(self):
         ''' Confirm getting a title. '''
-
-        title = brain.get_title_from_template_content(WEEKEND_TEMPLATE_CONTENT)
-        expected_title = 'Weekend Plan for WHATEVER'
-        self.assertEqual(title, expected_title)
+        title = brain.get_title_from_template_content(TEST_FILE_TEMPLATE_CONTENT)
+        self.assertEqual(title, TEST_FILE_TITLE)
 
     #TODO: Test a full template fill in, including topic.
 
