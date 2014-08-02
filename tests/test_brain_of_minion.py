@@ -10,11 +10,10 @@ sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
 from mock_data import mock_settings
 
-<<<<<<< HEAD
 ### Mock objects
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
-=======
+
 from tests.mock_data import \
         (mock_settings,
         TEST_DATA_DIRECTORY,
