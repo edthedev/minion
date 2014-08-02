@@ -113,6 +113,20 @@ class TestTags(unittest.TestCase):
         result = brain.add_tags(**args)
         self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)
 
+    def test_has_tag(self):
+        args = {
+            'content': TEST_FILE_CONTENT_WITH_TAGS,
+            'tag': TEST_TAG,
+            }
+        self.assertTrue(
+            brain.content_has_tag(**args)
+            )
+
+        args['tag'] = TEST_GIBBERISH
+        self.assertFalse(
+            brain.content_has_tag(**args)
+            )
+
 #class TestIsValidTag(unittest.TestCase):
 #    def test_is_valid_tag(self):
 #        # self.assertEqual(expected, isValidTag(tag))

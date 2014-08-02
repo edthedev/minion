@@ -48,6 +48,10 @@ Wow. Such goals. So accomplish.
 
 TEST_FILE_TITLE = '''Weekend Plan for 2014-04-14'''
 
+# This 'tag' should not appear in file content for testing.
+TEST_GIBBERISH = 'Slartibarfast'
+
+# This 'tag' should appear in various file content for testing.
+TEST_TAG = 'Ninja'
 TEST_TAGS = ['foo', 'BAR', 'Ninja']
 TEST_TAG_LINE = ':tags: bar foo ninja'
-

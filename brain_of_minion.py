@@ -476,18 +476,21 @@ def remove_tags_from_string(filename):
             tag_free_name += char
     return tag_free_name
 
-def has_tag(filename, tag):
-    ''' Return true if the file's tags line has the given tag. '''
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
+def content_has_tag(content, tag):
+    ''' Return true if the file content's tags line has the given tag. '''
+    content = content.split('\n')
     TAG_INDICATOR = get_setting('compose', 'tagline')
+    tag = tag.lower()
     for line in content:
         if TAG_INDICATOR in line:
             if tag in line:
                 return True
     return False
 
+def has_tag(filename, tag):
+    ''' Return true if the file's tags line has the given tag. '''
+    content = get_file_content(filename)
+    return content_has_tag(content, tag)
 
 def limit_notes(choice, notes, full=False):
     ''' Only return notes who have the text in choice in at least one of:
