@@ -666,6 +666,13 @@ def parse_tags(line, TAG_INDICATOR):
 
 
 def create_tag_line(tags, TAG_INDICATOR=None):
+    ''' Create a line of text that stores tags
+    in a test file.
+
+    Note that all tags are stored in lower case, 
+    to simplify sorting and retrieval.
+
+    '''
     if not TAG_INDICATOR:
         TAG_INDICATOR = get_setting('compose', 'tagline')
 
@@ -673,7 +680,8 @@ def create_tag_line(tags, TAG_INDICATOR=None):
     tags = list(set(tags))
     # Remove any line breaks
     # TODO: Find a way to support multiple lines of tags, someday, maybe.
-    tags = [x.replace('\n', ' ') for x in tags]
+    tags = [x.replace('\n', ' ').lower() for x in tags]
+    tags = sorted(tags)
 
     # Always put the tag indicator at the start.
     if TAG_INDICATOR in tags:
@@ -681,7 +689,6 @@ def create_tag_line(tags, TAG_INDICATOR=None):
 
     tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
-
 
 def remove_tags_from_file(tags, filename):
     if len(tags) == 0:
