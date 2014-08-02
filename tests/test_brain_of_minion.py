@@ -20,6 +20,8 @@ from tests.mock_data import \
         WEEKEND_TEMPLATE_CONTENT,
         EXPECTED_DATE,
         TEST_FILE_CONTENT,
+        TEST_FILE_CONTENT_WITH_TAGS,
+        TEST_TAGS,
         )
 
 ### Mock objects
@@ -70,7 +72,6 @@ class TestParsers(unittest.TestCase):
     def test_get_first_date(self):
         first_date = brain.get_first_date(TEST_FILE_CONTENT)
         self.assertEqual(first_date, EXPECTED_DATE)
->>>>>>> dcaf7c89152018ed70bef738f671ffb23d034dd6
 
 ### Tests
 class TestGetSetting(unittest.TestCase):
@@ -110,10 +111,14 @@ class TestRemind(unittest.TestCase):
                 TEST_DATA_DIRECTORY + '/inbox/Remind-me-of-this-thing.txt'), 'a')])
         # import pdb; pdb.set_trace()
 
-class TestGetTags(unittest.TestCase):
-    def test_get_tags(self):
-        # self.assertEqual(expected, get_tags(text_string))
-        assert False # TODO: implement your test here
+class TestTags(unittest.TestCase):
+    ''' Test suite for tag handling. '''
+    def test_add_tags(self):
+        args = {'tags': TEST_TAGS,
+                'content': TEST_FILE_CONTENT}
+        result = brain.add_tags(**args)
+        import pdb; pdb.set_trace()
+        self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)
 
 #class TestIsValidTag(unittest.TestCase):
 #    def test_is_valid_tag(self):

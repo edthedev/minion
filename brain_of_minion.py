@@ -710,21 +710,14 @@ def remove_tags_from_file(tags, filename):
     f.close()
     return filename
 
-
-def add_tags_to_file(tags, filename):
-    if len(tags) == 0:
-        return filename
+def add_tags(tags, content):
+    ''' Return the file content with the tags added. '''
 
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
     if ' ' in TAG_INDICATOR:
         print "WARNING: Spaces in the [compose] tagline= setting \
             may cause tag duplication."
-
-    # Find the current tags
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
 
     all_tags = []
     updated_content = []
@@ -746,11 +739,26 @@ def add_tags_to_file(tags, filename):
     # Remove
     updated_content = [line2.rstrip('\n') for line2 in updated_content]
     updated_string = '\n'.join(updated_content)
+
+    return updated_content
+
+def add_tags_to_file(tags, filename):
+    if len(tags) == 0:
+        return filename
+
+    # Find the current tags
+# TODO: Call get_content, intead...
+    f = open(filename, 'r')
+    content = f.readlines()
+    f.close()
+
+    updated_content = add_tags(content, tags)
+
     f = open(filename, 'w')
     f.write(updated_string)
     f.close()
-    return filename
 
+    return filename
 
 def archive(filename):
     ''' Move the selected file into an archive folder. '''
