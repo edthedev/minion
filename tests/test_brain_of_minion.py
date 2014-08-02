@@ -3,36 +3,17 @@ import os
 import sys
 import unittest
 from mock import MagicMock, mock_open, patch, call
-from ConfigParser import SafeConfigParser
 
 # Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
+from mock_data import mock_settings
 
 ### Mock objects
-
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
-def mock_settings():
-   
-# Default notes settings
-    settings = SafeConfigParser()
-    settings.add_section('notes')
-    settings.set('notes', 'home', '~/minion/notes')
-    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
-# Default composition settings
-    settings.add_section('compose')
-    settings.set('compose', 'templates', '~/minion/templates')
-    settings.set('compose', 'extension', '.txt')
-    settings.set('compose', 'editor', 'vim')
-    settings.set('compose', 'tagline', ':tags:')
-# Default date format
-    settings.add_section('date')
-    settings.set('date', 'format', '%%Y-%%m-%%d')
 
-    # SETTINGS_OBJ = settings
-    return settings
-
+### Tests
 class TestGetSetting(unittest.TestCase):
     def test_get_setting(self):
         ''' Make sure some settings can load.'''
@@ -48,42 +29,6 @@ class TestGetSetting(unittest.TestCase):
 # Default date format
         self.assertNotEqual(None, settings.get('date', 'format'))
 
-#class TestGetSettings(unittest.TestCase):
-#    def test_get_settings(self):
-#        # self.assertEqual(expected, get_settings())
-#        assert False # TODO: implement your test here
-#
-#class TestGetFirstDate(unittest.TestCase):
-#    def test_get_first_date(self):
-#        # self.assertEqual(expected, get_first_date(filename))
-#        assert False # TODO: implement your test here
-#
-#class TestLimitToYear(unittest.TestCase):
-#    def test_limit_to_year(self):
-#        # self.assertEqual(expected, limit_to_year(year, file_list))
-#        assert False # TODO: implement your test here
-#
-#class TestGetTotalFileCount(unittest.TestCase):
-#    def test_get_total_file_count(self):
-#        # self.assertEqual(expected, get_total_file_count(include_archives))
-#        assert False # TODO: implement your test here
-#
-#class TestGetFolderSummary(unittest.TestCase):
-#    def test_get_folder_summary(self):
-#        # self.assertEqual(expected, get_folder_summary(archives))
-#        assert False # TODO: implement your test here
-#
-#class TestSelectFile(unittest.TestCase):
-#    def test_select_file(self):
-#        # self.assertEqual(expected, select_file(match_files, max_files))
-#        assert False # TODO: implement your test here
-#
-#class TestPublish(unittest.TestCase):
-#    def test_publish(self):
-#        # self.assertEqual(expected, publish(filename, target, editor))
-#        assert False # TODO: implement your test here
-#
-
 @patch('__builtin__.open', new_callable=mock_open)
 @patch('brain_of_minion.get_settings', new=mock_settings)
 @patch('os.mkdir')
@@ -94,121 +39,11 @@ class TestRemind(unittest.TestCase):
         open_mock.assert_has_calls([call(os.path.join(os.path.expanduser('~'), 'minion/notes/inbox/Remind-me-of-this-thing.txt'), 'a')])
         # import pdb; pdb.set_trace()
 
-#class TestWebTemplate(unittest.TestCase):
-#    def test___init__(self):
-#        # web_template = WebTemplate(template, data)
-#        assert False # TODO: implement your test here
-#
-#    def test___iter__(self):
-#        # web_template = WebTemplate(template, data)
-#        # self.assertEqual(expected, web_template.__iter__())
-#        assert False # TODO: implement your test here
-#
-#    def test___str__(self):
-#        # web_template = WebTemplate(template, data)
-#        # self.assertEqual(expected, web_template.__str__())
-#        assert False # TODO: implement your test here
-#
-#    def test_next(self):
-#        # web_template = WebTemplate(template, data)
-#        # self.assertEqual(expected, web_template.next())
-#        assert False # TODO: implement your test here
-#
-#    def test_render(self):
-#        # web_template = WebTemplate(template, data)
-#        # self.assertEqual(expected, web_template.render())
-#        assert False # TODO: implement your test here
-#
-#    def test_webify(self):
-#        # web_template = WebTemplate(template, data)
-#        # self.assertEqual(expected, web_template.webify(content))
-#        assert False # TODO: implement your test here
-#
-#class TestGetStatus(unittest.TestCase):
-#    def test_get_status(self):
-#        # self.assertEqual(expected, getStatus())
-#        assert False # TODO: implement your test here
-#
-#class TestIsWorkTime(unittest.TestCase):
-#    def test_is_work_time(self):
-#        # self.assertEqual(expected, is_work_time())
-#        assert False # TODO: implement your test here
-#
-#class TestGetIgnoreTags(unittest.TestCase):
-#    def test_get_ignore_tags(self):
-#        # self.assertEqual(expected, get_ignore_tags(worktime))
-#        assert False # TODO: implement your test here
-#
-#class TestGetIgnoredTags(unittest.TestCase):
-#    def test_get_ignored_tags(self):
-#        # self.assertEqual(expected, getIgnoredTags(script_name))
-#        assert False # TODO: implement your test here
-#
-#class TestGetFolders(unittest.TestCase):
-#    def test_get_folders(self):
-#        # self.assertEqual(expected, getFolders(location))
-#        assert False # TODO: implement your test here
-#
-#class TestIgnoreTags(unittest.TestCase):
-#    def test_ignore_tags(self):
-#        # self.assertEqual(expected, ignoreTags(file_list, tags))
-#        assert False # TODO: implement your test here
-#
-#class TestGetTaggedLines(unittest.TestCase):
-#    def test_get_tagged_lines(self):
-#        # self.assertEqual(expected, getTaggedLines(tags, filename))
-#        assert False # TODO: implement your test here
-#
-#class TestGetTaggedFiles(unittest.TestCase):
-#    def test_get_tagged_files(self):
-#        # self.assertEqual(expected, getTaggedFiles(tags, full))
-#        assert False # TODO: implement your test here
-#
-#class TestGetTodayTags(unittest.TestCase):
-#    def test_get_today_tags(self):
-#        # self.assertEqual(expected, getTodayTags())
-#        assert False # TODO: implement your test here
-#
-#class TestGetTomorrowTags(unittest.TestCase):
-#    def test_get_tomorrow_tags(self):
-#        # self.assertEqual(expected, getTomorrowTags())
-#        assert False # TODO: implement your test here
-#
-#class TestSampleTagged(unittest.TestCase):
-#    def test_sample_tagged(self):
-#        # self.assertEqual(expected, sampleTagged(tags))
-#        assert False # TODO: implement your test here
-#
-#class TestRemoveArchives(unittest.TestCase):
-#    def test_remove_archives(self):
-#        # self.assertEqual(expected, remove_archives(file_list))
-#        assert False # TODO: implement your test here
-#
-#class TestGetRemoveTags(unittest.TestCase):
-#    def test_get_remove_tags(self):
-#        # self.assertEqual(expected, get_remove_tags(text_string))
-#        assert False # TODO: implement your test here
-#
-#class TestGetTags(unittest.TestCase):
-#    def test_get_tags(self):
-#        # self.assertEqual(expected, get_tags(text_string))
-#        assert False # TODO: implement your test here
-#
-#class TestTagAfter(unittest.TestCase):
-#    def test_tag_after(self):
-#        # self.assertEqual(expected, tagAfter(first, second))
-#        assert False # TODO: implement your test here
-#
-#class TestIsProject(unittest.TestCase):
-#    def test_is_project(self):
-#        # self.assertEqual(expected, isProject(filename))
-#        assert False # TODO: implement your test here
-#
-#class TestRemoveWorkNotes(unittest.TestCase):
-#    def test_remove_work_notes(self):
-#        # self.assertEqual(expected, removeWorkNotes(files, worktime))
-#        assert False # TODO: implement your test here
-#
+class TestGetTags(unittest.TestCase):
+    def test_get_tags(self):
+        # self.assertEqual(expected, get_tags(text_string))
+        assert False # TODO: implement your test here
+
 #class TestIsValidTag(unittest.TestCase):
 #    def test_is_valid_tag(self):
 #        # self.assertEqual(expected, isValidTag(tag))
