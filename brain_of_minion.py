@@ -928,6 +928,7 @@ def has_any_tag(filename, tags):
 def string_to_file_name(text, ext=None):
     if not ext:
         ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
 
     # Read the filename separator from settings and extract the second
     # character. The reason is that we want only one character separator
@@ -938,12 +939,12 @@ def string_to_file_name(text, ext=None):
     new_name = text.replace(' ', name_sep).replace('/', name_sep)
 
     data = {'topic': text,
-            'ext': ext}
+            'ext': ext,}
     data.update(GLOBAL_DATA)
     new_name = new_name.format(**data)
 
-    if not new_name.endswith(ext):
-        new_name = '%s%s' % (new_name, ext)
+    if not new_name.endswith(data['ext']):
+        new_name = '.'.join([new_name.rstrip('.'), ext])
 
     return new_name
 

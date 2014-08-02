@@ -40,13 +40,13 @@ class TestFileStuff(unittest.TestCase):
         filename = brain.string_to_file_name(TEST_TOPIC)
         self.assertEqual(filename, TEST_FILENAME)
 
-        filename = brain.get_filename_for_title(TEST_TOPIC, notes_dir=None)
-        self.assertEqual(filename, TEST_FILE_PATH)
+        file_path = brain.get_filename_for_title(TEST_TOPIC, notes_dir=None)
+        self.assertEqual(file_path, TEST_FILE_PATH)
 
-        filename = brain.create_new_note(TEST_TOPIC, template='note')
+        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
         file_count = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(len(file_count), 1)
-        self.assertEqual(filename, TEST_FILE_PATH)
+        self.assertEqual(file_path, TEST_FILE_PATH)
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
