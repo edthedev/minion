@@ -46,6 +46,18 @@ Goals
 Wow. Such goals. So accomplish.
 :tags: bar foo ninja'''
 
+TEST_FILE_CONTENT_WITH_ONE_TAG = \
+'''Weekend Plan for 2014-04-14
+==============================
+:date: 2014-04-14
+
+The topic is: This is a great topic.
+
+Goals
+------
+Wow. Such goals. So accomplish.
+:tags: ninja'''
+
 TEST_FILE_TITLE = '''Weekend Plan for 2014-04-14'''
 
 # This 'tag' should not appear in file content for testing.
@@ -63,4 +75,7 @@ TEST_FILE_INITIAL_CONTENT = \
 '''/tmp/test_minion/inbox/This-is-a-test-topic.txtThis is a test topic.\n=====================\n:date: '''
 TEST_FILENAME = 'This-is-a-test-topic.txt'
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
+
+TEST_REMOVE_TAGS = ['foo', 'BAR' ]
+
 TEST_TOPIC = 'This is a test topic.'

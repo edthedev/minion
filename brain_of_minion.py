@@ -692,16 +692,9 @@ def create_tag_line(tags, TAG_INDICATOR=None):
     tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
 
-def remove_tags_from_file(tags, filename):
-    if len(tags) == 0:
-        return filename
-
+def remove_tags_from_content(tags, content):
+    import pdb; pdb.set_trace()
     TAG_INDICATOR = get_setting('compose', 'tagline')
-
-    # Find the current tags
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
 
     all_tags = []
     updated_content = []
@@ -717,8 +710,19 @@ def remove_tags_from_file(tags, filename):
     # Write back to the file
     updated_content = [line2.rstrip('\n') for line2 in updated_content]
     updated_string = '\n'.join(updated_content)
+    return updated_string
+
+def remove_tags_from_file(tags, filename):
+    if len(tags) == 0:
+        return filename
+
+    # Remove the tags
+    content = get_file_content(filename)
+    updated_content = remove_tags_from_content(tags, content)
+
+    # Rewrite the file.
     f = open(filename, 'w')
-    f.write(updated_string)
+    f.write(updated_content)
     f.close()
     return filename
 

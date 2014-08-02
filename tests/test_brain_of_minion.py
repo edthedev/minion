@@ -55,6 +55,13 @@ class TestFileStuff(unittest.TestCase):
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
 
+        # Can we remove the tags?
+        brain.remove_tags_from_file(TEST_TAGS, file_path)
+
+        # This time we should not find it.
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1)
+
     def test_create_note(self):
         TestFileStuff.clean_directory()
 
@@ -140,6 +147,12 @@ class TestTags(unittest.TestCase):
                 'content': TEST_FILE_CONTENT}
         result = brain.add_tags(**args)
         self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)
+
+    def test_remove_tags(self):
+        args = {'tags': TEST_REMOVE_TAGS,
+                'content': TEST_FILE_CONTENT_WITH_TAGS}
+        result = brain.remove_tags_from_content(**args)
+        self.assertEqual(result, TEST_FILE_CONTENT_WITH_ONE_TAG)
 
     def test_has_tag(self):
         args = {
