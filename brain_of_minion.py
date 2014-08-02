@@ -755,15 +755,12 @@ def add_tags(tags, content):
     return updated_string
 
 def add_tags_to_file(tags, filename):
+    # Do not bother if no tags are passed.
     if len(tags) == 0:
         return filename
 
-    # Find the current tags
-# TODO: Call get_content, intead...
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
-
+    # Add tags
+    content = get_file_content(filename)
     updated_content = add_tags(content, tags)
 
     f = open(filename, 'w')
@@ -904,7 +901,6 @@ def find_files(
 
     files = get_files(directory, archives)
 
-    import pdb; pdb.set_trace()
     if not find_any:
         for tag in filter:
             files = limit_notes(tag, files, full=full_text)
