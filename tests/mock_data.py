@@ -32,18 +32,6 @@ The topic is: This is a great topic.
 
 Goals
 ------
-Wow. Such goals. So accomplish.
-'''
-
-TEST_FILE_CONTENT = \
-'''Weekend Plan for 2014-04-14
-==============================
-:date: 2014-04-14
-
-The topic is: This is a great topic.
-
-Goals
-------
 Wow. Such goals. So accomplish.'''
 
 TEST_TAGS = ['foo', 'BAR', 'Ninja']
