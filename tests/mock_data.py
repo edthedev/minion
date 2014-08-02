@@ -48,17 +48,18 @@ Wow. Such goals. So accomplish.
 '''
 
 TEST_TAGS = ['foo', 'BAR', 'Ninja']
+TEST_TAG_LINE = ':tags: BAR foo Ninja'
 
 TEST_FILE_CONTENT_WITH_TAGS = \
 '''Weekend Plan for 2014-04-14
 ==============================
 :date: 2014-04-14
-:tags: foo bar ninja
 
 The topic is: This is a great topic.
 
 Goals
 ------
 Wow. Such goals. So accomplish.
+:tags: BAR foo Ninja
 '''
 

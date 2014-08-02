@@ -22,6 +22,7 @@ from tests.mock_data import \
         TEST_FILE_CONTENT,
         TEST_FILE_CONTENT_WITH_TAGS,
         TEST_TAGS,
+        TEST_TAG_LINE,
         )
 
 ### Mock objects
@@ -109,15 +110,18 @@ class TestRemind(unittest.TestCase):
         open_mock.assert_has_calls([
             call(os.path.join(os.path.expanduser('~'), 
                 TEST_DATA_DIRECTORY + '/inbox/Remind-me-of-this-thing.txt'), 'a')])
-        # import pdb; pdb.set_trace()
 
 class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
+
+    def test_create_tag_line(self):
+        result = brain.create_tag_line(TEST_TAGS)
+        self.assertEqual(result, TEST_TAG_LINE)
+
     def test_add_tags(self):
         args = {'tags': TEST_TAGS,
                 'content': TEST_FILE_CONTENT}
         result = brain.add_tags(**args)
-        import pdb; pdb.set_trace()
         self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)
 
 #class TestIsValidTag(unittest.TestCase):

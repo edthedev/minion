@@ -665,7 +665,10 @@ def parse_tags(line, TAG_INDICATOR):
     return tags
 
 
-def create_tag_line(tags, TAG_INDICATOR):
+def create_tag_line(tags, TAG_INDICATOR=None):
+    if not TAG_INDICATOR:
+        TAG_INDICATOR = get_setting('compose', 'tagline')
+
     # Unique-ify
     tags = list(set(tags))
     # Remove any line breaks
@@ -722,7 +725,7 @@ def add_tags(tags, content):
     all_tags = []
     updated_content = []
     found_tags = False
-    for line in content:
+    for line in content.split('\n'):
         if (TAG_INDICATOR in line):
             found_tags = True
             all_tags = parse_tags(line, TAG_INDICATOR)
@@ -740,7 +743,7 @@ def add_tags(tags, content):
     updated_content = [line2.rstrip('\n') for line2 in updated_content]
     updated_string = '\n'.join(updated_content)
 
-    return updated_content
+    return updated_string
 
 def add_tags_to_file(tags, filename):
     if len(tags) == 0:
