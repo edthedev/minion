@@ -1,23 +1,36 @@
-''' Mock methods needed for unit testing Minion '''
+''' Data structures used for unit testing. '''
+from datetime import date, datetime
+import brain_of_minion as brain
 
 from ConfigParser import SafeConfigParser
 
-def mock_settings():
-    ''' Simpler settings for unit testing. '''
-# Default notes settings
-    settings = SafeConfigParser()
-    settings.add_section('notes')
-    settings.set('notes', 'home', '~/minion/notes')
-    settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
-# Default composition settings
-    settings.add_section('compose')
-    settings.set('compose', 'templates', '~/minion/templates')
-    settings.set('compose', 'extension', '.txt')
-    settings.set('compose', 'editor', 'vim')
-    settings.set('compose', 'tagline', ':tags:')
-# Default date format
-    settings.add_section('date')
-    settings.set('date', 'format', '%%Y-%%m-%%d')
+TEST_DATA_DIRECTORY = '/tmp/test_minion'
 
-    # SETTINGS_OBJ = settings
-    return settings
+def mock_settings():
+    ''' Always return the default settings. '''
+    return brain._settings_parser(TEST_DATA_DIRECTORY)
+
+WEEKEND_TEMPLATE_CONTENT = \
+'''Weekend Plan for WHATEVER
+==============================
+:date: {today}
+
+The topic is: {topic}
+
+Goals
+------
+'''
+
+EXPECTED_DATE = datetime(2014, 04, 14, 0, 0)
+
+TEST_FILE_CONTENT = \
+'''Weekend Plan for 2014-04-14
+==============================
+:date: 2014-04-14
+
+The topic is: This is a great topic.
+
+Goals
+------
+Wow. Such goals. So accomplish.
+'''
