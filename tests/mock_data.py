@@ -56,6 +56,8 @@ TEST_TAG = 'Ninja'
 TEST_TAGS = ['foo', 'BAR', 'Ninja']
 TEST_TAG_LINE = ':tags: bar foo ninja'
 
+TEST_FILE_INITIAL_CONTENT = \
+'''/tmp/test_minion/inbox/This-is-a-test-topic.txtThis is a test topic.\n=====================\n:date: '''
 TEST_FILENAME = 'This-is-a-test-topic.txt'
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
 TEST_TOPIC = 'This is a test topic.'

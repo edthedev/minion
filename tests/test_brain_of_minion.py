@@ -48,6 +48,9 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(len(file_count), 1)
         self.assertEqual(file_path, TEST_FILE_PATH)
 
+        content = brain.get_file_content(TEST_FILE_PATH)
+        self.assertTrue(TEST_FILE_INITIAL_CONTENT in content)
+
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
 
