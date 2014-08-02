@@ -7,10 +7,6 @@ import shutil
 import os
 from datetime import date, timedelta, datetime
 import re
-import socket
-import ConfigParser
-import random
-from string import Template
 from ConfigParser import SafeConfigParser
 from collections import defaultdict
 import logging
@@ -75,7 +71,7 @@ WAITING = ':WAITING:'
 # FUNCTIONS
 ################################################################################
 
-def _settings_parser(default_notes_dir = '~/minion/notes'):
+def _settings_parser(default_notes_dir='~/minion/notes'):
     ''' Create the parser for the settings file. '''
 
     # Default notes settings
@@ -85,6 +81,7 @@ def _settings_parser(default_notes_dir = '~/minion/notes'):
     settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
     settings.set('notes', 'notes_included_extensions', '*')
     settings.set('notes', 'notes_excluded_extensions', '~')
+    settings.set('notes', 'default_template', 'note')
     # Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -99,6 +96,7 @@ def _settings_parser(default_notes_dir = '~/minion/notes'):
 
     return settings
 
+
 def get_settings():
     minion_file = os.path.expanduser(CONFIG_FILE)
 
@@ -107,7 +105,7 @@ def get_settings():
     # Load if available, write defaults if not.
     if os.path.exists(minion_file):
         settings.read([minion_file])
-    else: # pragma: no cover
+    else:  # pragma: no cover
         f = open(minion_file, 'w')
         settings.write(f)
         f.close()
@@ -116,16 +114,6 @@ def get_settings():
 
 
 GLOBAL_SETTINGS = get_settings()
-
-
-def get_title_from_template_content(content, topic=None):
-
-    ''' Sometimes the best place to find the filename is
-        the first line of the template.'''
-    first_line = content.split('\n')[0]
-    data = {'topic': topic}
-    data.update(GLOBAL_DATA)
-    return first_line.format(**data)
 
 
 def get_setting(section, key):
@@ -156,6 +144,16 @@ def get_global_data():
 
 
 GLOBAL_DATA = get_global_data()
+
+
+def get_title_from_template_content(content, topic=None):
+
+    ''' Sometimes the best place to find the filename is
+        the first line of the template.'''
+    first_line = content.split('\n')[0]
+    data = {'topic': topic}
+    data.update(GLOBAL_DATA)
+    return first_line.format(**data)
 
 
 def list_stray_files(count=2):
@@ -238,6 +236,7 @@ def get_first_date(content):
     dates.sort()
     return dates[0]
 
+
 def get_file_content(filename):
     ''' Yep. '''
     content = ""
@@ -253,6 +252,7 @@ def get_file_content(filename):
     # Always treat the filename as if part of the content.
     content = filename + content
     return content
+
 
 def limit_to_year(year, file_list):
     '''Return only files from the list whose first date is within
@@ -343,14 +343,17 @@ def select_file(match_files, max_files=10):
 
     return (choice_path, match_files[0])
 
+
 def remind(text):
     filename = "%s/%s" % (get_inbox(), string_to_file_name(text))
     f = open(filename, 'a')
     f.write(text)
     return filename
 
+
 def remove_archives(file_list):
     return remove_notes(file_list, ['archive'])
+
 
 def get_remove_tags(text_string):
     tag_re = re.compile("-@\w*")
@@ -364,6 +367,7 @@ def get_tags(text_string):
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
     return results
+
 
 def sort_by_tag(file_list):
     all_tags = {'no tags': []}
@@ -476,6 +480,7 @@ def remove_tags_from_string(filename):
             tag_free_name += char
     return tag_free_name
 
+
 def has_tag(filename, tag):
     ''' Return true if the file's tags line has the given tag. '''
     f = open(filename, 'r')
@@ -530,6 +535,7 @@ def remove_notes(file_list, terms):
         if not matches_term:
             new_list.append(f)
     return new_list
+
 
 def clean_file_name(text):
     return text.replace(' ', '-').replace('/', '-')
@@ -642,6 +648,7 @@ def limit_notes_interactive(notes):
         choice = raw_input('Choice? ')
         notes = limit_notes(choice, notes)
     return notes[0]
+
 
 def expand_short_command(command):
     commands = {
@@ -889,10 +896,6 @@ def find_files(directory=None, archives=False, filter=[], full_text=False,
             if has_any_tag(f, filter):
                 files.append(f)
 
-    if weekend is not None:
-        ignore_tags = get_ignore_tags(worktime=not weekend)
-        files = ignoreTags(files, ignore_tags)
-
     return files
 
 
@@ -903,6 +906,7 @@ def has_any_tag(filename, tags):
         if has_tag(filename, tag):
             return True
     return False
+
 
 def string_to_file_name(text, ext=None):
     if not ext:
@@ -956,6 +960,7 @@ def rename_file(filename, new_name):
         print "Renamed " + filename + " to " + new_file
     return new_file
 
+
 def move_to_folder(filename, folder):
     ''' Move the file to a difference folder. '''
     try:
@@ -984,6 +989,7 @@ def remove_empty_folder(folder):
         os.rmdir(folder)
         print "Removed empty forlder " + folder + "."
 
+
 def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
         return display_options
@@ -994,6 +1000,7 @@ def getOutput(command):
         output = p1.communicate()[0]
         return output
 
+
 def find_file(filename):
     home = get_notes_home()
     for root, directories, names in os.walk(home):
@@ -1001,6 +1008,7 @@ def find_file(filename):
             if f == filename:
                 return os.path.join(root, f)
     return None
+
 
 def get_filename_for_title(topic, notes_dir=None):
     # Get location for new file
@@ -1018,6 +1026,7 @@ def get_filename_for_title(topic, notes_dir=None):
     filename = os.path.join(notes_dir, topic_filename)
 
     return filename
+
 
 def get_template_content(template):
     ''' Get the template text for a new note. '''
@@ -1077,7 +1086,7 @@ def create_new_note(topic, template='note'):
 
 def new_note_interactive(note_title_fragments, quick=False,
                          template='note', notes_dir=None):
-    ''' Without any distractions, create a new file, from a template.
+    ''' Without any distractions, create a new file.
         Use a file-system safe filename, based on the title.
         Use a pre-configured 'inbox' for the files initial location.
         If this 'inbox' folder does not exist, create it.
