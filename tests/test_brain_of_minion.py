@@ -36,13 +36,14 @@ class TestFileStuff(unittest.TestCase):
 
     def test_create_note(self):
         TestFileStuff.clean_directory()
-        topic = 'test note 1'
 
-        filename = brain.get_filename_for_title(topic, notes_dir=None)
+        filename = brain.get_filename_for_title(TEST_TOPIC, notes_dir=None)
+        self.assertEqual(filename, TEST_FILENAME)
 
-        brain.create_new_note(topic, template='note')
+        filename = brain.create_new_note(TEST_TOPIC, template='note')
         file_count = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(len(file_count), 1)
+        self.assertEqual(filename, TEST_FILENAME)
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
