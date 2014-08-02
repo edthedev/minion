@@ -189,7 +189,7 @@ endfunction
 
 " Add tags to a minion file.
 " ---------------------------
-" TODO: Consider: Tags probably should modify the file content, not the file name.
+" DONE: Consider: Tags probably should modify the file content, not the file name.
 " 			Pro: Filename tags allow tagging PDF files.
 " 			Con: Filename tags move the file, which you might be editing in
 " 			another editor.
