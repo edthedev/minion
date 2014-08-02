@@ -34,6 +34,27 @@ class TestFileStuff(unittest.TestCase):
     def setUp(self):
         os.mkdir(TEST_DATA_DIRECTORY)
 
+    def test_find_note(self):
+        ''' Make a note and find it again. '''
+         # Make a note
+        TestFileStuff.clean_directory()
+        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        # Did we make a note?
+        file_count = os.listdir(TEST_DATA_DIRECTORY)
+        self.assertEqual(len(file_count), 1)
+
+        # Tag it for retrieval
+        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+
+        # Can we find the note?
+        args = {
+            'keyword_string': ' '.join(TEST_TAGS),
+            'archives':False,
+            'full_text': True,
+        }
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1)
+
     def test_create_note(self):
         TestFileStuff.clean_directory()
 

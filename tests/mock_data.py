@@ -54,6 +54,9 @@ TEST_GIBBERISH = 'Slartibarfast'
 # This 'tag' should appear in various file content for testing.
 TEST_TAG = 'Ninja'
 TEST_TAGS = ['foo', 'BAR', 'Ninja']
+# As it might come from the user:
+TEST_TAG_STRING = 'Ninja foo BAR'
+# As we would add it to the file:
 TEST_TAG_LINE = ':tags: bar foo ninja'
 
 TEST_FILE_INITIAL_CONTENT = \

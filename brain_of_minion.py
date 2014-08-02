@@ -520,7 +520,6 @@ def limit_notes(choice, notes, full=False):
                     new_array.append(note)
     return new_array
 
-
 def remove_notes(file_list, terms):
     new_list = []
     for f in file_list:
@@ -768,7 +767,7 @@ def add_tags_to_file(tags, filename):
     updated_content = add_tags(content, tags)
 
     f = open(filename, 'w')
-    f.write(updated_string)
+    f.write(updated_content)
     f.close()
 
     return filename
@@ -892,14 +891,20 @@ def get_files(directory, archives=False):
     return files
 
 
-def find_files(directory=None, archives=False, filter=[], full_text=False,
-               weekend=None, find_any=False):
+def find_files(
+        directory=None, 
+        archives=False, 
+        filter=[], 
+        full_text=False,
+        find_any=False,
+              ):
     ''' Find matching files... '''
     if directory is None:
         directory = get_notes_home()
 
     files = get_files(directory, archives)
 
+    import pdb; pdb.set_trace()
     if not find_any:
         for tag in filter:
             files = limit_notes(tag, files, full=full_text)
@@ -909,13 +914,7 @@ def find_files(directory=None, archives=False, filter=[], full_text=False,
         for f in raw_files:
             if has_any_tag(f, filter):
                 files.append(f)
-
-    if weekend is not None:
-        ignore_tags = get_ignore_tags(worktime=not weekend)
-        files = ignoreTags(files, ignore_tags)
-
     return files
-
 
 def has_any_tag(filename, tags):
     for tag in tags:

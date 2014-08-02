@@ -38,6 +38,7 @@ do_not_open = ['.jpg', '.jpeg', '.pdf', '.png', '.rtf', '.xls']
 args = {
 	'keyword_string':vim.eval("a:keywords"),
 	'archives':(vim.eval("a:archives")=="true"),
+	'full_text': True,
 }
 match_files = brain.get_keyword_files(**args)
 if not match_files:
