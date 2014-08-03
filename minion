@@ -181,48 +181,32 @@ def format_2_cols(tuple_list):
 
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
+    # construct the note title as defined in the first line of the template
+    topic = ' '.join(args['<text>'])
     template_content = brain.get_template_content(args['<template>'])
-    title = brain.get_title_from_template_content(template_content,
-                                                  topic=args['<text>'])
-    args['<text>'].insert(0, title)
-    (filename, last_line) = brain.create_new_note(
-        ' '.join(args['<text>']),
-        template=args['<template>'],
-    )
-    brain.open_file(filename, last_line)
+    title = brain.get_title_from_template_content(template_content, topic=topic)
+    # create the note
+    notes_dir = get_notes_dir(args)
+    brain.new_note_interactive(
+        [title], template=args['<template>'], notes_dir=notes_dir)
 
 
 def minion_remind(args):
     '''Set a quick reminder.'''
     notes_dir = get_notes_dir(args)
-    default_template = brain.get_setting('note', 'default_template')
-    brain.new_note_interactive(
-        args['<text>'],
-        quick=args['remind'],
-        template=default_template,
-        notes_dir=notes_dir)
+    brain.new_note_interactive(args['<text>'], quick=True, notes_dir=notes_dir)
 
 
 def minion_here(args):
     '''Create a Minion note in the current working directory.'''
     notes_dir = os.curdir
-    default_template = brain.get_setting('note', 'default_template')
-    brain.new_note_interactive(
-        args['<text>'],
-        quick=args['remind'],
-        template=default_template,
-        notes_dir=notes_dir)
+    brain.new_note_interactive(args['<text>'], notes_dir=notes_dir)
 
 
 def minion_note(args):
     '''Create a Minion note.'''
     notes_dir = get_notes_dir(args)
-    default_template = brain.get_setting('note', 'default_template')
-    brain.new_note_interactive(
-        args['<text>'],
-        quick=args['remind'],
-        template=default_template,
-        notes_dir=notes_dir)
+    brain.new_note_interactive(args['<text>'], notes_dir=notes_dir)
 
 
 def minion_sort(args):

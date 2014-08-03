@@ -147,12 +147,15 @@ GLOBAL_DATA = get_global_data()
 
 
 def get_title_from_template_content(content, topic=None):
-
     ''' Sometimes the best place to find the filename is
-        the first line of the template.'''
-    first_line = content.split('\n')[0]
+        the first line of the template.
+    '''
+    # Update GLOBAL_DATA
     data = {'topic': topic}
     data.update(GLOBAL_DATA)
+    # Get the first line of the template
+    first_line = content.split('\n')[0]
+    # merge the first_line with GLOBAL_DATA
     return first_line.format(**data)
 
 
@@ -1058,7 +1061,6 @@ def write_template_to_file(topic, filename, template='note'):
     data['filename'] = filename
     data['topic_underline'] = underline
     data['underline'] = underline
-    # data['tags'] = tags
     template_text = get_template_content(template)
 
     summary = "{filename}\n{underline}\nCreated {today}".format(**data)
@@ -1075,26 +1077,57 @@ def write_template_to_file(topic, filename, template='note'):
     return last_line
 
 
-def create_new_note(topic, template='note'):
+def create_note(topic, template=None, notes_dir=None):
+    ''' Pavel: Create a new note.'''
+    # Get the template name if not passed in
+    if template is None:
+        template = get_setting('notes', 'default_template')
+    # update GLOBAL_DATA
+    underline = '=' * len(topic)
+    data = GLOBAL_DATA
+    data['topic'] = topic
+    data['filename'] = topic
+    data['topic_underline'] = underline
+    data['underline'] = underline
+    data.update(GLOBAL_DATA)
+    # Merge the template and GLOBAL_DATA
+    template_text = get_template_content(template)
+    file_text = template_text.format(**data)
+    # Derive the filename ( = the first line of the template)
+    first_line = file_text.split('\n')[0]
+    filename = get_filename_for_title(first_line, notes_dir)
+    # If the file doesn't exist, create the file with content of the template
+    last_line = 0
+    if not os.path.exists(filename):
+        f = open(filename, 'a')
+        f.write(file_text)
+        f.close()
+        last_line = len('\n'.split(file_text)) + 1
+
+    return (filename, last_line)
+
+
+def create_new_note(topic, template=None, notes_dir=None):
     ''' Create a new note, non-interative.'''
-    filename = get_filename_for_title(topic, notes_dir=None)
+    filename = get_filename_for_title(topic, notes_dir)
+    if template is None:
+        template = get_setting('notes', 'default_template')
     last_line = 0
     if not os.path.exists(filename):
         last_line = write_template_to_file(topic, filename, template)
     return (filename, last_line)
 
 
-def new_note_interactive(note_title_fragments, quick=False,
-                         template='note', notes_dir=None):
+def new_note_interactive(title_fragments, quick=False,
+                         template=None, notes_dir=None):
     ''' Without any distractions, create a new file.
         Use a file-system safe filename, based on the title.
         Use a pre-configured 'inbox' for the files initial location.
         If this 'inbox' folder does not exist, create it.
         Include the title in the file, per the template.
     '''
-    topic = ' '.join(note_title_fragments)
-    filename = get_filename_for_title(topic, notes_dir)
-    last_line = write_template_to_file(topic, filename, template)
+    topic = ' '.join(title_fragments)
+    (filename, last_line) = create_new_note(topic, template, notes_dir)
     if not quick:
         open_file(filename, line=last_line)
 
