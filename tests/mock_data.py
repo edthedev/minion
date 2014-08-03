@@ -72,7 +72,7 @@ TEST_TAG_STRING = 'Ninja foo BAR'
 TEST_TAG_LINE = ':tags: bar foo ninja'
 
 TEST_FILE_INITIAL_CONTENT = \
-'''/tmp/test_minion/inbox/This-is-a-test-topic.txtThis is a test topic.\n=====================\n:date: '''
+'''/tmp/test_minion/inbox/This-is-a-test-topic.txt This is a test topic.\n=====================\n:date: '''
 TEST_FILENAME = 'This-is-a-test-topic.txt'
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
 

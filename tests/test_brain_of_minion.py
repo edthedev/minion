@@ -83,13 +83,15 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(len(match_files), 1)
 
         # Can we remove the tags?
+        content = brain.get_file_content(file_path)
         brain.remove_tags_from_file(TEST_TAGS, file_path)
+
+        tags = brain.get_tags(file_path)
+        import pdb;pdb.set_trace()
 
         # This time we should not find it.
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
-
-
 
     def test_create_note(self):
         TestFileStuff.clean_directory()
@@ -107,6 +109,7 @@ class TestFileStuff(unittest.TestCase):
 
         content = brain.get_file_content(TEST_FILE_PATH)
         self.assertTrue(TEST_FILE_INITIAL_CONTENT in content)
+
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)

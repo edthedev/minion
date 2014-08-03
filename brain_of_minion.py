@@ -251,7 +251,7 @@ def get_file_content(filename):
         f.close()
 
     # Always treat the filename as if part of the content.
-    content = filename + content
+    content = filename + ' ' + content
     return content
 
 def limit_to_year(year, file_list):
