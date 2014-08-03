@@ -34,6 +34,26 @@ class TestFileStuff(unittest.TestCase):
     def setUp(self):
         os.mkdir(TEST_DATA_DIRECTORY)
 
+    def test_archive_note(self):
+        ''' archive a note.'''
+         # Make a note
+        TestFileStuff.clean_directory()
+        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        file_count = os.listdir(TEST_DATA_DIRECTORY)
+        self.assertEqual(len(file_count), 1)
+
+        # Tag and find it.
+        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1)
+
+        # Archive it.
+        brain.archive(file_path)
+
+        # Is it gone (from tag find?)
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 0)
+
     def test_find_note(self):
         ''' Make a note and find it again. '''
          # Make a note
@@ -61,6 +81,8 @@ class TestFileStuff(unittest.TestCase):
         # This time we should not find it.
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
+
+
 
     def test_create_note(self):
         TestFileStuff.clean_directory()
