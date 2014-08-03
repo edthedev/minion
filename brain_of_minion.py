@@ -251,8 +251,9 @@ def get_file_content(filename, include_filename=True):
         f.close()
 
     # Always treat the filename as if part of the content.
-    if include_filename: 
+    if include_filename:
         content = filename + ' ' + content
+
     return content
 
 def limit_to_year(year, file_list):
@@ -735,7 +736,7 @@ def remove_tags_from_file(tags, filename):
         return filename
 
     # Remove the tags
-    content = get_file_content(filename)
+    content = get_file_content(filename, include_filename=False)
     updated_content = remove_tags_from_content(tags, content)
 
     # Rewrite the file.
