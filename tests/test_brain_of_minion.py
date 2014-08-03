@@ -39,11 +39,15 @@ class TestFileStuff(unittest.TestCase):
          # Make a note
         TestFileStuff.clean_directory()
         file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
-        file_count = os.listdir(TEST_DATA_DIRECTORY)
-        self.assertEqual(len(file_count), 1)
+        dir_contents = os.listdir(TEST_DATA_INBOX)
+        # Inbox exists.
+        self.assertEqual(len(dir_contents), 1, '1 in inbox')
 
         # Tag and find it.
-        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+        brain.add_tags_to_file(TEST_TAGS, file_path)
+        #tags_found = brain.get_tags(file_path)
+        #for tag in TEST_TAGS:
+        #    self.assertTrue(tag in tags_found, msg='Find tag ' + tag)
 
         args = {
             'keyword_string': ' '.join(TEST_TAGS),
@@ -52,14 +56,14 @@ class TestFileStuff(unittest.TestCase):
         }
 
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1)
+        self.assertEqual(len(match_files), 1, 'found file by tags')
 
         # Archive it.
         brain.archive(file_path)
 
         # Is it gone (from tag find?)
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 0)
+        self.assertEqual(len(match_files), 0, 'archived, so cannot find')
 
     def test_find_note(self):
         ''' Make a note and find it again. '''
@@ -68,10 +72,10 @@ class TestFileStuff(unittest.TestCase):
         file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
         # Did we make a note?
         file_count = os.listdir(TEST_DATA_DIRECTORY)
-        self.assertEqual(len(file_count), 1)
+        self.assertEqual(len(file_count), 1, msg='os.listdir')
 
         # Tag it for retrieval
-        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+        brain.add_tags_to_file(TEST_TAGS, file_path)
         with_tag_content = brain.get_file_content(file_path)
 
         # Can we find the note?
@@ -81,7 +85,7 @@ class TestFileStuff(unittest.TestCase):
             'full_text': True,
         }
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1)
+        self.assertEqual(len(match_files), 1, msg='get_keyword_files')
 
         # Can we remove the tags?
         brain.remove_tags_from_file(TEST_TAGS, file_path)
@@ -91,7 +95,7 @@ class TestFileStuff(unittest.TestCase):
 
         # This time we should not find it.
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1)
+        self.assertEqual(len(match_files), 0, 'get_keyword_files find 0')
 
     def test_create_note(self):
         TestFileStuff.clean_directory()

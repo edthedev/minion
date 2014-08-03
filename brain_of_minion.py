@@ -358,7 +358,6 @@ def get_remove_tags(text_string):
     tags = [x.lstrip('-@') for x in tags]
     return tags
 
-
 def get_tags(text_string):
     tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
@@ -382,7 +381,6 @@ def sort_by_tag(file_list):
                     placed = True
                     all_tags[tag] = [item]
     return all_tags
-
 
 def format_output_list(output, by_tag, max_display, separator):
     if max_display:
@@ -462,7 +460,6 @@ def clean_string(output):
     no_extensions = no_slashes.replace('.txt', '')
     no_tags = remove_tags_from_string(no_extensions)
     return no_tags
-
 
 def remove_tags_from_string(filename):
     removing = False
@@ -662,10 +659,8 @@ def expand_short_command(command):
 
 
 def parse_tags(line, TAG_INDICATOR):
-
     tags = line.split(' ')
     return tags
-
 
 def create_tag_line(tags, TAG_INDICATOR=None):
     ''' Create a line of text that stores tags
@@ -766,8 +761,11 @@ def add_tags_to_file(tags, filename):
         return filename
 
     # Add tags
-    content = get_file_content(filename)
-    updated_content = add_tags(content, tags)
+    args = {
+        'content': get_file_content(filename),
+        'tags': tags,
+    }
+    updated_content = add_tags(**args)
 
     f = open(filename, 'w')
     f.write(updated_content)
@@ -829,7 +827,6 @@ def apply_command_to_file(filename, command):
 
     return filename
 
-
 def doInboxInteractive(item):
     to_open = []
     # print get_inbox_menu()
@@ -840,7 +837,6 @@ def doInboxInteractive(item):
         if choice == 'o':
             to_open.append(item)
     return to_open
-
 
 def getCalendarTags():
     return ['@Jan', '@Feb', '@Mar', '@Apr', '@May', '@Jun', '@Jul', '@Aug',
@@ -892,7 +888,6 @@ def get_files(directory, archives=False):
         files = remove_archives(files)
 
     return files
-
 
 def find_files(
         directory=None, 

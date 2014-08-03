@@ -5,6 +5,7 @@ import brain_of_minion as brain
 from ConfigParser import SafeConfigParser
 
 TEST_DATA_DIRECTORY = '/tmp/test_minion'
+TEST_DATA_INBOX = '/tmp/test_minion/inbox'
 
 def mock_settings():
     ''' Always return the default settings. '''
