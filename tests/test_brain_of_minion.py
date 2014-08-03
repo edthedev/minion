@@ -72,6 +72,7 @@ class TestFileStuff(unittest.TestCase):
 
         # Tag it for retrieval
         brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+        with_tag_content = brain.get_file_content(file_path)
 
         # Can we find the note?
         args = {
@@ -83,11 +84,10 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(len(match_files), 1)
 
         # Can we remove the tags?
-        content = brain.get_file_content(file_path)
         brain.remove_tags_from_file(TEST_TAGS, file_path)
+        removed_tag_content = brain.get_file_content(file_path)
 
         tags = brain.get_tags(file_path)
-        import pdb;pdb.set_trace()
 
         # This time we should not find it.
         match_files = brain.get_keyword_files(**args)
