@@ -44,6 +44,13 @@ class TestFileStuff(unittest.TestCase):
 
         # Tag and find it.
         brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+
+        args = {
+            'keyword_string': ' '.join(TEST_TAGS),
+            'archives':False,
+            'full_text': True,
+        }
+
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
 
