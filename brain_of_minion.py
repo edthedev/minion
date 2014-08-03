@@ -1031,8 +1031,11 @@ def get_filename_for_title(topic, notes_dir=None):
     return filename
 
 
-def get_template_content(template):
-    ''' Get the template text for a new note. '''
+def get_template_content(template=None):
+    ''' Get the template text. '''
+    # Get the template name if not passed in
+    if template is None:
+        template = get_setting('notes', 'default_template')
     # Get template file
     settings = get_settings()
     data = {
@@ -1077,22 +1080,23 @@ def write_template_to_file(topic, filename, template='note'):
     return last_line
 
 
-def create_note(topic, template=None, notes_dir=None):
-    ''' Pavel: Create a new note.'''
-    # Get the template name if not passed in
-    if template is None:
-        template = get_setting('notes', 'default_template')
-    # update GLOBAL_DATA
+def create_note(topic, template_name=None, notes_dir=None):
+    ''' Pavel: Create a new note. '''
+    template_content = get_template_content(template_name)
+    return create_note_internal(topic, template_content, notes_dir)
+
+
+def create_note_internal(topic, template_content, notes_dir=None):
+    ''' create a new note - internal function for testability '''
+    # update GLOBAL_DATA to make it ready for merge with template
     underline = '=' * len(topic)
     data = GLOBAL_DATA
     data['topic'] = topic
-    data['filename'] = topic
     data['topic_underline'] = underline
     data['underline'] = underline
     data.update(GLOBAL_DATA)
     # Merge the template and GLOBAL_DATA
-    template_text = get_template_content(template)
-    file_text = template_text.format(**data)
+    file_text = template_content.format(**data)
     # Derive the filename ( = the first line of the template)
     first_line = file_text.split('\n')[0]
     filename = get_filename_for_title(first_line, notes_dir)
@@ -1102,7 +1106,7 @@ def create_note(topic, template=None, notes_dir=None):
         f = open(filename, 'a')
         f.write(file_text)
         f.close()
-        last_line = len('\n'.split(file_text)) + 1
+        last_line = len(file_text.split('\n')) + 1
 
     return (filename, last_line)
 
