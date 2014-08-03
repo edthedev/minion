@@ -702,15 +702,17 @@ def remove_tags_from_content(tags, content):
         if (TAG_INDICATOR in line):
             all_tags = parse_tags(line, TAG_INDICATOR)
             for tag in tags:
-                all_tags.pop(all_tags.index(tag))
+                tag = tag.lower()
+                if tag in all_tags:
+                    all_tags.pop(all_tags.index(tag))
             line = create_tag_line(all_tags, TAG_INDICATOR)
 
         updated_content.append(line)
 
     # Write back to the file
     updated_content = [line2.rstrip('\n') for line2 in updated_content]
-    # updated_string = '\n'.join(updated_content)
-    return updated_content
+    updated_string = '\n'.join(updated_content)
+    return updated_string
 
 def remove_tags_from_file(tags, filename):
     if len(tags) == 0:
