@@ -238,7 +238,7 @@ def get_first_date(content):
     dates.sort()
     return dates[0]
 
-def get_file_content(filename):
+def get_file_content(filename, include_filename=True):
     ''' Yep. '''
     content = ""
 
@@ -251,7 +251,8 @@ def get_file_content(filename):
         f.close()
 
     # Always treat the filename as if part of the content.
-    content = filename + ' ' + content
+    if include_filename: 
+        content = filename + ' ' + content
     return content
 
 def limit_to_year(year, file_list):
@@ -782,7 +783,7 @@ def add_tags_to_file(tags, filename):
 
     # Add tags
     args = {
-        'content': get_file_content(filename),
+        'content': get_file_content(filename, include_filename=False),
         'tags': tags,
     }
     updated_content = add_tags(**args)
