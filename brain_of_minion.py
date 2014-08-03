@@ -358,7 +358,7 @@ def get_remove_tags(text_string):
     tags = [x.lstrip('-@') for x in tags]
     return tags
 
-def get_tags(text_string):
+def get_tags_from_string(text_string):
     tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
@@ -368,7 +368,7 @@ def sort_by_tag(file_list):
     all_tags = {'no tags': []}
     file_list = list(set(file_list))
     for item in file_list:
-        tags = get_tags(item)
+        tags = get_tags_from_string(item)
         if len(tags) == 0:
             all_tags['no tags'].append(item)
         placed = False
@@ -657,10 +657,30 @@ def expand_short_command(command):
         return commands[command]
     return command
 
+def get_tags(filename):
+    ''' Return tags from file's tag line. '''
+    content = get_file_content(filename)
+    return get_content_tags(content)
 
-def parse_tags(line, TAG_INDICATOR):
-    tags = line.split(' ')
+def get_content_tags(content):
+    ''' Return all tags from file content. '''
+    TAG_INDICATOR = get_setting('compose', 'tagline')
+    content = content.split('\n')
+    tags = []
+    for line in content:
+        tags = parse_tags(line, TAG_INDICATOR)
+        if len(tags) > 0:
+            break
     return tags
+
+def parse_tags(line, TAG_INDICATOR=None):
+    if not TAG_INDICATOR:
+        TAG_INDICATOR = get_setting('compose', 'tagline')
+    tags = line.split(' ')
+    if TAG_INDICATOR in tags:
+        tags.pop(tags.index(TAG_INDICATOR))
+        return tags
+    return []
 
 def create_tag_line(tags, TAG_INDICATOR=None):
     ''' Create a line of text that stores tags
@@ -800,7 +820,7 @@ def apply_command_to_file(filename, command):
         return new_file
 
     # Add tags
-    add_tags = get_tags(command)
+    add_tags = get_tags_from_string(command)
     filename = add_tags_to_file(add_tags, filename)
 
     # Remove tags

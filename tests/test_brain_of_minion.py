@@ -44,13 +44,13 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(len(dir_contents), 1, '1 in inbox')
 
         # Tag and find it.
-        brain.add_tags_to_file(TEST_TAGS, file_path)
-        #tags_found = brain.get_tags(file_path)
-        #for tag in TEST_TAGS:
-        #    self.assertTrue(tag in tags_found, msg='Find tag ' + tag)
+        brain.add_tags_to_file(TEST_TAGS_IN, file_path)
+        tags_found = brain.get_tags(file_path)
+        for tag in TEST_TAGS_OUT:
+            self.assertTrue(tag in tags_found, msg='Find tag ' + tag)
 
         args = {
-            'keyword_string': ' '.join(TEST_TAGS),
+            'keyword_string': ' '.join(TEST_TAGS_IN),
             'archives':False,
             'full_text': True,
         }
@@ -75,12 +75,12 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(len(file_count), 1, msg='os.listdir')
 
         # Tag it for retrieval
-        brain.add_tags_to_file(TEST_TAGS, file_path)
+        brain.add_tags_to_file(TEST_TAGS_IN, file_path)
         with_tag_content = brain.get_file_content(file_path)
 
         # Can we find the note?
         args = {
-            'keyword_string': ' '.join(TEST_TAGS),
+            'keyword_string': ' '.join(TEST_TAGS_IN),
             'archives':False,
             'full_text': True,
         }
@@ -88,7 +88,7 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(len(match_files), 1, msg='get_keyword_files')
 
         # Can we remove the tags?
-        brain.remove_tags_from_file(TEST_TAGS, file_path)
+        brain.remove_tags_from_file(TEST_TAGS_IN, file_path)
         removed_tag_content = brain.get_file_content(file_path)
 
         tags = brain.get_tags(file_path)
@@ -136,6 +136,10 @@ class TestParsers(unittest.TestCase):
         first_date = brain.get_first_date(TEST_FILE_CONTENT)
         self.assertEqual(first_date, EXPECTED_DATE)
 
+    def test_get_content_tags(self):
+        result = brain.get_content_tags(TEST_FILE_CONTENT_WITH_TAGS)
+        self.assertEqual(TEST_TAGS_OUT, result)
+
 ### Tests
 class TestGetSetting(unittest.TestCase):
 
@@ -175,11 +179,11 @@ class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
 
     def test_create_tag_line(self):
-        result = brain.create_tag_line(TEST_TAGS)
+        result = brain.create_tag_line(TEST_TAGS_IN)
         self.assertEqual(result, TEST_TAG_LINE)
 
     def test_add_tags(self):
-        args = {'tags': TEST_TAGS,
+        args = {'tags': TEST_TAGS_IN,
                 'content': TEST_FILE_CONTENT}
         result = brain.add_tags(**args)
         self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)

@@ -66,7 +66,8 @@ TEST_GIBBERISH = 'Slartibarfast'
 
 # This 'tag' should appear in various file content for testing.
 TEST_TAG = 'Ninja'
-TEST_TAGS = ['foo', 'BAR', 'Ninja']
+TEST_TAGS_IN = ['foo', 'BAR', 'Ninja']
+TEST_TAGS_OUT = ['bar', 'foo', 'ninja']
 # As it might come from the user:
 TEST_TAG_STRING = 'Ninja foo BAR'
 # As we would add it to the file:
