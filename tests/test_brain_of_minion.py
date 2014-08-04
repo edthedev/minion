@@ -9,11 +9,9 @@ from mock import MagicMock, mock_open, patch, call
 # Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
+from mock_data import mock_settings
 
-from tests.mock_data import (
-    mock_settings, TEST_DATA_DIRECTORY, WEEKEND_TEMPLATE_CONTENT, EXPECTED_DATE,
-    TEST_FILE_CONTENT,)
-
+from tests.mock_data import *
 
 # Mock objects
 my_mock_open = mock_open()
@@ -33,13 +31,77 @@ class TestFileStuff(unittest.TestCase):
     def setUp(self):
         os.mkdir(TEST_DATA_DIRECTORY)
 
-    def test_create_new_note(self):
+    def test_archive_note(self):
+        ''' archive a note.'''
+        # Make a note
         TestFileStuff.clean_directory()
-        topic = 'test note 1'
-
-        brain.create_new_note(topic, template='note')
+        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
         file_count = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(len(file_count), 1)
+
+        # Tag and find it.
+        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+
+        args = {
+            'keyword_string': ' '.join(TEST_TAGS),
+            'archives': False,
+            'full_text': True,
+        }
+
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1)
+
+        # Archive it.
+        brain.archive(file_path)
+
+        # Is it gone (from tag find?)
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 0)
+
+    def test_find_note(self):
+        ''' Make a note and find it again. '''
+        # Make a note
+        TestFileStuff.clean_directory()
+        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        # Did we make a note?
+        file_count = os.listdir(TEST_DATA_DIRECTORY)
+        self.assertEqual(len(file_count), 1)
+
+        # Tag it for retrieval
+        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+
+        # Can we find the note?
+        args = {
+            'keyword_string': ' '.join(TEST_TAGS),
+            'archives': False,
+            'full_text': True,
+        }
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1)
+
+        # Can we remove the tags?
+        brain.remove_tags_from_file(TEST_TAGS, file_path)
+
+        # This time we should not find it.
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1)
+
+    def test_create_new_note(self):
+        TestFileStuff.clean_directory()
+
+        filename = brain.string_to_file_name(TEST_TOPIC)
+        self.assertEqual(filename, TEST_FILENAME)
+
+        file_path = brain.get_filename_for_title(TEST_TOPIC, notes_dir=None)
+        self.assertEqual(file_path, TEST_FILE_PATH)
+
+        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        file_count = os.listdir(TEST_DATA_DIRECTORY)
+        self.assertEqual(len(file_count), 1)
+        self.assertEqual(file_path, TEST_FILE_PATH)
+
+        content = brain.get_file_content(TEST_FILE_PATH)
+        self.assertTrue(TEST_FILE_INITIAL_CONTENT in content)
 
     def test_create_note_internal_with_simple_template(self):
         # Arrange
@@ -61,8 +123,7 @@ class TestFileStuff(unittest.TestCase):
         # assert the file was successfully created
         files = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(expected_filename, files[0])
-        # assert the content of the file
-
+        # TODO: assert the content of the file
 
     def test_create_note_internal_with_mildly_more_complex_template(self):
         # Arrange
@@ -101,21 +162,20 @@ class TestFetchMethods(unittest.TestCase):
 
 class TestParsers(unittest.TestCase):
     ''' Test some methods that parse through file contents looking for things.
-
     '''
     def test_get_first_date(self):
         first_date = brain.get_first_date(TEST_FILE_CONTENT)
         self.assertEqual(first_date, EXPECTED_DATE)
 
 
+# Tests
 class TestGetSetting(unittest.TestCase):
 
     def test_get_title(self):
         ''' Confirm getting a title. '''
-
-        title = brain.get_title_from_template_content(WEEKEND_TEMPLATE_CONTENT)
-        expected_title = 'Weekend Plan for WHATEVER'
-        self.assertEqual(title, expected_title)
+        title = brain.get_title_from_template_content(
+            TEST_FILE_TEMPLATE_CONTENT)
+        self.assertEqual(title, TEST_FILE_TITLE)
 
     # TODO: Test a full template fill in, including topic.
 
@@ -134,42 +194,6 @@ class TestGetSetting(unittest.TestCase):
         self.assertNotEqual(None, settings.get('date', 'format'))
 
 
-# class TestGetSettings(unittest.TestCase):
-#     def test_get_settings(self):
-#         # self.assertEqual(expected, get_settings())
-#         assert False # TODO: implement your test here
-#
-# class TestGetFirstDate(unittest.TestCase):
-#     def test_get_first_date(self):
-#         # self.assertEqual(expected, get_first_date(filename))
-#         assert False # TODO: implement your test here
-#
-# class TestLimitToYear(unittest.TestCase):
-#     def test_limit_to_year(self):
-#         # self.assertEqual(expected, limit_to_year(year, file_list))
-#         assert False # TODO: implement your test here
-#
-# class TestGetTotalFileCount(unittest.TestCase):
-#     def test_get_total_file_count(self):
-#         # self.assertEqual(expected, get_total_file_count(include_archives))
-#         assert False # TODO: implement your test here
-#
-# class TestGetFolderSummary(unittest.TestCase):
-#     def test_get_folder_summary(self):
-#         # self.assertEqual(expected, get_folder_summary(archives))
-#         assert False # TODO: implement your test here
-#
-# class TestSelectFile(unittest.TestCase):
-#     def test_select_file(self):
-#         # self.assertEqual(expected, select_file(match_files, max_files))
-#         assert False # TODO: implement your test here
-#
-# class TestPublish(unittest.TestCase):
-#     def test_publish(self):
-#         # self.assertEqual(expected, publish(filename, target, editor))
-#         assert False # TODO: implement your test here
-#
-
 @patch('__builtin__.open', new_callable=mock_open)
 @patch('brain_of_minion.get_settings', new=mock_settings)
 @patch('os.mkdir')
@@ -181,124 +205,41 @@ class TestRemind(unittest.TestCase):
             os.path.expanduser('~'),
             TEST_DATA_DIRECTORY + '/inbox/Remind-me-of-this-thing.txt')
         open_mock.assert_has_calls([call(test_filename, 'a')])
-        # import pdb; pdb.set_trace()
 
 
-# class TestWebTemplate(unittest.TestCase):
-#     def test___init__(self):
-#         # web_template = WebTemplate(template, data)
-#         assert False # TODO: implement your test here
-#
-#     def test___iter__(self):
-#         # web_template = WebTemplate(template, data)
-#         # self.assertEqual(expected, web_template.__iter__())
-#         assert False # TODO: implement your test here
-#
-#     def test___str__(self):
-#         # web_template = WebTemplate(template, data)
-#         # self.assertEqual(expected, web_template.__str__())
-#         assert False # TODO: implement your test here
-#
-#     def test_next(self):
-#         # web_template = WebTemplate(template, data)
-#         # self.assertEqual(expected, web_template.next())
-#         assert False # TODO: implement your test here
-#
-#     def test_render(self):
-#         # web_template = WebTemplate(template, data)
-#         # self.assertEqual(expected, web_template.render())
-#         assert False # TODO: implement your test here
-#
-#     def test_webify(self):
-#         # web_template = WebTemplate(template, data)
-#         # self.assertEqual(expected, web_template.webify(content))
-#         assert False # TODO: implement your test here
-#
-# class TestGetStatus(unittest.TestCase):
-#     def test_get_status(self):
-#         # self.assertEqual(expected, getStatus())
-#         assert False # TODO: implement your test here
-#
-# class TestIsWorkTime(unittest.TestCase):
-#     def test_is_work_time(self):
-#         # self.assertEqual(expected, is_work_time())
-#         assert False # TODO: implement your test here
-#
-# class TestGetIgnoreTags(unittest.TestCase):
-#     def test_get_ignore_tags(self):
-#         # self.assertEqual(expected, get_ignore_tags(worktime))
-#         assert False # TODO: implement your test here
-#
-# class TestGetIgnoredTags(unittest.TestCase):
-#     def test_get_ignored_tags(self):
-#         # self.assertEqual(expected, getIgnoredTags(script_name))
-#         assert False # TODO: implement your test here
-#
-# class TestGetFolders(unittest.TestCase):
-#     def test_get_folders(self):
-#         # self.assertEqual(expected, getFolders(location))
-#         assert False # TODO: implement your test here
-#
-# class TestIgnoreTags(unittest.TestCase):
-#     def test_ignore_tags(self):
-#         # self.assertEqual(expected, ignoreTags(file_list, tags))
-#         assert False # TODO: implement your test here
-#
-# class TestGetTaggedLines(unittest.TestCase):
-#     def test_get_tagged_lines(self):
-#         # self.assertEqual(expected, getTaggedLines(tags, filename))
-#         assert False # TODO: implement your test here
-#
-# class TestGetTaggedFiles(unittest.TestCase):
-#     def test_get_tagged_files(self):
-#         # self.assertEqual(expected, getTaggedFiles(tags, full))
-#         assert False # TODO: implement your test here
-#
-# class TestGetTodayTags(unittest.TestCase):
-#     def test_get_today_tags(self):
-#         # self.assertEqual(expected, getTodayTags())
-#         assert False # TODO: implement your test here
-#
-# class TestGetTomorrowTags(unittest.TestCase):
-#     def test_get_tomorrow_tags(self):
-#         # self.assertEqual(expected, getTomorrowTags())
-#         assert False # TODO: implement your test here
-#
-# class TestSampleTagged(unittest.TestCase):
-#     def test_sample_tagged(self):
-#         # self.assertEqual(expected, sampleTagged(tags))
-#         assert False # TODO: implement your test here
-#
-# class TestRemoveArchives(unittest.TestCase):
-#     def test_remove_archives(self):
-#         # self.assertEqual(expected, remove_archives(file_list))
-#         assert False # TODO: implement your test here
-#
-# class TestGetRemoveTags(unittest.TestCase):
-#     def test_get_remove_tags(self):
-#         # self.assertEqual(expected, get_remove_tags(text_string))
-#         assert False # TODO: implement your test here
-#
-# class TestGetTags(unittest.TestCase):
-#     def test_get_tags(self):
-#         # self.assertEqual(expected, get_tags(text_string))
-#         assert False # TODO: implement your test here
-#
-# class TestTagAfter(unittest.TestCase):
-#     def test_tag_after(self):
-#         # self.assertEqual(expected, tagAfter(first, second))
-#         assert False # TODO: implement your test here
-#
-# class TestIsProject(unittest.TestCase):
-#     def test_is_project(self):
-#         # self.assertEqual(expected, isProject(filename))
-#         assert False # TODO: implement your test here
-#
-# class TestRemoveWorkNotes(unittest.TestCase):
-#     def test_remove_work_notes(self):
-#         # self.assertEqual(expected, removeWorkNotes(files, worktime))
-#         assert False # TODO: implement your test here
-#
+class TestTags(unittest.TestCase):
+    ''' Test suite for tag handling. '''
+
+    def test_create_tag_line(self):
+        result = brain.create_tag_line(TEST_TAGS)
+        self.assertEqual(result, TEST_TAG_LINE)
+
+    def test_add_tags(self):
+        args = {'tags': TEST_TAGS,
+                'content': TEST_FILE_CONTENT}
+        result = brain.add_tags(**args)
+        self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)
+
+    def test_remove_tags(self):
+        args = {'tags': TEST_REMOVE_TAGS,
+                'content': TEST_FILE_CONTENT_WITH_TAGS}
+        result = brain.remove_tags_from_content(**args)
+        self.assertEqual(result, TEST_FILE_CONTENT_WITH_ONE_TAG)
+
+    def test_has_tag(self):
+        args = {
+            'content': TEST_FILE_CONTENT_WITH_TAGS,
+            'tag': TEST_TAG,
+            }
+        self.assertTrue(
+            brain.content_has_tag(**args)
+            )
+
+        args['tag'] = TEST_GIBBERISH
+        self.assertFalse(
+            brain.content_has_tag(**args)
+            )
+
 # class TestIsValidTag(unittest.TestCase):
 #     def test_is_valid_tag(self):
 #         # self.assertEqual(expected, isValidTag(tag))
@@ -311,9 +252,8 @@ class TestRemind(unittest.TestCase):
 #
 # class TestDisplayOutput(unittest.TestCase):
 #     def test_display_output(self):
-#         # self.assertEqual(
-#           expected, display_output(title, output, by_tag,
-#                                    raw_files, max_display))
+#         # self.assertEqual(expected,
+#         #     display_output(title, output, by_tag, raw_files, max_display))
 #         assert False # TODO: implement your test here
 #
 # class TestCleanOutput(unittest.TestCase):
@@ -333,7 +273,8 @@ class TestRemind(unittest.TestCase):
 #
 # class TestGetMatchingFiles(unittest.TestCase):
 #     def test_get_matching_files(self):
-#       # self.assertEqual(expected, getMatchingFiles(search_terms, file_list))
+#         # self.assertEqual(expected,
+#         #     getMatchingFiles(search_terms, file_list))
 #         assert False # TODO: implement your test here
 #
 # class TestGetCurrentProjects(unittest.TestCase):
@@ -368,14 +309,15 @@ class TestRemind(unittest.TestCase):
 #
 # class TestGetEditor(unittest.TestCase):
 #     def test_get_editor(self):
-#         # self.assertEqual(expected,
-#                get_editor(filename, multiple, graphical, view))
+#         # self.assertEqual(
+#         #     expected,
+#         #     get_editor(filename, multiple, graphical, view))
 #         assert False # TODO: implement your test here
 #
 # class TestOpenFile(unittest.TestCase):
 #     def test_open_file(self):
 #         # self.assertEqual(expected,
-#           open_file(filename, line, multiple, graphical))
+#         #     open_file(filename, line, multiple, graphical))
 #         assert False # TODO: implement your test here
 #
 # class TestPreviewFile(unittest.TestCase):
@@ -456,7 +398,7 @@ class TestRemind(unittest.TestCase):
 # class TestApplyCommandToLine(unittest.TestCase):
 #     def test_apply_command_to_line(self):
 #         # self.assertEqual(expected,
-#             applyCommandToLine(filename, line, command))
+#         #     applyCommandToLine(filename, line, command))
 #         assert False # TODO: implement your test here
 #
 # class TestAddTagsToFile(unittest.TestCase):
@@ -502,7 +444,7 @@ class TestRemind(unittest.TestCase):
 # class TestFindFiles(unittest.TestCase):
 #     def test_find_files(self):
 #         # self.assertEqual(expected,
-#            find_files(directory, archives, filter, full_text, weekend))
+#         #     find_files(directory, archives, filter, full_text, weekend))
 #         assert False # TODO: implement your test here
 #
 # class TestGetIgnoreString(unittest.TestCase):
@@ -558,7 +500,7 @@ class TestRemind(unittest.TestCase):
 # class TestAppendToFile(unittest.TestCase):
 #     def test_append_to_file(self):
 #         # self.assertEqual(expected,
-#             appendToFile(filename, content, timestamp))
+#         #     appendToFile(filename, content, timestamp))
 #         assert False # TODO: implement your test here
 #
 # class TestToggleTodo(unittest.TestCase):
