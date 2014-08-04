@@ -23,7 +23,7 @@ Usage:
     minion view [--archives] [--max=<max>] <text> ...
     minion tags
     minion template [--folder=<folder>] <template> [<text>] ...
-    minion new [--folder=<folder>] [--template=<template>] [--here] <text> ...
+    minion new [--folder=<folder>] [--template=<template>] [--quick] <text> ...
 
 
 Options:
@@ -291,6 +291,16 @@ def minion_log(args):
     f.write(new_line)
     f.close()
     print new_line
+
+
+def minion_new(args):
+    ''' Add a new note.'''
+    notes_dir = get_notes_dir(args)
+    brain.create_note(
+        args['<text>'],
+        args['<template>'],
+        args['--quick'],
+        notes_dir=notes_dir)
 
 
 ###############################################################################

@@ -1117,10 +1117,14 @@ def write_template_to_file(topic, filename, template='note'):
     return last_line
 
 
-def create_note(topic, template_name=None, notes_dir=None):
-    ''' Pavel: Create a new note. '''
-    template_content = get_template_content(template_name)
-    return create_note_internal(topic, template_content, notes_dir)
+def create_note(title_fragments, template=None, quick=False, notes_dir=None):
+    ''' Create a new note. Experimental, incubating.'''
+    template_content = get_template_content(template)
+    topic = ' '.join(title_fragments)
+    (filename, last_line) = create_note_internal(
+        topic, template_content, notes_dir)
+    if not quick:
+        open_file(filename, line=last_line)
 
 
 def create_note_internal(topic, template_content, notes_dir=None):
@@ -1131,8 +1135,7 @@ def create_note_internal(topic, template_content, notes_dir=None):
     data['topic'] = topic
     data['topic_underline'] = underline
     data['underline'] = underline
-    data.update(GLOBAL_DATA)
-    # Merge the template and GLOBAL_DATA
+    # Merge the template and data
     file_text = template_content.format(**data)
     # Derive the filename ( = the first line of the template)
     first_line = file_text.split('\n')[0]
