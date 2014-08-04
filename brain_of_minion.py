@@ -150,12 +150,12 @@ def get_title_from_template_content(content, topic=None):
     ''' Sometimes the best place to find the filename is
         the first line of the template.
     '''
-    # Update GLOBAL_DATA
+    # Add GLOBAL_DATA into data
     data = {'topic': topic}
     data.update(GLOBAL_DATA)
     # Get the first line of the template
     first_line = content.split('\n')[0]
-    # merge the first_line with GLOBAL_DATA
+    # replace marks with values
     return first_line.format(**data)
 
 

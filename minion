@@ -10,23 +10,24 @@ Usage:
     minion favorites
     minion folder <text> ...
     minion folders
-    minion here [--editor=<editor>] <text> ...
+    minion here <text> ...
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
-    minion note [--folder=<folder>] [--editor=<editor>] <text> ...
-    minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
-    minion remind [--folder=<folder>] [--editor=<editor>] <text> ...
+    minion note [--folder=<folder>] <text> ...
+    minion open [--archives] [--max=<max>] <text> ...
+    minion remind [--folder=<folder>] <text> ...
     minion sample [--files] <text> ...
-    minion sort [--editor=<editor>] <text> ...
+    minion sort <text> ...
     minion strays
     minion summary [--archives] [--max=<max>]
     minion view [--archives] [--max=<max>] <text> ...
     minion tags
     minion template [--folder=<folder>] <template> [<text>] ...
+    minion new [--folder=<folder>] [--template=<template>] [--here] <text> ...
+
 
 Options:
     -a --archives           Search archive folders for matches.
-    -e --editor=<editor>    Open files with the specified editor. [default: vim]
     -f --files              Display raw file names when listing files.
     -F --folder=<folder>    Place the new note into the given folder.
     -h --help               Show this help.
@@ -42,10 +43,8 @@ Command descriptions:
     folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
-    journal - open a new or existing file named journal.<today>.txt
     list - list files matching keywords
     log - add a line with the current date and time to a file.
-    merge - find and merge similar files
     note - create a new note and then open it - <text> becomes filename
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
@@ -55,7 +54,6 @@ Command descriptions:
             a few items.
     summary - list all folders and the item counts in those folders
     view - print the contents of all matches to the terminal standard output
-    week - plan your week with the minion week template
     tags - list all tags
     template - start a note from a specialized template. Try 'week' and
             'journal' to get started.
@@ -210,8 +208,7 @@ def minion_note(args):
 
 
 def minion_sort(args):
-    '''Interactively sort all matches.
-    '''
+    '''Interactively sort all matches.'''
     match_files = get_match_files()
     total = len(match_files)
     if total == 0:
