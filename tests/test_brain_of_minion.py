@@ -2,7 +2,7 @@
 import os
 import sys
 import unittest
-import datetime
+from datetime import date
 from mock import MagicMock, mock_open, patch, call
 
 # Our stuff
@@ -125,12 +125,12 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(expected_filename, files[0])
         # TODO: assert the content of the file
 
-    def test_create_note_internal_with_mildly_more_complex_template(self):
+    def test_create_note_internal_with_mildly_complex_template(self):
         # Arrange
         TestFileStuff.clean_directory()
         template_text = '{topic}~~{today}\n{topic_underline}\n:date: {today}\n'
         topic = 'test note 348'
-        today_date = datetime.date.today()
+        today_date = date.today()
         expected_filename = 'test-note-348~~' + today_date.isoformat() + '.txt'
         expected_line = 5
         # Act
