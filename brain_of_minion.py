@@ -146,19 +146,6 @@ def get_global_data():
 GLOBAL_DATA = get_global_data()
 
 
-def get_title_from_template_content(content, topic=None):
-    ''' Sometimes the best place to find the filename is
-        the first line of the template.
-    '''
-    # Add GLOBAL_DATA into data
-    data = {'topic': topic}
-    data.update(GLOBAL_DATA)
-    # Get the first line of the template
-    first_line = content.split('\n')[0]
-    # replace marks with values
-    return first_line.format(**data)
-
-
 def list_stray_files(count=2):
     ''' Find all files whose folder only has one or two files. '''
     notes_home = get_notes_home()
@@ -216,7 +203,6 @@ def get_first_date(content):
     for key in recognizers:
         r = re.compile(key)
         matches = r.findall(content)
-        # print matches
         if matches:
             form = recognizers[key]
             for match in matches:
@@ -351,6 +337,7 @@ def remind(text):
     filename = "%s/%s" % (get_inbox(), string_to_file_name(text))
     f = open(filename, 'a')
     f.write(text)
+    f.close()
     return filename
 
 
@@ -562,7 +549,6 @@ def get_editor(filename, multiple=False, graphical=False, view=False):
 
     extension = os.path.splitext(filename)[1]
     extension = extension.lower()
-    print extension
     if extension in apps:
         editor = apps[extension]
     else:
@@ -798,7 +784,6 @@ def archive(filename):
     # get_folder does some cleverness with the 'archive' name.
     folder = get_folder('archive')
     filename = move_to_folder(filename, folder)
-    # print "Moved to %s" % folder
 
 
 def apply_command_to_file(filename, command):
@@ -815,7 +800,6 @@ def apply_command_to_file(filename, command):
         new_file = "%s/%s" % (get_inbox(), new_name)
         new_file = rename_file(filename, new_file)
         # shutil.move(filename, new_file)
-        # print "Renamed to %s" % new_file
         doInboxInteractive(new_file)
         return new_file
 
@@ -850,7 +834,6 @@ def apply_command_to_file(filename, command):
 
 def doInboxInteractive(item):
     to_open = []
-    # print get_inbox_menu()
     display_output('Selected', item, by_tag=False)
     choice = raw_input('Action? ')
     if len(choice) > 0:
@@ -947,7 +930,7 @@ def has_any_tag(filename, tags):
     return False
 
 
-def string_to_file_name(topic, filename_template='{topic}'):
+def string_to_file_name(topic, template='{topic}'):
 
     # Read the filename separator from settings and extract the second
     # character. The reason is that we want only one character separator
@@ -968,8 +951,8 @@ def string_to_file_name(topic, filename_template='{topic}'):
             'ext': ext, }
     data.update(GLOBAL_DATA)
 
-    # merge data with the filename_template
-    filename = filename_template.format(**data)
+    # merge data with the template
+    filename = template.format(**data)
 
     # append extension if not already there
     if not filename.endswith(data['ext']):
@@ -1057,7 +1040,7 @@ def find_file(filename):
     return None
 
 
-def get_filename_for_title(topic, notes_dir=None, filename_template='{title}'):
+def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
     # Get location for new file. Create it if it doesn't exist.
     if notes_dir is None:
         notes_dir = get_inbox()
@@ -1103,15 +1086,12 @@ def write_template_to_file(topic, filename, template='note'):
 
     underline = '=' * len(topic)
 
-    data = GLOBAL_DATA
-    data['topic'] = topic
-    data['filename'] = filename
-    data['topic_underline'] = underline
-    data['underline'] = underline
+    data = {'topic': topic,
+            'filename': filename,
+            'topic_underline': underline,
+            'underline': underline}
+    data.update(GLOBAL_DATA)
     template_text = get_template_content(template)
-
-    summary = "{filename}\n{underline}\nCreated {today}".format(**data)
-    print summary
 
     file_text = template_text.format(**data)
 
@@ -1119,52 +1099,43 @@ def write_template_to_file(topic, filename, template='note'):
     f.write(file_text)
     f.close()
 
-    last_line = len('\n'.split(file_text)) + 1
+    last_line = len(file_text.split('\n')) + 1
 
     return last_line
 
 
-def create_note(title_fragments, template=None, quick=False, notes_dir=None):
-    ''' Create a new note with the filename being the title, which is
-        constructed based on the first line in the note template.
-        Experimental, incubating.
+def new_note_interactive(topic_fragments, note_template=None, quick=False,
+                         notes_dir=None):
+    ''' Create a new note with the filename constructed based on
+        the first line in the note template.
     '''
     # get the first line of the template and use it as filename template
-    template_content = get_template_content(template)
+    template_content = get_template_content(note_template)
     filename_template = template_content.split('\n')[0]
+    # construct the topic string
+    topic = ' '.join(topic_fragments)
     # create the note
-    (filename, last_line) = create_new_note(title_fragments,
-                                            template,
+    print "Note template used: " + note_template
+    (filename, last_line) = create_new_note(topic,
+                                            note_template,
                                             notes_dir,
                                             filename_template)
     if not quick:
         open_file(filename, line=last_line)
+    else:
+        print "Note '%s' created ..." % filename
 
 
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
     ''' Create a new note, non-interactive.'''
-    filename = get_filename_for_title(topic, notes_dir, filename_template)
+    filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
     if not os.path.exists(filename):
         if note_template is None:
             note_template = get_setting('notes', 'default_template')
         last_line = write_template_to_file(topic, filename, note_template)
     return (filename, last_line)
-
-
-def new_note_interactive(title_fragments, quick=False,
-                         template=None, notes_dir=None):
-    ''' Without any distractions, create a new file.
-        Use a file-system safe filename, based on the title.
-        Use a pre-configured 'inbox' for the files initial location.
-        If this 'inbox' folder does not exist, create it.
-        Include the title in the file, per the template.
-    '''
-    topic = ' '.join(title_fragments)
-    (filename, last_line) = create_new_note(topic, template, notes_dir)
-    if not quick:
-        open_file(filename, line=last_line)
 
 
 def to_bar(number, total=10):

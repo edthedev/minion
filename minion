@@ -10,21 +10,19 @@ Usage:
     minion favorites
     minion folder <text> ...
     minion folders
-    minion here <text> ...
+    minion here [--template=<template>] [--quick] <text> ...
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
-    minion note [--folder=<folder>] <text> ...
+    minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
     minion open [--archives] [--max=<max>] <text> ...
-    minion remind [--folder=<folder>] <text> ...
+    minion remind [--folder=<folder>] [--template=<template>] <text> ...
     minion sample [--files] <text> ...
     minion sort <text> ...
     minion strays
     minion summary [--archives] [--max=<max>]
     minion view [--archives] [--max=<max>] <text> ...
     minion tags
-    minion template [--folder=<folder>] <template> [<text>] ...
-    minion new [--folder=<folder>] [--template=<template>] [--quick] <text> ...
-
+    minion template [--folder=<folder>] <template> [--quick] [<text>] ...
 
 Options:
     -a --archives           Search archive folders for matches.
@@ -32,6 +30,8 @@ Options:
     -F --folder=<folder>    Place the new note into the given folder.
     -h --help               Show this help.
     --max=<max>             Maximum results to display. [default: 10]
+    --quick                 Create without opening in an editor
+    --template=<template>   Use template. [default: 'note']
     -y --year=<year>        Limit results to those created in the given year.
     --version               Show version.
 
@@ -179,32 +179,42 @@ def format_2_cols(tuple_list):
 
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
-    # construct the note title as defined in the first line of the template
-    topic = ' '.join(args['<text>'])
-    template_content = brain.get_template_content(args['<template>'])
-    title = brain.get_title_from_template_content(template_content, topic=topic)
-    # create the note
     notes_dir = get_notes_dir(args)
     brain.new_note_interactive(
-        [title], template=args['<template>'], notes_dir=notes_dir)
+        args['<text>'],
+        note_template=args['<template>'],
+        quick=args['--quick'],
+        notes_dir=notes_dir)
 
 
 def minion_remind(args):
     '''Set a quick reminder.'''
     notes_dir = get_notes_dir(args)
-    brain.new_note_interactive(args['<text>'], quick=True, notes_dir=notes_dir)
+    brain.new_note_interactive(
+        args['<text>'],
+        note_template=args['--template'],
+        quick=True,
+        notes_dir=notes_dir)
 
 
 def minion_here(args):
     '''Create a Minion note in the current working directory.'''
     notes_dir = os.curdir
-    brain.new_note_interactive(args['<text>'], notes_dir=notes_dir)
+    brain.new_note_interactive(
+        args['<text>'],
+        note_template=args['--template'],
+        quick=args['--quick'],
+        notes_dir=notes_dir)
 
 
 def minion_note(args):
     '''Create a Minion note.'''
     notes_dir = get_notes_dir(args)
-    brain.new_note_interactive(args['<text>'], notes_dir=notes_dir)
+    brain.new_note_interactive(
+        args['<text>'],
+        note_template=args['--template'],
+        quick=args['--quick'],
+        notes_dir=notes_dir)
 
 
 def minion_sort(args):
@@ -291,16 +301,6 @@ def minion_log(args):
     f.write(new_line)
     f.close()
     print new_line
-
-
-def minion_new(args):
-    ''' Add a new note.'''
-    notes_dir = get_notes_dir(args)
-    brain.create_note(
-        args['<text>'],
-        args['<template>'],
-        args['--quick'],
-        notes_dir=notes_dir)
 
 
 ###############################################################################
@@ -514,7 +514,7 @@ if __name__ == '__main__':
         argname = method.replace('minion_', '')
         if (argname in args) and args[argname]:
             if hasattr(locals()[method], '__call__'):
-                print "Running {}".format(method)
+                # print "Running {}".format(method)
                 locals()[method](args)
 
 sys.exit(0)

@@ -35,7 +35,7 @@ class TestFileStuff(unittest.TestCase):
         ''' archive a note.'''
         # Make a note
         TestFileStuff.clean_directory()
-        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        file_path, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
         file_count = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(len(file_count), 1)
 
@@ -62,7 +62,7 @@ class TestFileStuff(unittest.TestCase):
         ''' Make a note and find it again. '''
         # Make a note
         TestFileStuff.clean_directory()
-        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
         # Did we make a note?
         file_count = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(len(file_count), 1)
@@ -86,11 +86,11 @@ class TestFileStuff(unittest.TestCase):
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
 
-    def test_string_to_file_name_with_default_filename_template():
+    def test_string_to_file_name_with_default_filename_template(self):
         # Arrange
-        topic = "one two three"
+        topic = "one two three four"
         filename_template = "{topic}"
-        expected_filename = "one-two-three.txt"
+        expected_filename = "one-two-three-four.txt"
 
         # Act
         actual_filename = brain.string_to_file_name(topic, filename_template)
@@ -98,11 +98,11 @@ class TestFileStuff(unittest.TestCase):
         # Assert
         self.assertEqual(expected_filename, actual_filename)
 
-    def test_string_to_file_name_with_filename_template_with_date():
+    def test_string_to_file_name_with_filename_template_with_date(self):
         # Arrange
         topic = "one two three"
         filename_template = "{today}-{topic}"
-        today_string = datetime.today().isoformat()
+        today_string = date.today().isoformat()
         expected_filename = today_string + "-one-two-three.txt"
 
         # Act
@@ -111,20 +111,14 @@ class TestFileStuff(unittest.TestCase):
         # Assert
         self.assertEqual(expected_filename, actual_filename)
 
-    def test_get_filename_for_title():
+    def test_get_filename_for_title(self):
         # TODO
         pass
 
     def test_create_new_note(self):
         TestFileStuff.clean_directory()
 
-        filename = brain.string_to_file_name(TEST_TOPIC)
-        self.assertEqual(filename, TEST_FILENAME)
-
-        file_path = brain.get_filename_for_title(TEST_TOPIC, notes_dir=None)
-        self.assertEqual(file_path, TEST_FILE_PATH)
-
-        file_path, _ = brain.create_new_note(TEST_TOPIC, template='note')
+        file_path, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
         file_count = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(len(file_count), 1)
         self.assertEqual(file_path, TEST_FILE_PATH)
@@ -132,18 +126,16 @@ class TestFileStuff(unittest.TestCase):
         content = brain.get_file_content(TEST_FILE_PATH)
         self.assertTrue(TEST_FILE_INITIAL_CONTENT in content)
 
-    def test_create_note_internal_with_simple_template(self):
+    def test_create_new_note_with_default_template_and_filename(self):
         # Arrange
         TestFileStuff.clean_directory()
-        template_text = '{topic}\n:date: {today}\n'
         topic = 'test note 347'
         expected_filename = 'test-note-347.txt'
-        expected_line = 4
+        expected_line = 5
         # Act
-        (actual_filename, actual_line) = brain.create_note_internal(
+        (actual_filename, actual_line) = brain.create_new_note(
             topic,
-            template_text,
-            TEST_DATA_DIRECTORY)
+            notes_dir=TEST_DATA_DIRECTORY)
         # Assert
         # assert on return values
         self.assertEqual(TEST_DATA_DIRECTORY + '/' + expected_filename,
@@ -152,21 +144,19 @@ class TestFileStuff(unittest.TestCase):
         # assert the file was successfully created
         files = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(expected_filename, files[0])
-        # TODO: assert the content of the file
 
-    def test_create_note_internal_with_mildly_complex_template(self):
+    def test_create_new_note_with_mildly_complex_filename_template(self):
         # Arrange
         TestFileStuff.clean_directory()
-        template_text = '{topic}~~{today}\n{topic_underline}\n:date: {today}\n'
         topic = 'test note 348'
         today_date = date.today()
-        expected_filename = 'test-note-348~~' + today_date.isoformat() + '.txt'
+        expected_filename = today_date.isoformat() + '-test-note-348.txt'
         expected_line = 5
         # Act
-        (actual_filename, actual_line) = brain.create_note_internal(
+        (actual_filename, actual_line) = brain.create_new_note(
             topic,
-            template_text,
-            TEST_DATA_DIRECTORY)
+            notes_dir=TEST_DATA_DIRECTORY,
+            filename_template='{today}-{topic}')
         # Assert
         self.assertEqual(TEST_DATA_DIRECTORY + '/' + expected_filename,
                          actual_filename)
@@ -199,14 +189,6 @@ class TestParsers(unittest.TestCase):
 
 # Tests
 class TestGetSetting(unittest.TestCase):
-
-    def test_get_title(self):
-        ''' Confirm getting a title. '''
-        title = brain.get_title_from_template_content(
-            TEST_FILE_TEMPLATE_CONTENT)
-        self.assertEqual(title, TEST_FILE_TITLE)
-
-    # TODO: Test a full template fill in, including topic.
 
     def test_get_setting(self):
         ''' Make sure some settings can load.'''
