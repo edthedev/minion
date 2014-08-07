@@ -86,6 +86,35 @@ class TestFileStuff(unittest.TestCase):
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
 
+    def test_string_to_file_name_with_default_filename_template():
+        # Arrange
+        topic = "one two three"
+        filename_template = "{topic}"
+        expected_filename = "one-two-three.txt"
+
+        # Act
+        actual_filename = brain.string_to_file_name(topic, filename_template)
+
+        # Assert
+        self.assertEqual(expected_filename, actual_filename)
+
+    def test_string_to_file_name_with_filename_template_with_date():
+        # Arrange
+        topic = "one two three"
+        filename_template = "{today}-{topic}"
+        today_string = datetime.today().isoformat()
+        expected_filename = today_string + "-one-two-three.txt"
+
+        # Act
+        actual_filename = brain.string_to_file_name(topic, filename_template)
+
+        # Assert
+        self.assertEqual(expected_filename, actual_filename)
+
+    def test_get_filename_for_title():
+        # TODO
+        pass
+
     def test_create_new_note(self):
         TestFileStuff.clean_directory()
 

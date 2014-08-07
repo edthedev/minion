@@ -947,10 +947,7 @@ def has_any_tag(filename, tags):
     return False
 
 
-def string_to_file_name(text, ext=None):
-    if not ext:
-        ext = get_setting('compose', 'extension')
-    ext = ext.lstrip('.')
+def string_to_file_name(topic, filename_template='{topic}'):
 
     # Read the filename separator from settings and extract the second
     # character. The reason is that we want only one character separator
@@ -958,17 +955,27 @@ def string_to_file_name(text, ext=None):
     name_sep = get_setting('compose', 'filename_sep')
     if len(name_sep) > 1:
         name_sep = name_sep[1]
-    new_name = text.replace(' ', name_sep).replace('/', name_sep)
 
-    data = {'topic': text,
+    # replace spaces and '/' with the topic separator
+    new_topic = topic.replace(' ', name_sep).replace('/', name_sep)
+
+    # retrieve the extension
+    ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
+
+    # merge GLOBAL_DATA into data
+    data = {'topic': new_topic,
             'ext': ext, }
     data.update(GLOBAL_DATA)
-    new_name = new_name.format(**data)
 
-    if not new_name.endswith(data['ext']):
-        new_name = '.'.join([new_name.rstrip('.'), ext])
+    # merge data with the filename_template
+    filename = filename_template.format(**data)
 
-    return new_name
+    # append extension if not already there
+    if not filename.endswith(data['ext']):
+        filename = '.'.join([filename.rstrip('.'), ext])
+
+    return filename
 
 
 def get_unique_name(filename):
@@ -1050,22 +1057,22 @@ def find_file(filename):
     return None
 
 
-def get_filename_for_title(topic, notes_dir=None):
-    # Get location for new file
+def get_filename_for_title(topic, notes_dir=None, filename_template='{title}'):
+    # Get location for new file. Create it if it doesn't exist.
     if notes_dir is None:
         notes_dir = get_inbox()
     if not os.path.exists(notes_dir):
         os.mkdir(notes_dir)
 
-    topic_filename = string_to_file_name(topic)
+    filename = string_to_file_name(topic, filename_template)
 
-    existing_filename = find_file(topic_filename)
+    existing_filename = find_file(filename)
     if existing_filename:
         return existing_filename
 
-    filename = os.path.join(notes_dir, topic_filename)
+    full_filename = os.path.join(notes_dir, filename)
 
-    return filename
+    return full_filename
 
 
 def get_template_content(template=None):
@@ -1118,47 +1125,31 @@ def write_template_to_file(topic, filename, template='note'):
 
 
 def create_note(title_fragments, template=None, quick=False, notes_dir=None):
-    ''' Create a new note. Experimental, incubating.'''
+    ''' Create a new note with the filename being the title, which is
+        constructed based on the first line in the note template.
+        Experimental, incubating.
+    '''
+    # get the first line of the template and use it as filename template
     template_content = get_template_content(template)
-    topic = ' '.join(title_fragments)
-    (filename, last_line) = create_note_internal(
-        topic, template_content, notes_dir)
+    filename_template = template_content.split('\n')[0]
+    # create the note
+    (filename, last_line) = create_new_note(title_fragments,
+                                            template,
+                                            notes_dir,
+                                            filename_template)
     if not quick:
         open_file(filename, line=last_line)
 
 
-def create_note_internal(topic, template_content, notes_dir=None):
-    ''' create a new note - internal function for testability '''
-    # update GLOBAL_DATA to make it ready for merge with template
-    underline = '=' * len(topic)
-    data = GLOBAL_DATA
-    data['topic'] = topic
-    data['topic_underline'] = underline
-    data['underline'] = underline
-    # Merge the template and data
-    file_text = template_content.format(**data)
-    # Derive the filename ( = the first line of the template)
-    first_line = file_text.split('\n')[0]
-    filename = get_filename_for_title(first_line, notes_dir)
-    # If the file doesn't exist, create the file with content of the template
+def create_new_note(topic, note_template=None, notes_dir=None,
+                    filename_template='{topic}'):
+    ''' Create a new note, non-interactive.'''
+    filename = get_filename_for_title(topic, notes_dir, filename_template)
     last_line = 0
     if not os.path.exists(filename):
-        f = open(filename, 'a')
-        f.write(file_text)
-        f.close()
-        last_line = len(file_text.split('\n')) + 1
-
-    return (filename, last_line)
-
-
-def create_new_note(topic, template=None, notes_dir=None):
-    ''' Create a new note, non-interative.'''
-    filename = get_filename_for_title(topic, notes_dir)
-    if template is None:
-        template = get_setting('notes', 'default_template')
-    last_line = 0
-    if not os.path.exists(filename):
-        last_line = write_template_to_file(topic, filename, template)
+        if note_template is None:
+            note_template = get_setting('notes', 'default_template')
+        last_line = write_template_to_file(topic, filename, note_template)
     return (filename, last_line)
 
 
