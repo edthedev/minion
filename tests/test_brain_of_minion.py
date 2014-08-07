@@ -86,6 +86,14 @@ class TestFileStuff(unittest.TestCase):
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1)
 
+    def test_string_to_file_name():
+        # TODO
+        pass
+
+    def test_get_filename_for_title():
+        # TODO
+        pass
+
     def test_create_new_note(self):
         TestFileStuff.clean_directory()
 
