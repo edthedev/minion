@@ -226,11 +226,11 @@ def get_first_date(content):
     return dates[0]
 
 
-def get_file_content(filename):
+def get_file_content(filename, include_filename=True):
     ''' Yep. '''
     content = ""
 
-    # Don't try to get PDF content.
+    # Don't try to get non-text content.
     _, extension = os.path.splitext(filename)
     extension.lower()
     if extension not in NON_TEXT_VIEWERS:
@@ -239,7 +239,9 @@ def get_file_content(filename):
         f.close()
 
     # Always treat the filename as if part of the content.
-    content = filename + content
+    if include_filename:
+        content = filename + ' ' + content
+
     return content
 
 
@@ -352,7 +354,7 @@ def get_remove_tags(text_string):
     return tags
 
 
-def get_tags(text_string):
+def get_tags_from_string(text_string):
     tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
@@ -363,7 +365,7 @@ def sort_by_tag(file_list):
     all_tags = {'no tags': []}
     file_list = list(set(file_list))
     for item in file_list:
-        tags = get_tags(item)
+        tags = get_tags_from_string(item)
         if len(tags) == 0:
             all_tags['no tags'].append(item)
         placed = False
@@ -660,10 +662,32 @@ def expand_short_command(command):
     return command
 
 
-def parse_tags(line, TAG_INDICATOR):
+def get_tags(filename):
+    ''' Return tags from file's tag line. '''
+    content = get_file_content(filename)
+    return get_content_tags(content)
 
-    tags = line.split(' ')
+
+def get_content_tags(content):
+    ''' Return all tags from file content. '''
+    TAG_INDICATOR = get_setting('compose', 'tagline')
+    content = content.split('\n')
+    tags = []
+    for line in content:
+        tags = parse_tags(line, TAG_INDICATOR)
+        if len(tags) > 0:
+            break
     return tags
+
+
+def parse_tags(line, TAG_INDICATOR=None):
+    if not TAG_INDICATOR:
+        TAG_INDICATOR = get_setting('compose', 'tagline')
+    tags = line.split(' ')
+    if TAG_INDICATOR in tags:
+        tags.pop(tags.index(TAG_INDICATOR))
+        return tags
+    return []
 
 
 def create_tag_line(tags, TAG_INDICATOR=None):
@@ -720,7 +744,7 @@ def remove_tags_from_file(tags, filename):
         return filename
 
     # Remove the tags
-    content = get_file_content(filename)
+    content = get_file_content(filename, include_filename=False)
     updated_content = remove_tags_from_content(tags, content)
 
     # Rewrite the file.
@@ -769,8 +793,11 @@ def add_tags_to_file(tags, filename):
         return filename
 
     # Add tags
-    content = get_file_content(filename)
-    updated_content = add_tags(content, tags)
+    args = {
+        'content': get_file_content(filename, include_filename=False),
+        'tags': tags,
+    }
+    updated_content = add_tags(**args)
 
     f = open(filename, 'w')
     f.write(updated_content)
@@ -804,7 +831,7 @@ def apply_command_to_file(filename, command):
         return new_file
 
     # Add tags
-    add_tags = get_tags(command)
+    add_tags = get_tags_from_string(command)
     filename = add_tags_to_file(add_tags, filename)
 
     # Remove tags

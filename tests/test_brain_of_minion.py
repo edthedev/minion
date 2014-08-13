@@ -36,27 +36,48 @@ class TestFileStuff(unittest.TestCase):
         # Make a note
         TestFileStuff.clean_directory()
         file_path, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
-        file_count = os.listdir(TEST_DATA_DIRECTORY)
-        self.assertEqual(len(file_count), 1)
+        dir_contents = os.listdir(TEST_DATA_INBOX)
+        # Inbox exists.
+        self.assertEqual(len(dir_contents), 1, '1 in inbox')
 
         # Tag and find it.
-        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+        brain.add_tags_to_file(TEST_TAGS_IN, file_path)
+        tags_found = brain.get_tags(file_path)
+        for tag in TEST_TAGS_OUT:
+            self.assertTrue(tag in tags_found, msg='Find tag ' + tag)
 
         args = {
-            'keyword_string': ' '.join(TEST_TAGS),
+            'keyword_string': ' '.join(TEST_TAGS_IN),
             'archives': False,
             'full_text': True,
         }
 
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1)
+        self.assertEqual(len(match_files), 1, 'found file by tags')
 
         # Archive it.
         brain.archive(file_path)
 
         # Is it gone (from tag find?)
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 0)
+        self.assertEqual(len(match_files), 0, 'archived, so cannot find')
+
+    def test_find_date_in_filename(self):
+        ''' Find a date in a filename. '''
+
+        os.mkdir(TEST_DATA_INBOX)
+        f = open(TEST_FILENAME_WITH_DATE, 'w')
+        f.writelines(['Some random content.'])
+        f.close()
+
+        # Can we find the note?
+        args = {
+            'keyword_string': TEST_DATE_STRING,
+            'archives': False,
+            'full_text': True,
+        }
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1, msg='date in filename')
 
     def test_find_note(self):
         ''' Make a note and find it again. '''
@@ -65,36 +86,34 @@ class TestFileStuff(unittest.TestCase):
         file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
         # Did we make a note?
         file_count = os.listdir(TEST_DATA_DIRECTORY)
-        self.assertEqual(len(file_count), 1)
+        self.assertEqual(len(file_count), 1, msg='os.listdir')
 
         # Tag it for retrieval
-        brain.add_tags_to_file(TEST_TAG_STRING, file_path)
+        brain.add_tags_to_file(TEST_TAGS_IN, file_path)
 
         # Can we find the note?
         args = {
-            'keyword_string': ' '.join(TEST_TAGS),
+            'keyword_string': ' '.join(TEST_TAGS_IN),
             'archives': False,
             'full_text': True,
         }
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1)
+        self.assertEqual(len(match_files), 1, msg='get_keyword_files')
 
         # Can we remove the tags?
-        brain.remove_tags_from_file(TEST_TAGS, file_path)
+        brain.remove_tags_from_file(TEST_TAGS_IN, file_path)
 
         # This time we should not find it.
         match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1)
+        self.assertEqual(len(match_files), 0, 'get_keyword_files find 0')
 
     def test_string_to_file_name_with_default_filename_template(self):
         # Arrange
         topic = "one two three four"
         filename_template = "{topic}"
         expected_filename = "one-two-three-four.txt"
-
         # Act
         actual_filename = brain.string_to_file_name(topic, filename_template)
-
         # Assert
         self.assertEqual(expected_filename, actual_filename)
 
@@ -104,10 +123,8 @@ class TestFileStuff(unittest.TestCase):
         filename_template = "{today}-{topic}"
         today_string = date.today().isoformat()
         expected_filename = today_string + "-one-two-three.txt"
-
         # Act
         actual_filename = brain.string_to_file_name(topic, filename_template)
-
         # Assert
         self.assertEqual(expected_filename, actual_filename)
 
@@ -181,6 +198,7 @@ class TestFetchMethods(unittest.TestCase):
 
 class TestParsers(unittest.TestCase):
     ''' Test methods that parse through file contents looking for things.'''
+
     def test_get_first_date(self):
         first_date = brain.get_first_date(TEST_FILE_CONTENT)
         self.assertEqual(first_date, EXPECTED_DATE)
@@ -196,6 +214,10 @@ class TestParsers(unittest.TestCase):
         actual_date = brain.get_first_date(test_file_content)
         # Assert
         self.assertEqual(expected_date, actual_date)
+
+    def test_get_content_tags(self):
+        result = brain.get_content_tags(TEST_FILE_CONTENT_WITH_TAGS)
+        self.assertEqual(TEST_TAGS_OUT, result)
 
 
 class TestGetSetting(unittest.TestCase):
@@ -232,11 +254,11 @@ class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
 
     def test_create_tag_line(self):
-        result = brain.create_tag_line(TEST_TAGS)
+        result = brain.create_tag_line(TEST_TAGS_IN)
         self.assertEqual(result, TEST_TAG_LINE)
 
     def test_add_tags(self):
-        args = {'tags': TEST_TAGS,
+        args = {'tags': TEST_TAGS_IN,
                 'content': TEST_FILE_CONTENT}
         result = brain.add_tags(**args)
         self.assertEqual(result, TEST_FILE_CONTENT_WITH_TAGS)

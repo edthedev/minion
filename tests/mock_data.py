@@ -3,6 +3,7 @@ from datetime import datetime
 import brain_of_minion as brain
 
 TEST_DATA_DIRECTORY = '/tmp/test_minion'
+TEST_DATA_INBOX = '/tmp/test_minion/inbox'
 
 
 def mock_settings():
@@ -64,16 +65,23 @@ TEST_GIBBERISH = 'Slartibarfast'
 
 # This 'tag' should appear in various file content for testing.
 TEST_TAG = 'Ninja'
-TEST_TAGS = ['foo', 'BAR', 'Ninja']
+TEST_TAGS_IN = ['foo', 'BAR', 'Ninja']
+TEST_TAGS_OUT = ['bar', 'foo', 'ninja']
 # As it might come from the user:
 TEST_TAG_STRING = 'Ninja foo BAR'
 # As we would add it to the file:
 TEST_TAG_LINE = ':tags: bar foo ninja'
 
 TEST_FILE_INITIAL_CONTENT = \
-'''/tmp/test_minion/inbox/This-is-a-test-topic.txtThis is a test topic.\n=====================\n:date: '''
+'''/tmp/test_minion/inbox/This-is-a-test-topic.txt This is a test topic.\n=====================\n:date: '''
 TEST_FILENAME = 'This-is-a-test-topic.txt'
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
+TEST_DATE_STRING = '2014-08-12'
+
+TEST_FILENAME_WITH_DATE = \
+    '%s/This-is-a-test-topic-%s.txt' % ( 
+            TEST_DATA_INBOX,
+            TEST_DATE_STRING)
 
 TEST_REMOVE_TAGS = ['foo', 'BAR' ]
 

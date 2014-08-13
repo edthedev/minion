@@ -119,10 +119,11 @@ def should_collect(filename):
 
 def date_sort(filename):
     '''Provide a date sort that puts None first.'''
-    if brain.get_first_date(filename):
-        return brain.get_first_date(filename)
+    content = brain.get_file_content(filename)
+    first_date = brain.get_first_date(content)
+    if first_date:
+        return first_date
     return datetime.datetime.now()
-
 
 def get_notes_dir(args):
     notes_dir = None
@@ -378,7 +379,8 @@ if args['dates']:
     events = dict()
     match_files = get_match_files()
     for filename in match_files:
-        date = brain.get_first_date(filename)
+        content = brain.get_file_content(filename)
+        date = brain.get_first_date(content)
         if date:
             try:
                 if date in events:
