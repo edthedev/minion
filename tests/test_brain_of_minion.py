@@ -180,14 +180,24 @@ class TestFetchMethods(unittest.TestCase):
 
 
 class TestParsers(unittest.TestCase):
-    ''' Test some methods that parse through file contents looking for things.
-    '''
+    ''' Test methods that parse through file contents looking for things.'''
     def test_get_first_date(self):
         first_date = brain.get_first_date(TEST_FILE_CONTENT)
         self.assertEqual(first_date, EXPECTED_DATE)
 
+    def test_get_first_date_with_multiple_dates(self):
+        # Arrange
+        test_file_content = "\
+            2014-08-08 Some title\n\
+            =====================\n\
+            :date: 2014-08-12\n"
+        expected_date = datetime(2014, 8, 8, 0, 0)
+        # Act
+        actual_date = brain.get_first_date(test_file_content)
+        # Assert
+        self.assertEqual(expected_date, actual_date)
 
-# Tests
+
 class TestGetSetting(unittest.TestCase):
 
     def test_get_setting(self):
