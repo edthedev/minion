@@ -1044,7 +1044,7 @@ def remove_empty_folder(folder):
     '''
     if len(os.listdir(folder)) == 0:
         os.rmdir(folder)
-        print "Removed empty forlder " + folder + "."
+        print "Removed empty folder " + folder + "."
 
 
 def get_inbox_menu():
