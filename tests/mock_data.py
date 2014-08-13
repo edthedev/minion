@@ -77,6 +77,12 @@ TEST_FILE_INITIAL_CONTENT = \
 '''/tmp/test_minion/inbox/This-is-a-test-topic.txt This is a test topic.\n=====================\n:date: '''
 TEST_FILENAME = 'This-is-a-test-topic.txt'
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
+TEST_DATE_STRING = '2014-08-12'
+
+TEST_FILENAME_WITH_DATE = \
+    '%s/This-is-a-test-topic-%s.txt' % ( 
+            TEST_DATA_INBOX,
+            TEST_DATE_STRING)
 
 TEST_REMOVE_TAGS = ['foo', 'BAR' ]
 

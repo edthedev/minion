@@ -65,6 +65,23 @@ class TestFileStuff(unittest.TestCase):
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 0, 'archived, so cannot find')
 
+    def test_find_date_in_filename(self):
+        ''' Find a date in a filename. '''
+
+        os.mkdir(TEST_DATA_INBOX)
+        f = open(TEST_FILENAME_WITH_DATE, 'w')
+        f.writelines(['Some random content.'])
+        f.close()
+
+        # Can we find the note?
+        args = {
+            'keyword_string': TEST_DATE_STRING,
+            'archives':False,
+            'full_text': True,
+        }
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1, msg='date in filename')
+
     def test_find_note(self):
         ''' Make a note and find it again. '''
          # Make a note
@@ -127,6 +144,10 @@ class TestFetchMethods(unittest.TestCase):
     '''
     def test_strays(self):
         results = brain.list_stray_files()
+
+
+
+
 
 class TestParsers(unittest.TestCase):
     ''' Test some methods that parse through file contents looking for things. 
