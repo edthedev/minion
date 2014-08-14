@@ -7,10 +7,6 @@ import shutil
 import os
 from datetime import date, timedelta, datetime
 import re
-import socket
-import ConfigParser
-import random
-from string import Template
 from ConfigParser import SafeConfigParser
 from collections import defaultdict
 import logging
@@ -75,7 +71,7 @@ WAITING = ':WAITING:'
 # FUNCTIONS
 ################################################################################
 
-def _settings_parser(default_notes_dir = '~/minion/notes'):
+def _settings_parser(default_notes_dir='~/minion/notes'):
     ''' Create the parser for the settings file. '''
 
     # Default notes settings
@@ -85,6 +81,7 @@ def _settings_parser(default_notes_dir = '~/minion/notes'):
     settings.set('notes', 'favorites', 'inbox, today, next, soon, someday')
     settings.set('notes', 'notes_included_extensions', '*')
     settings.set('notes', 'notes_excluded_extensions', '~')
+    settings.set('notes', 'default_template', 'note')
     # Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -99,6 +96,7 @@ def _settings_parser(default_notes_dir = '~/minion/notes'):
 
     return settings
 
+
 def get_settings():
     minion_file = os.path.expanduser(CONFIG_FILE)
 
@@ -107,10 +105,20 @@ def get_settings():
     # Load if available, write defaults if not.
     if os.path.exists(minion_file):
         settings.read([minion_file])
-    else: # pragma: no cover
+    else:  # pragma: no cover
         f = open(minion_file, 'w')
         settings.write(f)
         f.close()
+
+    # Pre-process some settings
+
+    # Filename separator can be entered in .minion file with quotes around it
+    # so we can also enter space as a separator (' '). We will extract that
+    # single character below and stick it back into the settings structure.
+    filename_separator = settings.get('compose', 'filename_sep')
+    if len(filename_separator) > 1:
+        filename_separator = filename_separator[1]
+        settings.set('compose', 'filename_sep', filename_separator)
 
     return settings
 
@@ -118,19 +126,8 @@ def get_settings():
 GLOBAL_SETTINGS = get_settings()
 
 
-def get_title_from_template_content(content, topic=None):
-
-    ''' Sometimes the best place to find the filename is
-        the first line of the template.'''
-    first_line = content.split('\n')[0]
-    data = {'topic': topic}
-    data.update(GLOBAL_DATA)
-    return first_line.format(**data)
-
-
 def get_setting(section, key):
-    settings = get_settings()
-    return settings.get(section, key)
+    return GLOBAL_SETTINGS.get(section, key)
 
 
 EDITORS['default'] = get_setting('compose', 'editor')
@@ -215,7 +212,6 @@ def get_first_date(content):
     for key in recognizers:
         r = re.compile(key)
         matches = r.findall(content)
-        # print matches
         if matches:
             form = recognizers[key]
             for match in matches:
@@ -238,11 +234,12 @@ def get_first_date(content):
     dates.sort()
     return dates[0]
 
+
 def get_file_content(filename, include_filename=True):
     ''' Yep. '''
     content = ""
 
-    # Don't try to get PDF content.
+    # Don't try to get non-text content.
     _, extension = os.path.splitext(filename)
     extension.lower()
     if extension not in NON_TEXT_VIEWERS:
@@ -255,6 +252,7 @@ def get_file_content(filename, include_filename=True):
         content = filename + ' ' + content
 
     return content
+
 
 def limit_to_year(year, file_list):
     '''Return only files from the list whose first date is within
@@ -281,8 +279,7 @@ def limit_to_year(year, file_list):
 
 def get_total_file_count(include_archives=False):
     '''Return the count of the total number of files available to Minion.
-
-    This is useful for context when a search unexpectedly returns no results.
+       This is useful for context when a search unexpectedly returns no results.
     '''
     total_files = []
     total_files = find_files(archives=include_archives)
@@ -292,8 +289,7 @@ def get_total_file_count(include_archives=False):
 
 def get_favorites_summary():
     ''' Return the count of items in each of the favorite folders. '''
-    settings = get_settings()
-    favorites = settings.get('notes', 'favorites').replace(' ', '')
+    favorites = get_setting('notes', 'favorites').replace(' ', '')
     favs = favorites.split(',')
     results = []
     summary = get_folder_summary()
@@ -345,14 +341,18 @@ def select_file(match_files, max_files=10):
 
     return (choice_path, match_files[0])
 
+
 def remind(text):
     filename = "%s/%s" % (get_inbox(), string_to_file_name(text))
     f = open(filename, 'a')
     f.write(text)
+    f.close()
     return filename
+
 
 def remove_archives(file_list):
     return remove_notes(file_list, ['archive'])
+
 
 def get_remove_tags(text_string):
     tag_re = re.compile("-@\w*")
@@ -360,11 +360,13 @@ def get_remove_tags(text_string):
     tags = [x.lstrip('-@') for x in tags]
     return tags
 
+
 def get_tags_from_string(text_string):
     tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
     return results
+
 
 def sort_by_tag(file_list):
     all_tags = {'no tags': []}
@@ -384,7 +386,10 @@ def sort_by_tag(file_list):
                     all_tags[tag] = [item]
     return all_tags
 
-def format_output_list(output, by_tag, max_display, separator):
+
+def format_output_list(output, by_tag, max_display, separator, raw_files):
+    if not raw_files:
+        output = clean_output(output)
     if max_display:
         remain = len(output) - max_display
         output = output[:max_display]
@@ -404,14 +409,13 @@ def format_output_list(output, by_tag, max_display, separator):
     return output
 
 
-def format_output_dict(output, separator):
+def format_output_dict(output, separator, raw_files):
     output_lines = []
     for key in output:
-        items = [
-            str(key),
-            str(output[key]),
-            ]
-        line = '\t-\t'.join(items)
+        if not raw_files:
+            output[key] = clean_output(output[key])
+        item = [str(key), str(output[key])]
+        line = ' -- '.join(item)
         output_lines.append(line)
 
     return separator.join(output_lines)
@@ -423,23 +427,21 @@ def display_output(title, output, by_tag=False,
 
     # If empty list or empty string, etc:
     if not output:
-        print "No %s items." % title
+        print "\nNo %s items." % title
         return
 
     # Print dictionaries as key - value
     if type(output) is dict:
-        output = format_output_dict(output, separator)
+        output = format_output_dict(output, separator, raw_files)
 
     # Print lists with one item per line
     if type(output) is list:
-        output = format_output_list(output, by_tag, max_display, separator)
+        output = format_output_list(output, by_tag, max_display,
+                                    separator, raw_files)
 
     if title:
         print "\n---- %s: " % title
         print "-------------------------"
-
-    if not raw_files:
-        output = clean_output(output)
 
     print output
 
@@ -457,23 +459,12 @@ def clean_output(output):
 def clean_string(output):
     notes_folder = get_notes_home()
     no_folder = output.replace(notes_folder, '')
-    no_dashes = no_folder.replace('-', ' ')
-    no_slashes = no_dashes.replace('/', ' : ')
-    no_extensions = no_slashes.replace('.txt', '')
-    no_tags = remove_tags_from_string(no_extensions)
-    return no_tags
+    name_sep = get_setting('compose', 'filename_sep')
+    no_separators = no_folder.replace(name_sep, ' ')
+    no_slashes = no_separators.replace('/', ' : ')
+    no_extensions = no_slashes.replace(get_setting('compose', 'extension'), '')
+    return no_extensions
 
-def remove_tags_from_string(filename):
-    removing = False
-    tag_free_name = ''
-    for char in filename:
-        if char == '@':
-            removing = True
-        if char == ' ':
-            removing = False
-        if not removing:
-            tag_free_name += char
-    return tag_free_name
 
 def content_has_tag(content, tag):
     ''' Return true if the file content's tags line has the given tag. '''
@@ -486,10 +477,12 @@ def content_has_tag(content, tag):
                 return True
     return False
 
+
 def has_tag(filename, tag):
     ''' Return true if the file's tags line has the given tag. '''
     content = get_file_content(filename)
     return content_has_tag(content, tag)
+
 
 def limit_notes(choice, notes, full=False):
     ''' Only return notes who have the text in choice in at least one of:
@@ -519,6 +512,7 @@ def limit_notes(choice, notes, full=False):
                     new_array.append(note)
     return new_array
 
+
 def remove_notes(file_list, terms):
     new_list = []
     for f in file_list:
@@ -531,6 +525,7 @@ def remove_notes(file_list, terms):
         if not matches_term:
             new_list.append(f)
     return new_list
+
 
 def clean_file_name(text):
     return text.replace(' ', '-').replace('/', '-')
@@ -549,7 +544,6 @@ def get_editor(filename, multiple=False, graphical=False, view=False):
 
     extension = os.path.splitext(filename)[1]
     extension = extension.lower()
-    print extension
     if extension in apps:
         editor = apps[extension]
     else:
@@ -592,8 +586,7 @@ def preview_file(filename):
 
 
 def get_notes_home():
-    settings = get_settings()
-    notes_home = settings.get('notes', 'home')
+    notes_home = get_setting('notes', 'home')
     notes_home = os.path.expanduser(notes_home)
     if not os.path.exists(notes_home):
         os.mkdir(notes_home)
@@ -644,6 +637,7 @@ def limit_notes_interactive(notes):
         notes = limit_notes(choice, notes)
     return notes[0]
 
+
 def expand_short_command(command):
     commands = {
         'a': '>wiki/archive',
@@ -659,10 +653,12 @@ def expand_short_command(command):
         return commands[command]
     return command
 
+
 def get_tags(filename):
     ''' Return tags from file's tag line. '''
     content = get_file_content(filename)
     return get_content_tags(content)
+
 
 def get_content_tags(content):
     ''' Return all tags from file content. '''
@@ -675,6 +671,7 @@ def get_content_tags(content):
             break
     return tags
 
+
 def parse_tags(line, TAG_INDICATOR=None):
     if not TAG_INDICATOR:
         TAG_INDICATOR = get_setting('compose', 'tagline')
@@ -684,11 +681,12 @@ def parse_tags(line, TAG_INDICATOR=None):
         return tags
     return []
 
+
 def create_tag_line(tags, TAG_INDICATOR=None):
     ''' Create a line of text that stores tags
     in a test file.
 
-    Note that all tags are stored in lower case, 
+    Note that all tags are stored in lower case,
     to simplify sorting and retrieval.
 
     '''
@@ -708,6 +706,7 @@ def create_tag_line(tags, TAG_INDICATOR=None):
 
     tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
+
 
 def remove_tags_from_content(tags, content):
     TAG_INDICATOR = get_setting('compose', 'tagline')
@@ -731,6 +730,7 @@ def remove_tags_from_content(tags, content):
     updated_string = '\n'.join(updated_content)
     return updated_string
 
+
 def remove_tags_from_file(tags, filename):
     if len(tags) == 0:
         return filename
@@ -744,6 +744,7 @@ def remove_tags_from_file(tags, filename):
     f.write(updated_content)
     f.close()
     return filename
+
 
 def add_tags(tags, content):
     ''' Return the file content with the tags added. '''
@@ -777,6 +778,7 @@ def add_tags(tags, content):
 
     return updated_string
 
+
 def add_tags_to_file(tags, filename):
     # Do not bother if no tags are passed.
     if len(tags) == 0:
@@ -795,12 +797,12 @@ def add_tags_to_file(tags, filename):
 
     return filename
 
+
 def archive(filename):
     ''' Move the selected file into an archive folder. '''
     # get_folder does some cleverness with the 'archive' name.
     folder = get_folder('archive')
     filename = move_to_folder(filename, folder)
-    # print "Moved to %s" % folder
 
 
 def apply_command_to_file(filename, command):
@@ -817,7 +819,6 @@ def apply_command_to_file(filename, command):
         new_file = "%s/%s" % (get_inbox(), new_name)
         new_file = rename_file(filename, new_file)
         # shutil.move(filename, new_file)
-        # print "Renamed to %s" % new_file
         doInboxInteractive(new_file)
         return new_file
 
@@ -849,9 +850,9 @@ def apply_command_to_file(filename, command):
 
     return filename
 
+
 def doInboxInteractive(item):
     to_open = []
-    # print get_inbox_menu()
     display_output('Selected', item, by_tag=False)
     choice = raw_input('Action? ')
     if len(choice) > 0:
@@ -859,6 +860,7 @@ def doInboxInteractive(item):
         if choice == 'o':
             to_open.append(item)
     return to_open
+
 
 def getCalendarTags():
     return ['@Jan', '@Feb', '@Mar', '@Apr', '@May', '@Jun', '@Jul', '@Aug',
@@ -911,13 +913,9 @@ def get_files(directory, archives=False):
 
     return files
 
-def find_files(
-        directory=None, 
-        archives=False, 
-        filter=[], 
-        full_text=False,
-        find_any=False,
-              ):
+
+def find_files(directory=None, archives=False, filter=[], full_text=False,
+               find_any=False):
     ''' Find matching files... '''
     if directory is None:
         directory = get_notes_home()
@@ -933,7 +931,9 @@ def find_files(
         for f in raw_files:
             if has_any_tag(f, filter):
                 files.append(f)
+
     return files
+
 
 def has_any_tag(filename, tags):
     for tag in tags:
@@ -943,28 +943,32 @@ def has_any_tag(filename, tags):
             return True
     return False
 
-def string_to_file_name(text, ext=None):
-    if not ext:
-        ext = get_setting('compose', 'extension')
+
+def string_to_file_name(topic, template='{topic}'):
+    ''' Generates filename based on the topic and filename template.
+        Extension is always appended.
+    '''
+    # replace spaces and '/' with the topic separator
+    name_sep = get_setting('compose', 'filename_sep')
+    new_topic = topic.replace(' ', name_sep).replace('/', name_sep)
+
+    # retrieve the extension
+    ext = get_setting('compose', 'extension')
     ext = ext.lstrip('.')
 
-    # Read the filename separator from settings and extract the second
-    # character. The reason is that we want only one character separator
-    # and that character has to be enclosed in single quotes. Example: '-'
-    name_sep = get_setting('compose', 'filename_sep')
-    if len(name_sep) > 1:
-        name_sep = name_sep[1]
-    new_name = text.replace(' ', name_sep).replace('/', name_sep)
-
-    data = {'topic': text,
-            'ext': ext,}
+    # merge GLOBAL_DATA into data
+    data = {'topic': new_topic,
+            'ext': ext}
     data.update(GLOBAL_DATA)
-    new_name = new_name.format(**data)
 
-    if not new_name.endswith(data['ext']):
-        new_name = '.'.join([new_name.rstrip('.'), ext])
+    # merge data with the template
+    filename = template.format(**data)
 
-    return new_name
+    # append extension if not already there
+    if not filename.endswith(data['ext']):
+        filename = '.'.join([filename.rstrip('.'), ext])
+
+    return filename
 
 
 def get_unique_name(filename):
@@ -996,6 +1000,7 @@ def rename_file(filename, new_name):
         print "Renamed " + filename + " to " + new_file
     return new_file
 
+
 def move_to_folder(filename, folder):
     ''' Move the file to a difference folder. '''
     try:
@@ -1022,7 +1027,8 @@ def remove_empty_folder(folder):
     '''
     if len(os.listdir(folder)) == 0:
         os.rmdir(folder)
-        print "Removed empty forlder " + folder + "."
+        print "Removed empty folder " + folder + "."
+
 
 def get_inbox_menu():
         display_options = "Actions:\nrename tag email archive done"
@@ -1034,6 +1040,7 @@ def getOutput(command):
         output = p1.communicate()[0]
         return output
 
+
 def find_file(filename):
     home = get_notes_home()
     for root, directories, names in os.walk(home):
@@ -1042,32 +1049,36 @@ def find_file(filename):
                 return os.path.join(root, f)
     return None
 
-def get_filename_for_title(topic, notes_dir=None):
-    # Get location for new file
+
+def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
+    # Get location for new file. Create it if it doesn't exist.
     if notes_dir is None:
         notes_dir = get_inbox()
     if not os.path.exists(notes_dir):
         os.mkdir(notes_dir)
 
-    topic_filename = string_to_file_name(topic)
+    filename = string_to_file_name(topic, filename_template)
 
-    existing_filename = find_file(topic_filename)
+    existing_filename = find_file(filename)
     if existing_filename:
         return existing_filename
 
-    filename = os.path.join(notes_dir, topic_filename)
+    full_filename = os.path.join(notes_dir, filename)
 
-    return filename
+    return full_filename
 
-def get_template_content(template):
-    ''' Get the template text for a new note. '''
+
+def get_template_content(template=None):
+    ''' Get the template text. '''
+    # Get the template name if not passed in
+    if template is None:
+        template = get_setting('notes', 'default_template')
     # Get template file
-    settings = get_settings()
     data = {
         'type': template,
         'directory': os.path.expanduser(
-            settings.get('compose', 'templates')),
-        'ext': settings.get('compose', 'extension'),
+            get_setting('compose', 'templates')),
+        'ext': get_setting('compose', 'extension'),
     }
     template_file_name = "%(type)s_template%(ext)s" % data
     template_file = os.path.join(data['directory'], template_file_name)
@@ -1084,16 +1095,12 @@ def write_template_to_file(topic, filename, template='note'):
 
     underline = '=' * len(topic)
 
-    data = GLOBAL_DATA
-    data['topic'] = topic
-    data['filename'] = filename
-    data['topic_underline'] = underline
-    data['underline'] = underline
-    # data['tags'] = tags
+    data = {'topic': topic,
+            'filename': filename,
+            'topic_underline': underline,
+            'underline': underline}
+    data.update(GLOBAL_DATA)
     template_text = get_template_content(template)
-
-    summary = "{filename}\n{underline}\nCreated {today}".format(**data)
-    print summary
 
     file_text = template_text.format(**data)
 
@@ -1101,33 +1108,43 @@ def write_template_to_file(topic, filename, template='note'):
     f.write(file_text)
     f.close()
 
-    last_line = len('\n'.split(file_text)) + 1
+    last_line = len(file_text.split('\n')) + 1
 
     return last_line
 
 
-def create_new_note(topic, template='note'):
-    ''' Create a new note, non-interative.'''
-    filename = get_filename_for_title(topic, notes_dir=None)
-    last_line = 0
-    if not os.path.exists(filename):
-        last_line = write_template_to_file(topic, filename, template)
-    return (filename, last_line)
-
-
-def new_note_interactive(note_title_fragments, quick=False,
-                         template='note', notes_dir=None):
-    ''' Without any distractions, create a new file, from a template.
-        Use a file-system safe filename, based on the title.
-        Use a pre-configured 'inbox' for the files initial location.
-        If this 'inbox' folder does not exist, create it.
-        Include the title in the file, per the template.
+def new_note_interactive(topic_fragments, note_template=None, quick=False,
+                         notes_dir=None):
+    ''' Create a new note with the filename constructed based on
+        the first line in the note template.
     '''
-    topic = ' '.join(note_title_fragments)
-    filename = get_filename_for_title(topic, notes_dir)
-    last_line = write_template_to_file(topic, filename, template)
+    # get the first line of the template and use it as filename template
+    template_content = get_template_content(note_template)
+    filename_template = template_content.split('\n')[0]
+    # construct the topic string
+    topic = ' '.join(topic_fragments)
+    # create the note
+    print "Note template used: " + note_template
+    (filename, last_line) = create_new_note(topic,
+                                            note_template,
+                                            notes_dir,
+                                            filename_template)
     if not quick:
         open_file(filename, line=last_line)
+    else:
+        print "Note '%s' created ..." % filename
+
+
+def create_new_note(topic, note_template=None, notes_dir=None,
+                    filename_template='{topic}'):
+    ''' Create a new note, non-interactive.'''
+    filename = get_filename_for_topic(topic, notes_dir, filename_template)
+    last_line = 0
+    if not os.path.exists(filename):
+        if note_template is None:
+            note_template = get_setting('notes', 'default_template')
+        last_line = write_template_to_file(topic, filename, note_template)
+    return (filename, last_line)
 
 
 def to_bar(number, total=10):

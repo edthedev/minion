@@ -175,8 +175,6 @@ function! MinionTemplate(template, topic)
 python << EOF
 template = vim.eval("a:template")
 topic = vim.eval("a:topic")
-template_content = brain.get_template_content(template)
-title = brain.get_title_from_template(template_content, topic)
 (filename, last_line) = brain.create_new_note(
     topic,	
 	template=template,

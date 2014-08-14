@@ -10,27 +10,28 @@ Usage:
     minion favorites
     minion folder <text> ...
     minion folders
-    minion here [--editor=<editor>] <text> ...
+    minion here [--template=<template>] [--quick] <text> ...
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
-    minion note [--folder=<folder>] [--editor=<editor>] <text> ...
-    minion open [--archives] [--editor=<editor>] [--max=<max>] <text> ...
-    minion remind [--folder=<folder>] [--editor=<editor>] <text> ...
+    minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
+    minion open [--archives] [--max=<max>] <text> ...
+    minion remind [--folder=<folder>] [--template=<template>] <text> ...
     minion sample [--files] <text> ...
-    minion sort [--editor=<editor>] <text> ...
+    minion sort <text> ...
     minion strays
     minion summary [--archives] [--max=<max>]
     minion view [--archives] [--max=<max>] <text> ...
     minion tags
-    minion template [--folder=<folder>] <template> [<text>] ...
+    minion template [--folder=<folder>] <template> [--quick] [<text>] ...
 
 Options:
     -a --archives           Search archive folders for matches.
-    -e --editor=<editor>    Open files with the specified editor. [default: vim]
     -f --files              Display raw file names when listing files.
     -F --folder=<folder>    Place the new note into the given folder.
     -h --help               Show this help.
     --max=<max>             Maximum results to display. [default: 10]
+    --quick                 Create without opening in an editor
+    --template=<template>   Use template. [default: 'note']
     -y --year=<year>        Limit results to those created in the given year.
     --version               Show version.
 
@@ -42,10 +43,8 @@ Command descriptions:
     folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
-    journal - open a new or existing file named journal.<today>.txt
     list - list files matching keywords
     log - add a line with the current date and time to a file.
-    merge - find and merge similar files
     note - create a new note and then open it - <text> becomes filename
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
@@ -55,7 +54,6 @@ Command descriptions:
             a few items.
     summary - list all folders and the item counts in those folders
     view - print the contents of all matches to the terminal standard output
-    week - plan your week with the minion week template
     tags - list all tags
     template - start a note from a specialized template. Try 'week' and
             'journal' to get started.
@@ -75,7 +73,6 @@ Command descriptions:
 
 # import pudb; pu.db
 import os
-import random
 import datetime
 # DocOpt is awesome. https://github.com/docopt/docopt
 from docopt import docopt
@@ -127,6 +124,7 @@ def date_sort(filename):
     if first_date:
         return first_date
     return datetime.datetime.now()
+
 
 def get_notes_dir(args):
     notes_dir = None
@@ -182,16 +180,13 @@ def format_2_cols(tuple_list):
 ###############################################################################
 
 def minion_template(args):
-    '''Start an article from a specialized template.'''
-    template_content = brain.get_template_content(args['<template>'])
-    title = brain.get_title_from_template_content(template_content,
-                                          topic=args['<text>'])
-    args['<text>'].insert(0, title)
-    (filename, last_line) = brain.create_new_note(
-        ' '.join(args['<text>']),
-        template=args['<template>'],
-    )
-    brain.open_file(filename, last_line)
+    '''Create a Minion note from a specialized template.'''
+    notes_dir = get_notes_dir(args)
+    brain.new_note_interactive(
+        args['<text>'],
+        note_template=args['<template>'],
+        quick=args['--quick'],
+        notes_dir=notes_dir)
 
 
 def minion_remind(args):
@@ -199,18 +194,18 @@ def minion_remind(args):
     notes_dir = get_notes_dir(args)
     brain.new_note_interactive(
         args['<text>'],
-        quick=args['remind'],
-        template='note',
+        note_template=args['--template'],
+        quick=True,
         notes_dir=notes_dir)
 
 
 def minion_here(args):
-    '''Create a Minion style now in the current working directory.'''
+    '''Create a Minion note in the current working directory.'''
     notes_dir = os.curdir
     brain.new_note_interactive(
         args['<text>'],
-        quick=args['remind'],
-        template='note',
+        note_template=args['--template'],
+        quick=args['--quick'],
         notes_dir=notes_dir)
 
 
@@ -219,14 +214,13 @@ def minion_note(args):
     notes_dir = get_notes_dir(args)
     brain.new_note_interactive(
         args['<text>'],
-        quick=args['remind'],
-        template='note',
+        note_template=args['--template'],
+        quick=args['--quick'],
         notes_dir=notes_dir)
 
 
 def minion_sort(args):
-    '''Interactively sort all matches.
-    '''
+    '''Interactively sort all matches.'''
     match_files = get_match_files()
     total = len(match_files)
     if total == 0:
@@ -238,9 +232,7 @@ def minion_sort(args):
 
 
 def minion_open(args):
-    match_files = brain.find_files(
-        filter=args['<text>'],
-        archives=args['--archives'])
+    match_files = get_match_files()
 
     if len(match_files) > 0:
         (choice_path, filename) = brain.select_file(match_files, args['--max'])
@@ -265,9 +257,7 @@ def minion_strays(args):
 
 def minion_view(args):
     ''' Dump the contents of the chosen file(s) to standard out. '''
-    match_files = brain.find_files(
-        filter=args['<text>'],
-        archives=args['--archives'])
+    match_files = get_match_files()
     print "Outputting contents of %(number)d matches to search terms \
         '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
     for filename in match_files:
@@ -320,10 +310,12 @@ args = docopt(__doc__, version='1.0')
 
 # Search terms to filter by.
 filter = args['<text>']
-if args['<text>'] == 'all':
-    args['<text>'] = None
+if args['<text>'] == ['all']:
+    args['<text>'] = []
 
+# *************************************************************
 # Everything after this point requires searching for matches...
+# *************************************************************
 
 # Collect stories
 if args['collect']:
@@ -410,9 +402,6 @@ if args['dates']:
         elif key > recent_date:
             datestr = key.strftime(get_date_format())
             recent[datestr] = events[key]
-
-    # for key in events:
-    #     print key.strftime(get_date_format()) + "\t" + events[key]
 
     brain.display_output('Recent Dates', recent)
     brain.display_output('Today', today_str)
@@ -523,7 +512,7 @@ if __name__ == '__main__':
         argname = method.replace('minion_', '')
         if (argname in args) and args[argname]:
             if hasattr(locals()[method], '__call__'):
-                print "Running {}".format(method)
+                # print "Running {}".format(method)
                 locals()[method](args)
 
 sys.exit(0)

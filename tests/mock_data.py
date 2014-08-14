@@ -1,15 +1,16 @@
 ''' Data structures used for unit testing. '''
-from datetime import date, datetime
+from datetime import datetime
 import brain_of_minion as brain
-
-from ConfigParser import SafeConfigParser
 
 TEST_DATA_DIRECTORY = '/tmp/test_minion'
 TEST_DATA_INBOX = '/tmp/test_minion/inbox'
 
-def mock_settings():
+
+def mock_get_setting(section, key):
     ''' Always return the default settings. '''
-    return brain._settings_parser(TEST_DATA_DIRECTORY)
+    settings = brain._settings_parser(TEST_DATA_DIRECTORY)
+    return settings.get(section, key)
+
 
 EXPECTED_DATE = datetime(2014, 04, 14, 0, 0)
 
@@ -74,16 +75,20 @@ TEST_TAG_STRING = 'Ninja foo BAR'
 TEST_TAG_LINE = ':tags: bar foo ninja'
 
 TEST_FILE_INITIAL_CONTENT = \
-'''/tmp/test_minion/inbox/This-is-a-test-topic.txt This is a test topic.\n=====================\n:date: '''
+    "/tmp/test_minion/inbox/This-is-a-test-topic.txt " +\
+    "This is a test topic.\n" +\
+    "=====================\n" +\
+    ":date: "
+
 TEST_FILENAME = 'This-is-a-test-topic.txt'
+
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
+
 TEST_DATE_STRING = '2014-08-12'
 
 TEST_FILENAME_WITH_DATE = \
-    '%s/This-is-a-test-topic-%s.txt' % ( 
-            TEST_DATA_INBOX,
-            TEST_DATE_STRING)
+    '%s/This-is-a-test-topic-%s.txt' % (TEST_DATA_INBOX, TEST_DATE_STRING)
 
-TEST_REMOVE_TAGS = ['foo', 'BAR' ]
+TEST_REMOVE_TAGS = ['foo', 'BAR']
 
 TEST_TOPIC = 'This is a test topic.'
