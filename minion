@@ -125,6 +125,7 @@ def date_sort(filename):
         return first_date
     return datetime.datetime.now()
 
+
 def get_notes_dir(args):
     notes_dir = None
     if args['--folder']:
@@ -231,9 +232,7 @@ def minion_sort(args):
 
 
 def minion_open(args):
-    match_files = brain.find_files(
-        filter=args['<text>'],
-        archives=args['--archives'])
+    match_files = get_match_files()
 
     if len(match_files) > 0:
         (choice_path, filename) = brain.select_file(match_files, args['--max'])
@@ -258,9 +257,7 @@ def minion_strays(args):
 
 def minion_view(args):
     ''' Dump the contents of the chosen file(s) to standard out. '''
-    match_files = brain.find_files(
-        filter=args['<text>'],
-        archives=args['--archives'])
+    match_files = get_match_files()
     print "Outputting contents of %(number)d matches to search terms \
         '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
     for filename in match_files:
@@ -313,10 +310,12 @@ args = docopt(__doc__, version='1.0')
 
 # Search terms to filter by.
 filter = args['<text>']
-if args['<text>'] == 'all':
-    args['<text>'] = None
+if args['<text>'] == ['all']:
+    args['<text>'] = []
 
+# *************************************************************
 # Everything after this point requires searching for matches...
+# *************************************************************
 
 # Collect stories
 if args['collect']:
@@ -403,9 +402,6 @@ if args['dates']:
         elif key > recent_date:
             datestr = key.strftime(get_date_format())
             recent[datestr] = events[key]
-
-    # for key in events:
-    #     print key.strftime(get_date_format()) + "\t" + events[key]
 
     brain.display_output('Recent Dates', recent)
     brain.display_output('Today', today_str)

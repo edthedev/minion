@@ -9,8 +9,6 @@ from mock import MagicMock, mock_open, patch, call
 # Ensure we can load the brain library.
 sys.path.insert(0, os.path.abspath('.'))
 import brain_of_minion as brain
-from mock_data import mock_settings
-
 from tests.mock_data import *
 
 # Mock objects
@@ -19,7 +17,7 @@ my_mock_os = MagicMock()
 
 
 # Use custom mock settings.
-@patch('brain_of_minion.get_settings', new=mock_settings)
+@patch('brain_of_minion.get_setting', new=mock_get_setting)
 class TestFileStuff(unittest.TestCase):
     ''' Run tests that create or look for files.
     '''
@@ -238,7 +236,7 @@ class TestGetSetting(unittest.TestCase):
 
 
 @patch('__builtin__.open', new_callable=mock_open)
-@patch('brain_of_minion.get_settings', new=mock_settings)
+@patch('brain_of_minion.get_setting', new=mock_get_setting)
 @patch('os.mkdir')
 class TestRemind(unittest.TestCase):
     def test_remind(self, mkdir_mock, open_mock):

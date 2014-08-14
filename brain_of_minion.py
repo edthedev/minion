@@ -110,6 +110,16 @@ def get_settings():
         settings.write(f)
         f.close()
 
+    # Pre-process some settings
+
+    # Filename separator can be entered in .minion file with quotes around it
+    # so we can also enter space as a separator (' '). We will extract that
+    # single character below and stick it back into the settings structure.
+    filename_separator = settings.get('compose', 'filename_sep')
+    if len(filename_separator) > 1:
+        filename_separator = filename_separator[1]
+        settings.set('compose', 'filename_sep', filename_separator)
+
     return settings
 
 
@@ -117,8 +127,7 @@ GLOBAL_SETTINGS = get_settings()
 
 
 def get_setting(section, key):
-    settings = get_settings()
-    return settings.get(section, key)
+    return GLOBAL_SETTINGS.get(section, key)
 
 
 EDITORS['default'] = get_setting('compose', 'editor')
@@ -270,8 +279,7 @@ def limit_to_year(year, file_list):
 
 def get_total_file_count(include_archives=False):
     '''Return the count of the total number of files available to Minion.
-
-    This is useful for context when a search unexpectedly returns no results.
+       This is useful for context when a search unexpectedly returns no results.
     '''
     total_files = []
     total_files = find_files(archives=include_archives)
@@ -281,8 +289,7 @@ def get_total_file_count(include_archives=False):
 
 def get_favorites_summary():
     ''' Return the count of items in each of the favorite folders. '''
-    settings = get_settings()
-    favorites = settings.get('notes', 'favorites').replace(' ', '')
+    favorites = get_setting('notes', 'favorites').replace(' ', '')
     favs = favorites.split(',')
     results = []
     summary = get_folder_summary()
@@ -380,7 +387,9 @@ def sort_by_tag(file_list):
     return all_tags
 
 
-def format_output_list(output, by_tag, max_display, separator):
+def format_output_list(output, by_tag, max_display, separator, raw_files):
+    if not raw_files:
+        output = clean_output(output)
     if max_display:
         remain = len(output) - max_display
         output = output[:max_display]
@@ -400,14 +409,13 @@ def format_output_list(output, by_tag, max_display, separator):
     return output
 
 
-def format_output_dict(output, separator):
+def format_output_dict(output, separator, raw_files):
     output_lines = []
     for key in output:
-        items = [
-            str(key),
-            str(output[key]),
-            ]
-        line = '\t-\t'.join(items)
+        if not raw_files:
+            output[key] = clean_output(output[key])
+        item = [str(key), str(output[key])]
+        line = ' -- '.join(item)
         output_lines.append(line)
 
     return separator.join(output_lines)
@@ -419,23 +427,21 @@ def display_output(title, output, by_tag=False,
 
     # If empty list or empty string, etc:
     if not output:
-        print "No %s items." % title
+        print "\nNo %s items." % title
         return
 
     # Print dictionaries as key - value
     if type(output) is dict:
-        output = format_output_dict(output, separator)
+        output = format_output_dict(output, separator, raw_files)
 
     # Print lists with one item per line
     if type(output) is list:
-        output = format_output_list(output, by_tag, max_display, separator)
+        output = format_output_list(output, by_tag, max_display,
+                                    separator, raw_files)
 
     if title:
         print "\n---- %s: " % title
         print "-------------------------"
-
-    if not raw_files:
-        output = clean_output(output)
 
     print output
 
@@ -453,24 +459,11 @@ def clean_output(output):
 def clean_string(output):
     notes_folder = get_notes_home()
     no_folder = output.replace(notes_folder, '')
-    no_dashes = no_folder.replace('-', ' ')
-    no_slashes = no_dashes.replace('/', ' : ')
-    no_extensions = no_slashes.replace('.txt', '')
-    no_tags = remove_tags_from_string(no_extensions)
-    return no_tags
-
-
-def remove_tags_from_string(filename):
-    removing = False
-    tag_free_name = ''
-    for char in filename:
-        if char == '@':
-            removing = True
-        if char == ' ':
-            removing = False
-        if not removing:
-            tag_free_name += char
-    return tag_free_name
+    name_sep = get_setting('compose', 'filename_sep')
+    no_separators = no_folder.replace(name_sep, ' ')
+    no_slashes = no_separators.replace('/', ' : ')
+    no_extensions = no_slashes.replace(get_setting('compose', 'extension'), '')
+    return no_extensions
 
 
 def content_has_tag(content, tag):
@@ -593,8 +586,7 @@ def preview_file(filename):
 
 
 def get_notes_home():
-    settings = get_settings()
-    notes_home = settings.get('notes', 'home')
+    notes_home = get_setting('notes', 'home')
     notes_home = os.path.expanduser(notes_home)
     if not os.path.exists(notes_home):
         os.mkdir(notes_home)
@@ -922,13 +914,8 @@ def get_files(directory, archives=False):
     return files
 
 
-def find_files(
-        directory=None,
-        archives=False,
-        filter=[],
-        full_text=False,
-        find_any=False,
-        ):
+def find_files(directory=None, archives=False, filter=[], full_text=False,
+               find_any=False):
     ''' Find matching files... '''
     if directory is None:
         directory = get_notes_home()
@@ -958,15 +945,11 @@ def has_any_tag(filename, tags):
 
 
 def string_to_file_name(topic, template='{topic}'):
-
-    # Read the filename separator from settings and extract the second
-    # character. The reason is that we want only one character separator
-    # and that character has to be enclosed in single quotes. Example: '-'
-    name_sep = get_setting('compose', 'filename_sep')
-    if len(name_sep) > 1:
-        name_sep = name_sep[1]
-
+    ''' Generates filename based on the topic and filename template.
+        Extension is always appended.
+    '''
     # replace spaces and '/' with the topic separator
+    name_sep = get_setting('compose', 'filename_sep')
     new_topic = topic.replace(' ', name_sep).replace('/', name_sep)
 
     # retrieve the extension
@@ -975,7 +958,7 @@ def string_to_file_name(topic, template='{topic}'):
 
     # merge GLOBAL_DATA into data
     data = {'topic': new_topic,
-            'ext': ext, }
+            'ext': ext}
     data.update(GLOBAL_DATA)
 
     # merge data with the template
@@ -1091,12 +1074,11 @@ def get_template_content(template=None):
     if template is None:
         template = get_setting('notes', 'default_template')
     # Get template file
-    settings = get_settings()
     data = {
         'type': template,
         'directory': os.path.expanduser(
-            settings.get('compose', 'templates')),
-        'ext': settings.get('compose', 'extension'),
+            get_setting('compose', 'templates')),
+        'ext': get_setting('compose', 'extension'),
     }
     template_file_name = "%(type)s_template%(ext)s" % data
     template_file = os.path.join(data['directory'], template_file_name)
