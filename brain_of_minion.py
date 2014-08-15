@@ -238,7 +238,7 @@ def get_first_date(content):
     dates.sort()
     return dates[0]
 
-def get_file_content(filename):
+def get_file_content(filename, include_filename=True):
     ''' Yep. '''
     content = ""
 
@@ -251,7 +251,9 @@ def get_file_content(filename):
         f.close()
 
     # Always treat the filename as if part of the content.
-    content = filename + content
+    if include_filename:
+        content = filename + ' ' + content
+
     return content
 
 def limit_to_year(year, file_list):
@@ -358,8 +360,7 @@ def get_remove_tags(text_string):
     tags = [x.lstrip('-@') for x in tags]
     return tags
 
-
-def get_tags(text_string):
+def get_tags_from_string(text_string):
     tag_re = re.compile("@\w*")
     tags = tag_re.findall(text_string)
     results = [x.lstrip('@') for x in tags]
@@ -369,7 +370,7 @@ def sort_by_tag(file_list):
     all_tags = {'no tags': []}
     file_list = list(set(file_list))
     for item in file_list:
-        tags = get_tags(item)
+        tags = get_tags_from_string(item)
         if len(tags) == 0:
             all_tags['no tags'].append(item)
         placed = False
@@ -382,7 +383,6 @@ def sort_by_tag(file_list):
                     placed = True
                     all_tags[tag] = [item]
     return all_tags
-
 
 def format_output_list(output, by_tag, max_display, separator):
     if max_display:
@@ -463,7 +463,6 @@ def clean_string(output):
     no_tags = remove_tags_from_string(no_extensions)
     return no_tags
 
-
 def remove_tags_from_string(filename):
     removing = False
     tag_free_name = ''
@@ -476,18 +475,21 @@ def remove_tags_from_string(filename):
             tag_free_name += char
     return tag_free_name
 
-def has_tag(filename, tag):
-    ''' Return true if the file's tags line has the given tag. '''
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
+def content_has_tag(content, tag):
+    ''' Return true if the file content's tags line has the given tag. '''
+    content = content.split('\n')
     TAG_INDICATOR = get_setting('compose', 'tagline')
+    tag = tag.lower()
     for line in content:
         if TAG_INDICATOR in line:
             if tag in line:
                 return True
     return False
 
+def has_tag(filename, tag):
+    ''' Return true if the file's tags line has the given tag. '''
+    content = get_file_content(filename)
+    return content_has_tag(content, tag)
 
 def limit_notes(choice, notes, full=False):
     ''' Only return notes who have the text in choice in at least one of:
@@ -516,7 +518,6 @@ def limit_notes(choice, notes, full=False):
                 if choice in content:
                     new_array.append(note)
     return new_array
-
 
 def remove_notes(file_list, terms):
     new_list = []
@@ -658,19 +659,48 @@ def expand_short_command(command):
         return commands[command]
     return command
 
+def get_tags(filename):
+    ''' Return tags from file's tag line. '''
+    content = get_file_content(filename)
+    return get_content_tags(content)
 
-def parse_tags(line, TAG_INDICATOR):
-
-    tags = line.split(' ')
+def get_content_tags(content):
+    ''' Return all tags from file content. '''
+    TAG_INDICATOR = get_setting('compose', 'tagline')
+    content = content.split('\n')
+    tags = []
+    for line in content:
+        tags = parse_tags(line, TAG_INDICATOR)
+        if len(tags) > 0:
+            break
     return tags
 
+def parse_tags(line, TAG_INDICATOR=None):
+    if not TAG_INDICATOR:
+        TAG_INDICATOR = get_setting('compose', 'tagline')
+    tags = line.split(' ')
+    if TAG_INDICATOR in tags:
+        tags.pop(tags.index(TAG_INDICATOR))
+        return tags
+    return []
 
-def create_tag_line(tags, TAG_INDICATOR):
+def create_tag_line(tags, TAG_INDICATOR=None):
+    ''' Create a line of text that stores tags
+    in a test file.
+
+    Note that all tags are stored in lower case, 
+    to simplify sorting and retrieval.
+
+    '''
+    if not TAG_INDICATOR:
+        TAG_INDICATOR = get_setting('compose', 'tagline')
+
     # Unique-ify
     tags = list(set(tags))
     # Remove any line breaks
     # TODO: Find a way to support multiple lines of tags, someday, maybe.
-    tags = [x.replace('\n', ' ') for x in tags]
+    tags = [x.replace('\n', ' ').lower() for x in tags]
+    tags = sorted(tags)
 
     # Always put the tag indicator at the start.
     if TAG_INDICATOR in tags:
@@ -679,25 +709,19 @@ def create_tag_line(tags, TAG_INDICATOR):
     tags.insert(0, TAG_INDICATOR)
     return ' '.join(tags)
 
-
-def remove_tags_from_file(tags, filename):
-    if len(tags) == 0:
-        return filename
-
+def remove_tags_from_content(tags, content):
     TAG_INDICATOR = get_setting('compose', 'tagline')
-
-    # Find the current tags
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
 
     all_tags = []
     updated_content = []
+    content = content.split('\n')
     for line in content:
         if (TAG_INDICATOR in line):
             all_tags = parse_tags(line, TAG_INDICATOR)
             for tag in tags:
-                all_tags.pop(all_tags.index(tag))
+                tag = tag.lower()
+                if tag in all_tags:
+                    all_tags.pop(all_tags.index(tag))
             line = create_tag_line(all_tags, TAG_INDICATOR)
 
         updated_content.append(line)
@@ -705,15 +729,24 @@ def remove_tags_from_file(tags, filename):
     # Write back to the file
     updated_content = [line2.rstrip('\n') for line2 in updated_content]
     updated_string = '\n'.join(updated_content)
+    return updated_string
+
+def remove_tags_from_file(tags, filename):
+    if len(tags) == 0:
+        return filename
+
+    # Remove the tags
+    content = get_file_content(filename, include_filename=False)
+    updated_content = remove_tags_from_content(tags, content)
+
+    # Rewrite the file.
     f = open(filename, 'w')
-    f.write(updated_string)
+    f.write(updated_content)
     f.close()
     return filename
 
-
-def add_tags_to_file(tags, filename):
-    if len(tags) == 0:
-        return filename
+def add_tags(tags, content):
+    ''' Return the file content with the tags added. '''
 
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
@@ -721,15 +754,10 @@ def add_tags_to_file(tags, filename):
         print "WARNING: Spaces in the [compose] tagline= setting \
             may cause tag duplication."
 
-    # Find the current tags
-    f = open(filename, 'r')
-    content = f.readlines()
-    f.close()
-
     all_tags = []
     updated_content = []
     found_tags = False
-    for line in content:
+    for line in content.split('\n'):
         if (TAG_INDICATOR in line):
             found_tags = True
             all_tags = parse_tags(line, TAG_INDICATOR)
@@ -746,11 +774,26 @@ def add_tags_to_file(tags, filename):
     # Remove
     updated_content = [line2.rstrip('\n') for line2 in updated_content]
     updated_string = '\n'.join(updated_content)
-    f = open(filename, 'w')
-    f.write(updated_string)
-    f.close()
-    return filename
 
+    return updated_string
+
+def add_tags_to_file(tags, filename):
+    # Do not bother if no tags are passed.
+    if len(tags) == 0:
+        return filename
+
+    # Add tags
+    args = {
+        'content': get_file_content(filename, include_filename=False),
+        'tags': tags,
+    }
+    updated_content = add_tags(**args)
+
+    f = open(filename, 'w')
+    f.write(updated_content)
+    f.close()
+
+    return filename
 
 def archive(filename):
     ''' Move the selected file into an archive folder. '''
@@ -779,7 +822,7 @@ def apply_command_to_file(filename, command):
         return new_file
 
     # Add tags
-    add_tags = get_tags(command)
+    add_tags = get_tags_from_string(command)
     filename = add_tags_to_file(add_tags, filename)
 
     # Remove tags
@@ -806,7 +849,6 @@ def apply_command_to_file(filename, command):
 
     return filename
 
-
 def doInboxInteractive(item):
     to_open = []
     # print get_inbox_menu()
@@ -817,7 +859,6 @@ def doInboxInteractive(item):
         if choice == 'o':
             to_open.append(item)
     return to_open
-
 
 def getCalendarTags():
     return ['@Jan', '@Feb', '@Mar', '@Apr', '@May', '@Jun', '@Jul', '@Aug',
@@ -870,9 +911,13 @@ def get_files(directory, archives=False):
 
     return files
 
-
-def find_files(directory=None, archives=False, filter=[], full_text=False,
-               weekend=None, find_any=False):
+def find_files(
+        directory=None, 
+        archives=False, 
+        filter=[], 
+        full_text=False,
+        find_any=False,
+              ):
     ''' Find matching files... '''
     if directory is None:
         directory = get_notes_home()
@@ -888,13 +933,7 @@ def find_files(directory=None, archives=False, filter=[], full_text=False,
         for f in raw_files:
             if has_any_tag(f, filter):
                 files.append(f)
-
-    if weekend is not None:
-        ignore_tags = get_ignore_tags(worktime=not weekend)
-        files = ignoreTags(files, ignore_tags)
-
     return files
-
 
 def has_any_tag(filename, tags):
     for tag in tags:
@@ -907,6 +946,7 @@ def has_any_tag(filename, tags):
 def string_to_file_name(text, ext=None):
     if not ext:
         ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
 
     # Read the filename separator from settings and extract the second
     # character. The reason is that we want only one character separator
@@ -917,12 +957,12 @@ def string_to_file_name(text, ext=None):
     new_name = text.replace(' ', name_sep).replace('/', name_sep)
 
     data = {'topic': text,
-            'ext': ext}
+            'ext': ext,}
     data.update(GLOBAL_DATA)
     new_name = new_name.format(**data)
 
-    if not new_name.endswith(ext):
-        new_name = '%s%s' % (new_name, ext)
+    if not new_name.endswith(data['ext']):
+        new_name = '.'.join([new_name.rstrip('.'), ext])
 
     return new_name
 

@@ -38,6 +38,7 @@ do_not_open = ['.jpg', '.jpeg', '.pdf', '.png', '.rtf', '.xls']
 args = {
 	'keyword_string':vim.eval("a:keywords"),
 	'archives':(vim.eval("a:archives")=="true"),
+	'full_text': True,
 }
 match_files = brain.get_keyword_files(**args)
 if not match_files:
@@ -189,7 +190,7 @@ endfunction
 
 " Add tags to a minion file.
 " ---------------------------
-" TODO: Consider: Tags probably should modify the file content, not the file name.
+" DONE: Consider: Tags probably should modify the file content, not the file name.
 " 			Pro: Filename tags allow tagging PDF files.
 " 			Con: Filename tags move the file, which you might be editing in
 " 			another editor.
