@@ -85,14 +85,14 @@ import sys
 # CONSTANTS
 ###############################################################################
 
-CLEAN_INBOX_MESSAGE = '''*~*~*~*~*~*~*
- Clean Inbox
-*~*~*~*~*~*~*
+CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*
+ No sort items
+*~*~*~*~*~*~*~*
 '''
 
-CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*
+CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
  No stray items
-*~*~*~*~*~*~*
+*~*~*~*~*~*~*~*
 '''
 
 
@@ -224,7 +224,7 @@ def minion_sort(args):
     match_files = get_match_files()
     total = len(match_files)
     if total == 0:
-        print CLEAN_INBOX_MESSAGE
+        print CLEAN_SORT_MESSAGE
         sys.exit()
     else:
         print brain.getOutput('cal')
@@ -301,6 +301,43 @@ def minion_log(args):
     print new_line
 
 
+def minion_dates(args):
+    '''Display all notes with dates in them and filtered by keywords.'''
+    events = dict()
+    match_files = get_match_files()
+    for filename in match_files:
+        content = brain.get_file_content(filename)
+        dates = brain.get_unique_dates(content)
+        if dates:
+            for date in dates:
+                try:
+                    if date in events:
+                        events[date].append(filename)
+                    else:
+                        events[date] = [filename]
+                except ValueError:
+                    # Date before 1900
+                    pass
+
+    today = datetime.datetime.today()
+    today_str = today.strftime(get_date_format())
+    recent_date = today - datetime.timedelta(days=14)
+    upcoming = dict()
+    recent = dict()
+    # sort the events chronologically
+
+    for key in events:
+        datestr = key.strftime(get_date_format())
+        if key > today:
+            upcoming[datestr] = events[key]
+        elif key > recent_date:
+            recent[datestr] = events[key]
+
+    brain.display_output('Recent Dates', recent)
+    brain.display_output('Today', today_str)
+    brain.display_output('Upcoming Dates', upcoming)
+
+
 ###############################################################################
 # MAIN SCRIPT
 ###############################################################################
@@ -373,41 +410,6 @@ if args['count']:
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
-if args['dates']:
-    total = brain.get_total_file_count(include_archives=False)
-    events = dict()
-    match_files = get_match_files()
-    for filename in match_files:
-        content = brain.get_file_content(filename)
-        date = brain.get_first_date(content)
-        if date:
-            try:
-                if date in events:
-                    events[date].append(filename)
-                else:
-                    events[date] = [filename]
-            except ValueError:
-                # Date before 1900
-                pass
-
-    today = datetime.datetime.today()
-    today_str = today.strftime(get_date_format())
-    recent_date = today - datetime.timedelta(days=14)
-    upcoming = dict()
-    recent = dict()
-    for key in events:
-        if key > today:
-            datestr = key.strftime(get_date_format())
-            upcoming[datestr] = events[key]
-        elif key > recent_date:
-            datestr = key.strftime(get_date_format())
-            recent[datestr] = events[key]
-
-    brain.display_output('Recent Dates', recent)
-    brain.display_output('Today', today_str)
-    brain.display_output('Upcoming Dates', upcoming)
-
-# List the results
 
 if args['find'] or args['list']:
     find_any = False
