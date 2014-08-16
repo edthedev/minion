@@ -1,3 +1,11 @@
+Testing Goals
+--------------
+Core functions::
+    
+    Create a note
+    Find a note
+    Handle collisions gracefully
+
 Running the test suite
 -----------------------
 

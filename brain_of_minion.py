@@ -1067,12 +1067,12 @@ def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
 
     return full_filename
 
-
 def get_template_content(template=None):
     ''' Get the template text. '''
     # Get the template name if not passed in
     if template is None:
         template = get_setting('notes', 'default_template')
+
     # Get template file
     data = {
         'type': template,
@@ -1088,7 +1088,6 @@ def get_template_content(template=None):
     f.close()
     template_text = ''.join(template_text)
     return template_text
-
 
 def write_template_to_file(topic, filename, template='note'):
     ''' Add templated pre-content to the new note.'''
