@@ -30,6 +30,12 @@ Run the tests::
     >cd minion/tests
     >python test_brain_of_minion.py
 
+Once you've done the above steps, you can run the test suite with::
+
+    >cd minion/tests
+    ./run_all_tests.sh
+
+
 Testing the test suite's coverage
 ----------------------------------
 Install coverage::
