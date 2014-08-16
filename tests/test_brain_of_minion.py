@@ -19,8 +19,7 @@ my_mock_os = MagicMock()
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
 class TestFileStuff(unittest.TestCase):
-    ''' Run tests that create or look for files.
-    '''
+    ''' Run tests that create or look for files.'''
 
     @staticmethod
     def clean_directory():
@@ -218,6 +217,38 @@ class TestParsers(unittest.TestCase):
         actual_date = brain.get_first_date(test_file_content)
         # Assert
         self.assertEqual(expected_date, actual_date)
+
+    def test_get_unique_dates_with_different_formats(self):
+        # Arrange
+        test_file_content = "\
+            2014-08-08 Some title\n\
+            =====================\n\
+            12/15/2014\n\
+            12/26/14\n"
+        expected_dates = [
+            datetime(2014, 8, 8, 0, 0),
+            datetime(2014, 12, 15, 0, 0),
+            datetime(2014, 12, 26, 0, 0)]
+        # Act
+        actual_dates = brain.get_unique_dates(test_file_content)
+
+        # Assert
+        self.assertEqual(expected_dates, actual_dates)
+
+    def test_get_unique_dates_simple(self):
+        # Arrange
+        test_file_content = "\
+            2014-08-08 Some title\n\
+            =====================\n\
+            :date: 2014-08-12\n"
+        expected_dates = [
+            datetime(2014, 8, 8, 0, 0),
+            datetime(2014, 8, 12, 0, 0)]
+        # Act
+        actual_dates = brain.get_unique_dates(test_file_content)
+
+        # Assert
+        self.assertEqual(expected_dates, actual_dates)
 
     def test_get_content_tags(self):
         result = brain.get_content_tags(TEST_FILE_CONTENT_WITH_TAGS)

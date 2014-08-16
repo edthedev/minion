@@ -194,9 +194,8 @@ def list_stray_files(count=2):
 
 def sort_files_interactive(match_files):
     ''' Interactively sort the list of files. '''
-    print get_inbox_menu()
+    print get_sort_menu()
     total = len(match_files)
-    to_open = []
     count = 0
     to_open = []
     for item in match_files:
@@ -213,46 +212,50 @@ def sort_files_interactive(match_files):
             open_file(item, multiple=True)
 
 
-def get_first_date(content):
-    '''Return the earliest date written in the file name or contents.
-    '''
+def get_unique_dates(content):
+    '''Return all the unique dates in the content'''
+
     recognizers = {
-        '\d{1,2}\.\d{1,2}\.\d{4}': '%m.%d.%Y',
-        '\d{1,2}\.\d{1,2}\.\d{2}': '%m.%d.%y',
-        '\d{1,2}/\d{1,2}/\d{4}': '%m/%d/%Y',
-        '\d{1,2}/\d{1,2}/\d{2}': '%m/%d/%y',
-        '\d{4}-\d{1,2}-\d{2}': '%Y-%m-%d',
-    }
+        '\d{1,2}\.\d{1,2}\.\d{4}\D': '%m.%d.%Y',
+        '\d{1,2}\.\d{1,2}\.\d{2}\D': '%m.%d.%y',
+        '\d{1,2}/\d{1,2}/\d{4}\D': '%m/%d/%Y',
+        '\d{1,2}/\d{1,2}/\d{2}\D': '%m/%d/%y',
+        '\d{4}-\d{2}-\d{2}\D': '%Y-%m-%d'}
 
-    # TODO: Handle dates in the filename itself.
-
-    # Find dates in the contents
-
+    # Find dates in the content
     dates = []
     for key in recognizers:
         r = re.compile(key)
         matches = r.findall(content)
         if matches:
-            form = recognizers[key]
+            date_format = recognizers[key]
             for match in matches:
                 try:
-                    new_date = datetime.strptime(match, form)
-                    # Assume current year, if unsure.
-                    # if new_date.year == 1900:
-                    #     new_date.year = datetime.datetime.today().year
-                    # if new_date > datetime.datetime.today():
-                    dates.append(new_date)
-                    # else:
-                    #     dates.append(new_date)
+                    # We have to remove the last character from 'match'.
+                    # It is the first non-digit character at the end.
+                    new_date = datetime.strptime(match[:-1], date_format)
+                    # Double check we are picking up a valid dates
+                    if (new_date > datetime(2010, 1, 1)) and\
+                       (new_date < datetime(2049, 12, 31)):
+                        dates.append(new_date)
                 except ValueError:
                     pass
                 except TypeError:
                     print "Ignored " + match
-                    pass
+
     if len(dates) == 0:
         return None
+    # find all unique dates and sort them
+    dates = list(set(dates))
     dates.sort()
-    return dates[0]
+
+    return dates
+
+
+def get_first_date(content):
+    '''Return the earliest date written in the file name or contents.
+    '''
+    return get_unique_dates(content)[0]
 
 
 def get_file_content(filename, include_filename=True):
@@ -301,7 +304,6 @@ def get_total_file_count(include_archives=False):
     '''Return the count of the total number of files available to Minion.
        This is useful for context when a search unexpectedly returns no results.
     '''
-    total_files = []
     total_files = find_files(archives=include_archives)
     total = len(total_files)
     return total
@@ -431,11 +433,20 @@ def format_output_list(output, by_tag, max_display, separator, raw_files):
 
 def format_output_dict(output, separator, raw_files):
     output_lines = []
-    for key in output:
-        if not raw_files:
-            output[key] = clean_output(output[key])
-        item = [str(key), str(output[key])]
-        line = ' -- '.join(item)
+    for key in sorted(output):
+        if type(output[key]) is list:
+            item = [str(key), format_output_list(
+                output[key],
+                by_tag=False,
+                max_display=False,
+                separator='\n',
+                raw_files=raw_files)]
+            line = '\n'.join(item)
+        else:
+            if not raw_files:
+                output[key] = clean_output(output[key])
+            item = [str(key), str(output[key])]
+            line = '\t-\t'.join(item)
         output_lines.append(line)
 
     return separator.join(output_lines)
@@ -447,7 +458,7 @@ def display_output(title, output, by_tag=False,
 
     # If empty list or empty string, etc:
     if not output:
-        print "\nNo %s items." % title
+        print "\nNo %s items.\n" % title
         return
 
     # Print dictionaries as key - value
@@ -843,8 +854,8 @@ def apply_command_to_file(filename, command):
         return new_file
 
     # Add tags
-    add_tags = get_tags_from_string(command)
-    filename = add_tags_to_file(add_tags, filename)
+    tags_to_add = get_tags_from_string(command)
+    filename = add_tags_to_file(tags_to_add, filename)
 
     # Remove tags
     remove_tags = get_remove_tags(command)
@@ -1050,20 +1061,15 @@ def remove_empty_folder(folder):
         print "Removed empty folder " + folder + "."
 
 
-def get_inbox_menu():
-        display_options = "Actions:\nrename tag email archive done"
-        return display_options
-
-
-def getOutput(command):
-        p1 = subprocess.Popen([command], shell=True, stdout=subprocess.PIPE)
-        output = p1.communicate()[0]
-        return output
-
+def get_sort_menu():
+    display_options = \
+        "Actions:\nr=rename #=review v=view tag a=archive d=done"
+    return display_options
 
 def find_file(filename):
+    ''' Find a file by name, checking each directory. '''
     home = get_notes_home()
-    for root, directories, names in os.walk(home):
+    for root, _, names in os.walk(home):
         for f in names:
             if f == filename:
                 return os.path.join(root, f)
@@ -1087,12 +1093,12 @@ def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
 
     return full_filename
 
-
 def get_template_content(template=None):
     ''' Get the template text. '''
     # Get the template name if not passed in
     if template is None:
         template = get_setting('notes', 'default_template')
+
     # Get template file
     data = {
         'type': template,
@@ -1108,7 +1114,6 @@ def get_template_content(template=None):
     f.close()
     template_text = ''.join(template_text)
     return template_text
-
 
 def write_template_to_file(topic, filename, template='note'):
     ''' Add templated pre-content to the new note.'''
