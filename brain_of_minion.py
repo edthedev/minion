@@ -222,7 +222,6 @@ def get_unique_dates(content):
                     pass
                 except TypeError:
                     print "Ignored " + match
-                    pass
 
     if len(dates) == 0:
         return None
@@ -835,8 +834,8 @@ def apply_command_to_file(filename, command):
         return new_file
 
     # Add tags
-    add_tags = get_tags_from_string(command)
-    filename = add_tags_to_file(add_tags, filename)
+    tags_to_add = get_tags_from_string(command)
+    filename = add_tags_to_file(tags_to_add, filename)
 
     # Remove tags
     remove_tags = get_remove_tags(command)
@@ -1050,7 +1049,7 @@ def get_sort_menu():
 def find_file(filename):
     ''' Find a file by name, checking each directory. '''
     home = get_notes_home()
-    for root, directories, names in os.walk(home):
+    for root, _, names in os.walk(home):
         for f in names:
             if f == filename:
                 return os.path.join(root, f)
