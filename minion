@@ -11,6 +11,7 @@ Usage:
     minion folder <text> ...
     minion folders
     minion here [--template=<template>] [--quick] <text> ...
+    minion last [--archives]
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
     minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
@@ -43,6 +44,7 @@ Command descriptions:
     folder - find an open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
+    last - reopen the last modified file (by file system modified date/time)
     list - list files matching keywords
     log - add a line with the current date and time to a file.
     note - create a new note and then open it - <text> becomes filename
@@ -406,6 +408,11 @@ if args['dates']:
     brain.display_output('Recent Dates', recent)
     brain.display_output('Today', today_str)
     brain.display_output('Upcoming Dates', upcoming)
+
+def minion_last(args):
+    ''' Open the most recently modified file. '''
+    filename = brain.get_last_modified(archives=args['--archives'])
+    brain.open_file(filename)
 
 # List the results
 
