@@ -125,6 +125,26 @@ def get_settings():
 
 GLOBAL_SETTINGS = get_settings()
 
+def get_last_modified(directory=None, archives=False):
+    ''' Return the name of the file (from within the Minion folders)
+    last modified, by file system date and time. '''
+
+    if directory is None:
+        directory = get_notes_home()
+
+    files = get_files(directory, archives)
+
+    most_recent = None
+    result = None
+
+    for filename in files:
+        modified = os.path.getmtime(filename)
+        if most_recent < modified:
+            most_recent = modified
+            result = filename
+
+    return result
+
 
 def get_setting(section, key):
     return GLOBAL_SETTINGS.get(section, key)
