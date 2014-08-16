@@ -1043,18 +1043,12 @@ def remove_empty_folder(folder):
 
 
 def get_sort_menu():
-        display_options = \
-            "Actions:\nr=rename #=review v=view tag a=archive d=done"
-        return display_options
-
-
-def getOutput(command):
-        p1 = subprocess.Popen([command], shell=True, stdout=subprocess.PIPE)
-        output = p1.communicate()[0]
-        return output
-
+    display_options = \
+        "Actions:\nr=rename #=review v=view tag a=archive d=done"
+    return display_options
 
 def find_file(filename):
+    ''' Find a file by name, checking each directory. '''
     home = get_notes_home()
     for root, directories, names in os.walk(home):
         for f in names:
