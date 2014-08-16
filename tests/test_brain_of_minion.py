@@ -19,8 +19,7 @@ my_mock_os = MagicMock()
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
 class TestFileStuff(unittest.TestCase):
-    ''' Run tests that create or look for files.
-    '''
+    ''' Run tests that create or look for files.'''
 
     @staticmethod
     def clean_directory():

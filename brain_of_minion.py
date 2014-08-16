@@ -434,7 +434,7 @@ def format_output_dict(output, separator, raw_files):
 
 
 def display_output(title, output, by_tag=False,
-                   raw_files=False, max_display=None, ordered=False):
+                   raw_files=False, max_display=None):
     separator = '\n'
 
     # If empty list or empty string, etc:
