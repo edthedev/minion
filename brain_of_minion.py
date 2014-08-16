@@ -1061,6 +1061,7 @@ def get_filename_for_title(topic, notes_dir=None):
 
 def get_template_content(template):
     ''' Get the template text for a new note. '''
+
     # Get template file
     settings = get_settings()
     data = {
