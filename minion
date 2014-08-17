@@ -11,6 +11,7 @@ Usage:
     minion folder <text> ...
     minion folders
     minion here [--template=<template>] [--quick] <text> ...
+    minion last [--archives]
     minion list [--archives] [--max=<max>] [--files] <text> ...
     minion log <log> <comment> ...
     minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
@@ -45,6 +46,7 @@ Command descriptions:
     folder - find and open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
+    last - reopen the last modified file (by file system modified date/time)
     list - list files matching keywords
     log - add a line with the current date and time to a file.
     note - create a new note and then open it - <text> becomes filename
@@ -429,7 +431,46 @@ if args['count']:
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
+if args['dates']:
+    total = brain.get_total_file_count(include_archives=False)
+    events = dict()
+    match_files = get_match_files()
+    for filename in match_files:
+        content = brain.get_file_content(filename)
+        date = brain.get_first_date(content)
+        if date:
+            try:
+                if date in events:
+                    events[date].append(filename)
+                else:
+                    events[date] = [filename]
+            except ValueError:
+                # Date before 1900
+                pass
 
+    today = datetime.datetime.today()
+    today_str = today.strftime(get_date_format())
+    recent_date = today - datetime.timedelta(days=14)
+    upcoming = dict()
+    recent = dict()
+    for key in events:
+        if key > today:
+            datestr = key.strftime(get_date_format())
+            upcoming[datestr] = events[key]
+        elif key > recent_date:
+            datestr = key.strftime(get_date_format())
+            recent[datestr] = events[key]
+
+    brain.display_output('Recent Dates', recent)
+    brain.display_output('Today', today_str)
+    brain.display_output('Upcoming Dates', upcoming)
+
+def minion_last(args):
+    ''' Open the most recently modified file. '''
+    filename = brain.get_last_modified(archives=args['--archives'])
+    brain.open_file(filename)
+
+# List the results
 if args['find'] or args['list']:
     find_any = False
     if args['find']:

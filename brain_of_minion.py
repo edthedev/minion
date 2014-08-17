@@ -126,6 +126,26 @@ def get_settings():
 
 GLOBAL_SETTINGS = get_settings()
 
+def get_last_modified(directory=None, archives=False):
+    ''' Return the name of the file (from within the Minion folders)
+    last modified, by file system date and time. '''
+
+    if directory is None:
+        directory = get_notes_home()
+
+    files = get_files(directory, archives)
+
+    most_recent = None
+    result = None
+
+    for filename in files:
+        modified = os.path.getmtime(filename)
+        if most_recent < modified:
+            most_recent = modified
+            result = filename
+
+    return result
+
 
 def get_setting(section, key):
     return GLOBAL_SETTINGS.get(section, key)
@@ -223,7 +243,6 @@ def get_unique_dates(content):
                     pass
                 except TypeError:
                     print "Ignored " + match
-                    pass
 
     if len(dates) == 0:
         return None
@@ -836,8 +855,8 @@ def apply_command_to_file(filename, command):
         return new_file
 
     # Add tags
-    add_tags = get_tags_from_string(command)
-    filename = add_tags_to_file(add_tags, filename)
+    tags_to_add = get_tags_from_string(command)
+    filename = add_tags_to_file(tags_to_add, filename)
 
     # Remove tags
     remove_tags = get_remove_tags(command)
@@ -1044,20 +1063,14 @@ def remove_empty_folder(folder):
 
 
 def get_sort_menu():
-        display_options = \
-            "Actions:\nr=rename #=review v=view tag a=archive d=done"
-        return display_options
-
-
-def getOutput(command):
-        p1 = subprocess.Popen([command], shell=True, stdout=subprocess.PIPE)
-        output = p1.communicate()[0]
-        return output
-
+    display_options = \
+        "Actions:\nr=rename #=review v=view tag a=archive d=done"
+    return display_options
 
 def find_file(filename):
+    ''' Find a file by name, checking each directory. '''
     home = get_notes_home()
-    for root, directories, names in os.walk(home):
+    for root, _, names in os.walk(home):
         for f in names:
             if f == filename:
                 return os.path.join(root, f)
@@ -1081,12 +1094,12 @@ def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
 
     return full_filename
 
-
 def get_template_content(template=None):
     ''' Get the template text. '''
     # Get the template name if not passed in
     if template is None:
         template = get_setting('notes', 'default_template')
+
     # Get template file
     data = {
         'type': template,
@@ -1102,7 +1115,6 @@ def get_template_content(template=None):
     f.close()
     template_text = ''.join(template_text)
     return template_text
-
 
 def write_template_to_file(topic, filename, template='note'):
     ''' Add templated pre-content to the new note.'''

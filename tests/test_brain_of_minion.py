@@ -50,8 +50,14 @@ class TestFileStuff(unittest.TestCase):
             'full_text': True,
         }
 
+        EXPECTED_MATCH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 1, 'found file by tags')
+        self.assertEqual(match_files, [EXPECTED_MATCH])
+
+        # Try finding it again, because it was the last modified file.
+        match_file = brain.get_last_modified()
+        self.assertEqual(match_file, EXPECTED_MATCH)
 
         # Archive it.
         brain.archive(file_path)
