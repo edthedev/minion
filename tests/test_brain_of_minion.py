@@ -249,9 +249,9 @@ class TestParsers(unittest.TestCase):
             12/15/2014\n\
             12/26/14\n"
         expected_dates = [
-            datetime(2014, 8, 8, 0, 0),
-            datetime(2014, 12, 15, 0, 0),
-            datetime(2014, 12, 26, 0, 0)]
+            date(2014, 8, 8),
+            date(2014, 12, 15),
+            date(2014, 12, 26)]
         # Act
         actual_dates = brain.get_unique_dates(test_file_content)
 
@@ -265,8 +265,8 @@ class TestParsers(unittest.TestCase):
             =====================\n\
             :date: 2014-08-12\n"
         expected_dates = [
-            datetime(2014, 8, 8, 0, 0),
-            datetime(2014, 8, 12, 0, 0)]
+            date(2014, 8, 8),
+            date(2014, 8, 12)]
         # Act
         actual_dates = brain.get_unique_dates(test_file_content)
 

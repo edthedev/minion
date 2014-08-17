@@ -5,7 +5,7 @@
 import subprocess
 import shutil
 import os
-from datetime import date, timedelta, datetime
+from datetime import date, timedelta, datetime, time
 import re
 from ConfigParser import SafeConfigParser
 from collections import defaultdict
@@ -126,6 +126,7 @@ def get_settings():
 
 GLOBAL_SETTINGS = get_settings()
 
+
 def get_last_modified(directory=None, archives=False):
     ''' Return the name of the file (from within the Minion folders)
     last modified, by file system date and time. '''
@@ -234,10 +235,10 @@ def get_unique_dates(content):
                 try:
                     # We have to remove the last character from 'match'.
                     # It is the first non-digit character at the end.
-                    new_date = datetime.strptime(match[:-1], date_format)
+                    new_date = datetime.strptime(match[:-1], date_format).date()
                     # Double check we are picking up a valid dates
-                    if (new_date > datetime(2010, 1, 1)) and\
-                       (new_date < datetime(2049, 12, 31)):
+                    if (new_date > date(2010, 1, 1)) and\
+                       (new_date < date(2049, 12, 31)):
                         dates.append(new_date)
                 except ValueError:
                     pass
@@ -255,8 +256,9 @@ def get_unique_dates(content):
 
 def get_first_date(content):
     '''Return the earliest date written in the file name or contents.
+       For backwards compatibility return as datetime type.
     '''
-    return get_unique_dates(content)[0]
+    return datetime.combine(get_unique_dates(content)[0], time())
 
 
 def get_file_content(filename, include_filename=True):
@@ -1067,6 +1069,7 @@ def get_sort_menu():
         "Actions:\nr=rename #=review v=view tag a=archive d=done"
     return display_options
 
+
 def find_file(filename):
     ''' Find a file by name, checking each directory. '''
     home = get_notes_home()
@@ -1094,6 +1097,7 @@ def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
 
     return full_filename
 
+
 def get_template_content(template=None):
     ''' Get the template text. '''
     # Get the template name if not passed in
@@ -1115,6 +1119,7 @@ def get_template_content(template=None):
     f.close()
     template_text = ''.join(template_text)
     return template_text
+
 
 def write_template_to_file(topic, filename, template='note'):
     ''' Add templated pre-content to the new note.'''
@@ -1263,12 +1268,11 @@ def list_recent(match_files, days):
         newer than requested in 'days' parameter. The files are sorted based on
         the modification datetime.
     '''
-    threshold_date = datetime.today() - timedelta(days=days)
+    threshold_date = (datetime.today() - timedelta(days=days)).date()
     recent_files = dict()
     for filename in match_files:
-        modification_date = datetime.fromtimestamp(os.path.getmtime(filename))
-        if modification_date > threshold_date:
-            mod_date = modification_date.date()
+        mod_date = datetime.fromtimestamp(os.path.getmtime(filename)).date()
+        if mod_date > threshold_date:
             if mod_date in recent_files:
                 recent_files[mod_date].append(filename)
             else:
