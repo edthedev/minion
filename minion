@@ -15,7 +15,7 @@ Usage:
     minion log <log> <comment> ...
     minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
     minion open [--archives] [--max=<max>] <text> ...
-    minion recent [--folder=<folder>] [--days=<days>] [--files] <text> ...
+    minion recent [--archives] [--days=<days>] [--files] <text> ...
     minion remind [--folder=<folder>] [--template=<template>] <text> ...
     minion sample [--files] <text> ...
     minion sort <text> ...
@@ -42,12 +42,14 @@ Command descriptions:
     dates - display matching files with dates, in date order
     find - like list, but returns *any* match to *any* given keyword.
     favorites - like summary, but displays only folders configured as favorites
-    folder - find an open a folder
+    folder - find and open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
     list - list files matching keywords
     log - add a line with the current date and time to a file.
     note - create a new note and then open it - <text> becomes filename
+    open - open an existing note
+    recent - list recent notes with given keywords
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
     sort - step through results matching <text>
@@ -322,7 +324,7 @@ def minion_dates(args):
 
     today = datetime.datetime.today()
     today_str = today.strftime(get_date_format())
-    days_back = int(get_setting('notes', 'default_recent_days'))
+    days_back = int(brain.get_setting('notes', 'default_recent_days'))
     recent_date = today - datetime.timedelta(days=days_back)
     upcoming = dict()
     recent = dict()
@@ -348,7 +350,7 @@ def minion_recent(args):
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
     match_files = get_match_files()
     recent_files = brain.list_recent(match_files, days=days_back)
-    print "Notes from last %s days (most recent last):" % days_back
+    print "Notes modified in last %s days (most recent last):" % days_back
     brain.display_output(
         title=args['<text>'],
         output=recent_files,
