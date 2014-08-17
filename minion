@@ -16,6 +16,7 @@ Usage:
     minion log <log> <comment> ...
     minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
     minion open [--archives] [--max=<max>] <text> ...
+    minion recent [--archives] [--days=<days>] [--files] <text> ...
     minion remind [--folder=<folder>] [--template=<template>] <text> ...
     minion sample [--files] <text> ...
     minion sort <text> ...
@@ -26,28 +27,31 @@ Usage:
     minion template [--folder=<folder>] <template> [--quick] [<text>] ...
 
 Options:
-    -a --archives           Search archive folders for matches.
-    -f --files              Display raw file names when listing files.
-    -F --folder=<folder>    Place the new note into the given folder.
-    -h --help               Show this help.
-    --max=<max>             Maximum results to display. [default: 10]
-    --quick                 Create without opening in an editor
-    --template=<template>   Use template. [default: 'note']
-    -y --year=<year>        Limit results to those created in the given year.
-    --version               Show version.
+    -a --archives            Search archive folders for matches.
+    -d --days=<days>         Show notes modified last N days .
+    -f --files               Display raw file names when listing files.
+    -F --folder=<folder>     Place the new note into the given folder.
+    -h --help                Show this help.
+    -m --max=<max>           Maximum results to display. [default: 10]
+    -q --quick               Create without opening in an editor
+    -t --template=<template> Use template. [default: 'note']
+    -y --year=<year>         Limit results to those created in the given year.
+    -v --version             Show version.
 
 Command descriptions:
     count - display a count of the results
     dates - display matching files with dates, in date order
     find - like list, but returns *any* match to *any* given keyword.
     favorites - like summary, but displays only folders configured as favorites
-    folder - find an open a folder
+    folder - find and open a folder
     folders - reduce folders by sorting items in folders with fewer items
     here - create a note in the current working directory
     last - reopen the last modified file (by file system modified date/time)
     list - list files matching keywords
     log - add a line with the current date and time to a file.
     note - create a new note and then open it - <text> becomes filename
+    open - open an existing note
+    recent - list recent notes with given keywords
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
     sort - step through results matching <text>
@@ -73,7 +77,6 @@ Command descriptions:
 # IMPORTS
 ###############################################################################
 
-# import pudb; pu.db
 import os
 import datetime
 # DocOpt is awesome. https://github.com/docopt/docopt
@@ -87,9 +90,9 @@ import sys
 # CONSTANTS
 ###############################################################################
 
-CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*
- No sort items
-*~*~*~*~*~*~*~*
+CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*~*~*~*~*
+ No items to be sorted
+*~*~*~*~*~*~*~*~*~*~*~*
 '''
 
 CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
@@ -321,24 +324,47 @@ def minion_dates(args):
                     # Date before 1900
                     pass
 
-    today = datetime.datetime.today()
-    today_str = today.strftime(get_date_format())
-    recent_date = today - datetime.timedelta(days=14)
+    days_back = int(brain.get_setting('notes', 'default_recent_days'))
+    recent_date = datetime.datetime.today() - datetime.timedelta(days=days_back)
+    recent_date = recent_date.date()
     upcoming = dict()
     recent = dict()
-    # sort the events chronologically
-
+    today = dict()
+    # Sort the events into three sets - past, today and upcoming
+    today_date = datetime.datetime.today().date()
     for key in events:
-        datestr = key.strftime(get_date_format())
-        if key > today:
-            upcoming[datestr] = events[key]
+        date_str = key.strftime(get_date_format())
+        if key > today_date:
+            upcoming[date_str] = events[key]
+        elif key == today_date:
+            today[date_str] = events[key]
         elif key > recent_date:
-            recent[datestr] = events[key]
+            recent[date_str] = events[key]
 
     brain.display_output('Recent Dates', recent)
-    brain.display_output('Today', today_str)
+    brain.display_output('Today', today)
     brain.display_output('Upcoming Dates', upcoming)
 
+
+def minion_recent(args):
+    ''' Show N most recent notes'''
+    try:
+        days_back = int(args['--days'])
+    except:
+        days_back = int(brain.get_setting('notes', 'default_recent_days'))
+    match_files = get_match_files()
+    recent_files = brain.list_recent(match_files, days=days_back)
+    print "Notes modified in last %s days (most recent last):" % days_back
+    brain.display_output(
+        title=args['<text>'],
+        output=recent_files,
+        raw_files=args['--files'])
+
+
+def minion_last(args):
+    ''' Open the most recently modified file. '''
+    filename = brain.get_last_modified(archives=args['--archives'])
+    brain.open_file(filename)
 
 ###############################################################################
 # MAIN SCRIPT
@@ -412,45 +438,6 @@ if args['count']:
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
-if args['dates']:
-    total = brain.get_total_file_count(include_archives=False)
-    events = dict()
-    match_files = get_match_files()
-    for filename in match_files:
-        content = brain.get_file_content(filename)
-        date = brain.get_first_date(content)
-        if date:
-            try:
-                if date in events:
-                    events[date].append(filename)
-                else:
-                    events[date] = [filename]
-            except ValueError:
-                # Date before 1900
-                pass
-
-    today = datetime.datetime.today()
-    today_str = today.strftime(get_date_format())
-    recent_date = today - datetime.timedelta(days=14)
-    upcoming = dict()
-    recent = dict()
-    for key in events:
-        if key > today:
-            datestr = key.strftime(get_date_format())
-            upcoming[datestr] = events[key]
-        elif key > recent_date:
-            datestr = key.strftime(get_date_format())
-            recent[datestr] = events[key]
-
-    brain.display_output('Recent Dates', recent)
-    brain.display_output('Today', today_str)
-    brain.display_output('Upcoming Dates', upcoming)
-
-def minion_last(args):
-    ''' Open the most recently modified file. '''
-    filename = brain.get_last_modified(archives=args['--archives'])
-    brain.open_file(filename)
-
 # List the results
 if args['find'] or args['list']:
     find_any = False
@@ -494,7 +481,7 @@ if args['summary']:
 
 if args['folder']:
     # TODO: Do interactive inbox search, but for directories, not files
-    pass
+    print "Not implemented yet."
 
 if args['folders']:
     updated_files = []

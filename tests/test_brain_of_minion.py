@@ -4,6 +4,7 @@ import sys
 import unittest
 from datetime import date
 from mock import MagicMock, mock_open, patch, call
+import subprocess
 
 # Our stuff
 # Ensure we can load the brain library.
@@ -184,6 +185,28 @@ class TestFileStuff(unittest.TestCase):
         files = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(expected_filename, files[0])
 
+    def test_list_recent_with_recent_file(self):
+        # Arrange
+        TestFileStuff.clean_directory()
+        recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
+        expected = dict()
+        expected[datetime.today().date()] = [recent_file_path]
+        # Act
+        actual = brain.list_recent([recent_file_path], days=1)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_list_recent_with_old_file(self):
+        # Arrange
+        TestFileStuff.clean_directory()
+        recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
+        subprocess.call(["touch", "-d", "20140107", recent_file_path])
+        expected = dict()
+        # Act
+        actual = brain.list_recent([recent_file_path], days=1)
+        # Assert
+        self.assertEqual(expected, actual)
+
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
 
@@ -226,9 +249,9 @@ class TestParsers(unittest.TestCase):
             12/15/2014\n\
             12/26/14\n"
         expected_dates = [
-            datetime(2014, 8, 8, 0, 0),
-            datetime(2014, 12, 15, 0, 0),
-            datetime(2014, 12, 26, 0, 0)]
+            date(2014, 8, 8),
+            date(2014, 12, 15),
+            date(2014, 12, 26)]
         # Act
         actual_dates = brain.get_unique_dates(test_file_content)
 
@@ -242,8 +265,8 @@ class TestParsers(unittest.TestCase):
             =====================\n\
             :date: 2014-08-12\n"
         expected_dates = [
-            datetime(2014, 8, 8, 0, 0),
-            datetime(2014, 8, 12, 0, 0)]
+            date(2014, 8, 8),
+            date(2014, 8, 12)]
         # Act
         actual_dates = brain.get_unique_dates(test_file_content)
 
