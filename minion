@@ -15,6 +15,7 @@ Usage:
     minion log <log> <comment> ...
     minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
     minion open [--archives] [--max=<max>] <text> ...
+    minion recent [--folder=<folder>] [--days=<days>] [--files] <text> ...
     minion remind [--folder=<folder>] [--template=<template>] <text> ...
     minion sample [--files] <text> ...
     minion sort <text> ...
@@ -25,15 +26,16 @@ Usage:
     minion template [--folder=<folder>] <template> [--quick] [<text>] ...
 
 Options:
-    -a --archives           Search archive folders for matches.
-    -f --files              Display raw file names when listing files.
-    -F --folder=<folder>    Place the new note into the given folder.
-    -h --help               Show this help.
-    --max=<max>             Maximum results to display. [default: 10]
-    --quick                 Create without opening in an editor
-    --template=<template>   Use template. [default: 'note']
-    -y --year=<year>        Limit results to those created in the given year.
-    --version               Show version.
+    -a --archives            Search archive folders for matches.
+    -d --days=<days>         Show notes modified last N days .
+    -f --files               Display raw file names when listing files.
+    -F --folder=<folder>     Place the new note into the given folder.
+    -h --help                Show this help.
+    -m --max=<max>           Maximum results to display. [default: 10]
+    -q --quick               Create without opening in an editor
+    -t --template=<template> Use template. [default: 'note']
+    -y --year=<year>         Limit results to those created in the given year.
+    -v --version             Show version.
 
 Command descriptions:
     count - display a count of the results
@@ -71,7 +73,6 @@ Command descriptions:
 # IMPORTS
 ###############################################################################
 
-# import pudb; pu.db
 import os
 import datetime
 # DocOpt is awesome. https://github.com/docopt/docopt
@@ -85,9 +86,9 @@ import sys
 # CONSTANTS
 ###############################################################################
 
-CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*
- No sort items
-*~*~*~*~*~*~*~*
+CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*~*~*~*~*
+ No items to be sorted
+*~*~*~*~*~*~*~*~*~*~*~*
 '''
 
 CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
@@ -321,7 +322,8 @@ def minion_dates(args):
 
     today = datetime.datetime.today()
     today_str = today.strftime(get_date_format())
-    recent_date = today - datetime.timedelta(days=14)
+    days_back = int(get_setting('notes', 'default_recent_days'))
+    recent_date = today - datetime.timedelta(days=days_back)
     upcoming = dict()
     recent = dict()
     # sort the events chronologically
@@ -336,6 +338,21 @@ def minion_dates(args):
     brain.display_output('Recent Dates', recent)
     brain.display_output('Today', today_str)
     brain.display_output('Upcoming Dates', upcoming)
+
+
+def minion_recent(args):
+    ''' Show N most recent notes'''
+    try:
+        days_back = int(args['--days'])
+    except:
+        days_back = int(brain.get_setting('notes', 'default_recent_days'))
+    match_files = get_match_files()
+    recent_files = brain.list_recent(match_files, days=days_back)
+    print "Notes from last %s days (most recent last):" % days_back
+    brain.display_output(
+        title=args['<text>'],
+        output=recent_files,
+        raw_files=args['--files'])
 
 
 ###############################################################################
@@ -453,7 +470,7 @@ if args['summary']:
 
 if args['folder']:
     # TODO: Do interactive inbox search, but for directories, not files
-    pass
+    print "Not implemented yet."
 
 if args['folders']:
     updated_files = []

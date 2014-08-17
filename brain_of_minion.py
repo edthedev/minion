@@ -82,6 +82,7 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('notes', 'notes_included_extensions', '*')
     settings.set('notes', 'notes_excluded_extensions', '~')
     settings.set('notes', 'default_template', 'note')
+    settings.set('notes', 'default_recent_days', '14')
     # Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -1243,3 +1244,21 @@ def print_favorites_summary():
     summary = get_favorites_summary()
     output = format_2_cols(summary)
     return output
+
+
+def list_recent(match_files, days):
+    ''' Filter match_files. Return only those files that have modification dates
+        newer than requested in 'days' parameter. The files are sorted based on
+        the modification datetime.
+    '''
+    threshold_date = datetime.today() - timedelta(days=days)
+    recent_files = dict()
+    for filename in match_files:
+        modification_date = datetime.fromtimestamp(os.path.getmtime(filename))
+        if modification_date > threshold_date:
+            mod_date = modification_date.date()
+            if mod_date in recent_files:
+                recent_files[mod_date].append(filename)
+            else:
+                recent_files[mod_date] = [filename]
+    return recent_files

@@ -4,6 +4,7 @@ import sys
 import unittest
 from datetime import date
 from mock import MagicMock, mock_open, patch, call
+import subprocess
 
 # Our stuff
 # Ensure we can load the brain library.
@@ -177,6 +178,28 @@ class TestFileStuff(unittest.TestCase):
         self.assertEqual(expected_line, actual_line)
         files = os.listdir(TEST_DATA_DIRECTORY)
         self.assertEqual(expected_filename, files[0])
+
+    def test_list_recent_with_recent_file(self):
+        # Arrange
+        TestFileStuff.clean_directory()
+        recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
+        expected = dict()
+        expected[datetime.today().date()] = [recent_file_path]
+        # Act
+        actual = brain.list_recent([recent_file_path], days=1)
+        # Assert
+        self.assertEqual(expected, actual)
+
+    def test_list_recent_with_old_file(self):
+        # Arrange
+        TestFileStuff.clean_directory()
+        recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
+        subprocess.call(["touch", "-d", "20140107", recent_file_path])
+        expected = dict()
+        # Act
+        actual = brain.list_recent([recent_file_path], days=1)
+        # Assert
+        self.assertEqual(expected, actual)
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
