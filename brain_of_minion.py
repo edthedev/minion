@@ -210,9 +210,7 @@ def sort_files_interactive(match_files):
 
     if len(to_open) > 0:
         print "Files to open: %s" % '\n'.join(to_open)
-        for item in to_open:
-            open_file(item, multiple=True)
-
+        open_files(to_open)
 
 def get_unique_dates(content):
     '''Return all the unique dates in the content'''
@@ -569,7 +567,7 @@ def get_viewer(filename):
     return get_editor(filename, view=True)
 
 
-def get_editor(filename, multiple=False, graphical=False, view=False):
+def get_editor(filename, graphical=False, view=False):
     apps = EDITORS
     if view:
         apps = NON_TEXT_VIEWERS
@@ -599,14 +597,48 @@ def file_to_stdout(filename):
     print '\n'
 
 
-def open_file(filename, line=0, multiple=False, graphical=False):
-    print "Opening %s" % filename
-    program = get_editor(filename, multiple, graphical)
-    if program == 'vim':
-        subprocess.call([program, filename, "+%d" % (line + 2)])
-    else:
-        subprocess.call([program, filename])
+def open_with_editor(editor, file_list, line=0):
+    ''' Use the selected editor to open the selected files.
 
+    Where possible, jump to the specified line/position in each file.
+    '''
+
+    files = ' '.join(file_list)
+
+    if editor == 'vim':
+        subprocess.call([editor, files, "+%d" % (line + 2)])
+    else:
+        subprocess.call([editor, files])
+
+def open_file(filename, line=0, graphical=False):
+    ''' Select an appropriate editor and open the file. '''
+    if not program:
+        program = get_editor(filename, graphical)
+
+    open_with_editor(program, [filename], line)
+
+def open_files(filenames, max=10):
+    ''' Open all the files in the list.
+
+    But stop at the given max, or 10 if not specified.
+
+    '''
+
+    if len(filenames) > max:
+        filenames = filenames[:max]
+
+    # Choose editors
+    editors = {}
+    for filename in filenames:
+        editor = get_editor(filename)
+        if not editor in editors:
+            editors[editor] = []
+        editors[editor].append(filename)
+
+    # Open files with editors
+    for editor in editors:
+        # Open each file list with the chosen editor.
+        open_with_editor(editor, editors[editor])
 
 def preview_file(filename):
     viewer = get_viewer(filename)
