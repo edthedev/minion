@@ -212,6 +212,7 @@ def sort_files_interactive(match_files):
         print "Files to open: %s" % '\n'.join(to_open)
         open_files(to_open)
 
+
 def get_unique_dates(content):
     '''Return all the unique dates in the content'''
 
@@ -603,19 +604,17 @@ def open_with_editor(editor, file_list, line=0):
     Where possible, jump to the specified line/position in each file.
     '''
 
-    files = ' '.join(file_list)
     cmd_args = [editor]
     cmd_args.extend(file_list)
 
-    #if editor == 'vim':
-    #    cmd_args.extend("+%d" % (line + 2))
-
     subprocess.call(cmd_args)
+
 
 def open_file(filename, line=0, graphical=False):
     ''' Select an appropriate editor and open the file. '''
     program = get_editor(filename, graphical)
     open_with_editor(program, [filename], line)
+
 
 def open_files(filenames, max=10):
     ''' Open all the files in the list.
@@ -631,7 +630,7 @@ def open_files(filenames, max=10):
     editors = {}
     for filename in filenames:
         editor = get_editor(filename)
-        if not editor in editors:
+        if editor not in editors:
             editors[editor] = []
         editors[editor].append(filename)
 
@@ -639,6 +638,7 @@ def open_files(filenames, max=10):
     for editor in editors:
         # Open each file list with the chosen editor.
         open_with_editor(editor, editors[editor])
+
 
 def preview_file(filename):
     viewer = get_viewer(filename)
@@ -884,7 +884,6 @@ def apply_command_to_file(filename, command):
         new_name = string_to_file_name(new_name)
         new_file = "%s/%s" % (get_inbox(), new_name)
         new_file = rename_file(filename, new_file)
-        # shutil.move(filename, new_file)
         doInboxInteractive(new_file)
         return new_file
 
@@ -1097,8 +1096,10 @@ def remove_empty_folder(folder):
 
 
 def get_sort_menu():
-    display_options = \
-        "Actions:\nr=rename #=review v=view tag a=archive d=done"
+    display_options = "Actions:\n" +\
+        "  r=rename #=review v=view a=archive d=done o=open at the end\n" +\
+        "  w=wiki wc=wiki/cites wp=wiki/personal ><folder>=move to folder\n" +\
+        "  @<tag>=add tag -@<tag>=remove tag @<month>=move to calendar folder"
     return display_options
 
 
@@ -1130,12 +1131,8 @@ def get_filename_for_topic(topic, notes_dir=None, filename_template='{topic}'):
     return full_filename
 
 
-def get_template_content(template=None):
+def get_template_content(template):
     ''' Get the template text. '''
-    # Get the template name if not passed in
-    if template is None:
-        template = get_setting('notes', 'default_template')
-
     # Get template file
     data = {
         'type': template,
@@ -1153,7 +1150,7 @@ def get_template_content(template=None):
     return template_text
 
 
-def write_template_to_file(topic, filename, template='note'):
+def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
 
     underline = '=' * len(topic)
@@ -1163,7 +1160,7 @@ def write_template_to_file(topic, filename, template='note'):
             'topic_underline': underline,
             'underline': underline}
     data.update(GLOBAL_DATA)
-    template_text = get_template_content(template)
+    template_text = get_template_content(note_template)
 
     file_text = template_text.format(**data)
 
@@ -1176,7 +1173,7 @@ def write_template_to_file(topic, filename, template='note'):
     return last_line
 
 
-def new_note_interactive(topic_fragments, note_template=None, quick=False,
+def new_note_interactive(topic_fragments, note_template, quick=False,
                          notes_dir=None):
     ''' Create a new note with the filename constructed based on
         the first line in the note template.
@@ -1201,6 +1198,8 @@ def new_note_interactive(topic_fragments, note_template=None, quick=False,
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
     ''' Create a new note, non-interactive.'''
+    if note_template is None:
+        note_template = get_setting('notes', 'default_template')
     filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
     if not os.path.exists(filename):
@@ -1213,7 +1212,6 @@ def create_new_note(topic, note_template=None, notes_dir=None,
 def to_bar(number, total=10):
     '''Convert a number into a ASCII art progress bar.'''
     pct_complete = number * 1.0 / total
-    print pct_complete
     result = '%s/%s [' % (number, total)
 
     FULL = '#'
