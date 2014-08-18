@@ -604,11 +604,13 @@ def open_with_editor(editor, file_list, line=0):
     '''
 
     files = ' '.join(file_list)
+    cmd_args = [editor]
+    cmd_args.extend(file_list)
 
     if editor == 'vim':
-        subprocess.call([editor, files, "+%d" % (line + 2)])
-    else:
-        subprocess.call([editor, files])
+        cmd_args.extend("+%d" % (line + 2))
+
+    subprocess.call(cmd_args)
 
 def open_file(filename, line=0, graphical=False):
     ''' Select an appropriate editor and open the file. '''
