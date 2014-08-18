@@ -254,9 +254,11 @@ def minion_open(args):
     else:
         brain.display_output(title=filter, output=match_files)
 
+
 def minion_openall(args):
     match_files = get_match_files()
     brain.open_files(match_files, max=args['--max'])
+
 
 def minion_strays(args):
     ''' Run an interactive sort on the contents of any folders that

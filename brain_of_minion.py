@@ -212,6 +212,7 @@ def sort_files_interactive(match_files):
         print "Files to open: %s" % '\n'.join(to_open)
         open_files(to_open)
 
+
 def get_unique_dates(content):
     '''Return all the unique dates in the content'''
 
@@ -603,19 +604,17 @@ def open_with_editor(editor, file_list, line=0):
     Where possible, jump to the specified line/position in each file.
     '''
 
-    files = ' '.join(file_list)
     cmd_args = [editor]
     cmd_args.extend(file_list)
 
-    #if editor == 'vim':
-    #    cmd_args.extend("+%d" % (line + 2))
-
     subprocess.call(cmd_args)
+
 
 def open_file(filename, line=0, graphical=False):
     ''' Select an appropriate editor and open the file. '''
     program = get_editor(filename, graphical)
     open_with_editor(program, [filename], line)
+
 
 def open_files(filenames, max=10):
     ''' Open all the files in the list.
@@ -631,7 +630,7 @@ def open_files(filenames, max=10):
     editors = {}
     for filename in filenames:
         editor = get_editor(filename)
-        if not editor in editors:
+        if editor not in editors:
             editors[editor] = []
         editors[editor].append(filename)
 
@@ -639,6 +638,7 @@ def open_files(filenames, max=10):
     for editor in editors:
         # Open each file list with the chosen editor.
         open_with_editor(editor, editors[editor])
+
 
 def preview_file(filename):
     viewer = get_viewer(filename)
