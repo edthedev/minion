@@ -52,6 +52,7 @@ Command descriptions:
     log - add a line with the current date and time to a file.
     note - create a new note and then open it - <text> becomes filename
     open - open an existing note
+    openall - open all matches found
     recent - list recent notes with given keywords
     remind - create a new file where <text> becomes filename
     sample - find up to 5 random results that match <text>
