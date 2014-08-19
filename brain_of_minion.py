@@ -618,11 +618,8 @@ def open_file(filename, line=0, graphical=False):
 
 def open_files(filenames, max=10):
     ''' Open all the files in the list.
-
-    But stop at the given max, or 10 if not specified.
-
+        But stop at the given max, or 10 if not specified.
     '''
-
     if len(filenames) > max:
         filenames = filenames[:max]
 
@@ -714,6 +711,7 @@ def expand_short_command(command):
         'r': '!rename',
         '#': '!review',
         'v': '!view',
+        '!': '!quit'
     }
     if command in commands:
         return commands[command]
@@ -874,7 +872,6 @@ def archive(filename):
 def apply_command_to_file(filename, command):
     ''' The core of the interactive file sorting system. '''
     command = expand_short_command(command)
-    # Rename:
     if '!review' in command:
         doInboxInteractive(filename)
     if '!rename' in command:
@@ -912,6 +909,11 @@ def apply_command_to_file(filename, command):
     if '!view' in command:
         preview_file(filename)
         doInboxInteractive(filename)
+
+    if '!quit' in command:
+        print "Exiting sort ...\n"
+        import sys
+        sys.exit()
 
     return filename
 
@@ -1039,10 +1041,8 @@ def string_to_file_name(topic, template='{topic}'):
 def get_unique_name(filename):
     final_name = filename
     while os.path.exists(final_name):
-        print final_name
         directory = os.path.dirname(final_name)
         short_name = os.path.basename(final_name)
-        print short_name
         import uuid
         uid = str(uuid.uuid1())
         if '.' in short_name:
@@ -1099,7 +1099,8 @@ def get_sort_menu():
     display_options = "Actions:\n" +\
         "  r=rename #=review v=view a=archive d=done o=open at the end\n" +\
         "  w=wiki wc=wiki/cites wp=wiki/personal ><folder>=move to folder\n" +\
-        "  @<tag>=add tag -@<tag>=remove tag @<month>=move to calendar folder"
+        "  @<tag>=add tag -@<tag>=remove tag @<month>=move to 'calendar'\n" +\
+        "  !=quit                              any other key = next file"
     return display_options
 
 
