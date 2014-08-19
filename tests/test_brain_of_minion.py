@@ -189,20 +189,22 @@ class TestFileStuff(unittest.TestCase):
         expected[datetime.today().date()] = [recent_file_path]
         # Act
         actual = brain.list_recent([recent_file_path], days=1)
-        import pdb; pdb.set_trace()
         # Assert
         self.assertEqual(expected, actual)
 
     def test_list_recent_with_old_file(self):
         # Arrange
         TestFileStuff.clean_directory()
-        recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
-        subprocess.call(["touch", "-d", "20140107", recent_file_path])
-        expected = dict()
-        # Act
-        actual = brain.list_recent([recent_file_path], days=1)
-        # Assert
-        self.assertEqual(expected, actual)
+        if not sys.platform == 'darwin':
+            recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
+            old_date = 2014040107
+            os.utime(recent_file_path, (old_date, old_date))
+            expected = dict()
+
+            # Act
+            actual = brain.list_recent([recent_file_path], days=1)
+            # Assert
+            self.assertEqual(expected, actual)
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
