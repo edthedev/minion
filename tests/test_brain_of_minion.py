@@ -132,10 +132,6 @@ class TestFileStuff(unittest.TestCase):
         # Assert
         self.assertEqual(expected_filename, actual_filename)
 
-    def test_get_filename_for_title(self):
-        # TODO
-        pass
-
     def test_create_new_note(self):
         TestFileStuff.clean_directory()
 
