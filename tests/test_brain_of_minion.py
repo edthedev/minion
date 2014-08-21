@@ -294,6 +294,19 @@ class TestGetSetting(unittest.TestCase):
         # Default date format
         self.assertNotEqual(None, settings.get('date', 'format'))
 
+    def test_get_sort_actions_settings(self):
+        ''' Retrieve all the options in the 'sort_actions' section'''
+        # Arrange
+        brain.GLOBAL_SETTINGS.set('sort_actions', 't', '>trash')
+        brain.GLOBAL_SETTINGS.set('sort_actions', 'w', '>wiki')
+        expected_actions = [('t', '>trash'), ('w', '>wiki')]
+
+        # Act
+        actual_actions = brain.parse_sort_actions_settings()
+
+        # Assert
+        self.assertEqual(expected_actions, actual_actions)
+
 
 @patch('__builtin__.open', new_callable=mock_open)
 @patch('brain_of_minion.get_setting', new=mock_get_setting)

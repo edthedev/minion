@@ -94,6 +94,8 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     # Default date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
+    # Sort actions
+    settings.add_section('sort_actions')
 
     return settings
 
@@ -127,32 +129,15 @@ def get_settings():
 GLOBAL_SETTINGS = get_settings()
 
 
-def get_last_modified(directory=None, archives=False):
-    ''' Return the name of the file (from within the Minion folders)
-    last modified, by file system date and time. '''
-
-    if directory is None:
-        directory = get_notes_home()
-
-    files = get_files(directory, archives)
-
-    most_recent = None
-    result = None
-
-    for filename in files:
-        modified = os.path.getmtime(filename)
-        if most_recent < modified:
-            most_recent = modified
-            result = filename
-
-    return result
-
-
 def get_setting(section, key):
     return GLOBAL_SETTINGS.get(section, key)
 
 
 EDITORS['default'] = get_setting('compose', 'editor')
+
+
+def parse_sort_actions_settings():
+    return GLOBAL_SETTINGS.items('sort_actions')
 
 
 def get_date_format():
@@ -203,13 +188,14 @@ def sort_files_interactive(match_files):
     for item in match_files:
         count += 1
         # Show progress...
+        print
         print to_bar(count, total)
         # The main call...
         files_to_open = doInboxInteractive(item)
         to_open.extend(files_to_open)
 
     if len(to_open) > 0:
-        print "Files to open: %s" % '\n'.join(to_open)
+        print "Files to open:\n  %s" % '\n  '.join(to_open)
         open_files(to_open)
 
 
@@ -702,17 +688,17 @@ def limit_notes_interactive(notes):
 
 
 def expand_short_command(command):
+    # Hardwired sort actions
     commands = {
-        'a': '>wiki/archive',
-        'w': '>wiki',
-        'wc': '>wiki/cites',
-        'wp': '>wiki/personal',
-        'd': '>archive',
         'r': '!rename',
         '#': '!review',
         'v': '!view',
-        '!': '!quit'
+        '!': '!quit',
+        'a': '!archive'
     }
+    # Add configurable sort actions
+    commands.update(parse_sort_actions_settings())
+
     if command in commands:
         return commands[command]
     return command
@@ -874,6 +860,8 @@ def apply_command_to_file(filename, command):
     command = expand_short_command(command)
     if '!review' in command:
         doInboxInteractive(filename)
+    if '!archive' in command:
+        archive(filename)
     if '!rename' in command:
         new_name = command.replace('!rename', '')
         if len(new_name) == 0:
@@ -1096,12 +1084,19 @@ def remove_empty_folder(folder):
 
 
 def get_sort_menu():
-    display_options = "Actions:\n" +\
-        "  r=rename #=review v=view a=archive d=done o=open at the end\n" +\
-        "  w=wiki wc=wiki/cites wp=wiki/personal ><folder>=move to folder\n" +\
-        "  @<tag>=add tag -@<tag>=remove tag @<month>=move to 'calendar'\n" +\
-        "  !=quit                              any other key = next file"
-    return display_options
+    fixed_actions = "Available actions:\n" +\
+        "  !=quit a=archive r=rename #=review v=view o=open at the end\n" +\
+        "  @{tag}=add {tag} -@{tag}=remove {tag} >{folder}=move to {folder}\n" +\
+        "  :{3-letter month}=>calendar (e.g. :Jan) <Enter>=next file\n"
+    sort_actions_settings = parse_sort_actions_settings()
+    # build the sort menu; insert new_line if line is too long
+    configurable_actions = " "
+    for (item, value) in sort_actions_settings:
+        new_item = " " + item + '=' + value
+        if len(configurable_actions + new_item) > 76:
+            configurable_actions += "\n "
+        configurable_actions += new_item
+    return fixed_actions + configurable_actions
 
 
 def find_file(filename):
@@ -1309,3 +1304,24 @@ def list_recent(match_files, days):
             else:
                 recent_files[mod_date] = [filename]
     return recent_files
+
+
+def get_last_modified(directory=None, archives=False):
+    ''' Return the name of the file (from within the Minion folders)
+    last modified, by file system date and time. '''
+
+    if directory is None:
+        directory = get_notes_home()
+
+    files = get_files(directory, archives)
+
+    most_recent = None
+    result = None
+
+    for filename in files:
+        modified = os.path.getmtime(filename)
+        if most_recent < modified:
+            most_recent = modified
+            result = filename
+
+    return result
