@@ -15,7 +15,6 @@ from tests.mock_data import *
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
 
-
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
 class TestFileStuff(unittest.TestCase):
@@ -298,7 +297,6 @@ class TestParsers(unittest.TestCase):
         result = brain.get_content_tags(TEST_FILE_CONTENT_WITH_TAGS)
         self.assertEqual(TEST_TAGS_OUT, result)
 
-
 class TestGetSetting(unittest.TestCase):
 
     def test_get_setting(self):
@@ -314,7 +312,6 @@ class TestGetSetting(unittest.TestCase):
         self.assertNotEqual(None, settings.get('compose', 'tagline'))
         # Default date format
         self.assertNotEqual(None, settings.get('date', 'format'))
-
 
 @patch('__builtin__.open', new_callable=mock_open)
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
@@ -332,7 +329,11 @@ class TestRemind(unittest.TestCase):
             TEST_DATA_DIRECTORY + '/inbox/Remind-me-of-this-thing.txt')
 
         # Assert
+        # Remind should have been called.
         open_mock.assert_has_calls([call(test_filename, 'a')])
+        # One file should exist.
+        match_files = brain.get_files()
+        self.assertEqual(len(match_files), 1)
 
 class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
