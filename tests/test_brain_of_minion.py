@@ -4,7 +4,6 @@ import sys
 import unittest
 from datetime import date
 from mock import MagicMock, mock_open, patch, call
-import subprocess
 
 # Our stuff
 # Ensure we can load the brain library.
@@ -110,6 +109,19 @@ class TestFileStuff(unittest.TestCase):
         # This time we should not find it.
         match_files = brain.get_keyword_files(**args)
         self.assertEqual(len(match_files), 0, 'get_keyword_files find 0')
+
+    def test_log_a_string(self):
+        ''' Give the Minion log method a try. '''
+        TestFileStuff.clean_directory()
+
+        # Can we find the log file.
+        args = {
+            'keyword_string': LOG_NAME,
+            'archives': False,
+            'full_text': False,
+        }
+        match_files = brain.get_keyword_files(**args)
+        self.assertEqual(len(match_files), 1, msg='find log file' + LOG_NAME)
 
     def test_string_to_file_name_with_default_filename_template(self):
         # Arrange
@@ -218,8 +230,18 @@ class TestFetchMethods(unittest.TestCase):
 
     '''
     def test_strays(self):
-        brain.list_stray_files()
+        ''' Run the strays method. '''
 
+        # Arrange
+        TestFileStuff.clean_directory()
+        # Since we didn't tag it, it is considered 'stray'
+        _, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
+
+        # Act
+        results = brain.list_stray_files()
+
+        # Assert
+        self.assertEqual(len(results), 1)
 
 class TestParsers(unittest.TestCase):
     ''' Test methods that parse through file contents looking for things.'''
@@ -300,12 +322,17 @@ class TestGetSetting(unittest.TestCase):
 class TestRemind(unittest.TestCase):
     def test_remind(self, mkdir_mock, open_mock):
         ''' Test setting a reminder. '''
+        # Arrange
+        TestFileStuff.clean_directory()
+
+        # Act
         brain.remind("Remind me of this thing")
         test_filename = os.path.join(
             os.path.expanduser('~'),
             TEST_DATA_DIRECTORY + '/inbox/Remind-me-of-this-thing.txt')
-        open_mock.assert_has_calls([call(test_filename, 'a')])
 
+        # Assert
+        open_mock.assert_has_calls([call(test_filename, 'a')])
 
 class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
