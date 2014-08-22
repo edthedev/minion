@@ -356,8 +356,11 @@ def minion_dates(args):
             recent[date_str] = events[key]
 
     brain.display_output('Recent Dates', recent)
+    print
     brain.display_output('Today', today)
+    print
     brain.display_output('Upcoming Dates', upcoming)
+    print
 
 
 def minion_recent(args):

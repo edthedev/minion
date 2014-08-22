@@ -445,7 +445,7 @@ def display_output(title, output, by_tag=False,
                    raw_files=False, max_display=None):
     # If empty list or empty string, etc:
     if not output:
-        print "\nNo %s items.\n" % title
+        print "No %s items.\n" % title
         return
 
     # Print dictionaries as key - value
