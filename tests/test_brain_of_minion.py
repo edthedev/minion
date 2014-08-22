@@ -297,6 +297,9 @@ class TestGetSetting(unittest.TestCase):
     def test_get_sort_actions_settings(self):
         ''' Retrieve all the options in the 'sort_actions' section'''
         # Arrange
+        # Clean and fill 'sort_actions' section for test purposes
+        brain.GLOBAL_SETTINGS.remove_section('sort_actions')
+        brain.GLOBAL_SETTINGS.add_section('sort_actions')
         brain.GLOBAL_SETTINGS.set('sort_actions', 't', '>trash')
         brain.GLOBAL_SETTINGS.set('sort_actions', 'w', '>wiki')
         expected_actions = [('t', '>trash'), ('w', '>wiki')]

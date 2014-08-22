@@ -181,7 +181,7 @@ def list_stray_files(count=2):
 
 def sort_files_interactive(match_files):
     ''' Interactively sort the list of files. '''
-    print get_sort_menu()
+    print "Enter '?' to see available actions."
     total = len(match_files)
     count = 0
     to_open = []
@@ -442,8 +442,6 @@ def format_output_dict(output, separator, raw_files):
 
 def display_output(title, output, by_tag=False,
                    raw_files=False, max_display=None):
-    separator = '\n'
-
     # If empty list or empty string, etc:
     if not output:
         print "\nNo %s items.\n" % title
@@ -451,16 +449,21 @@ def display_output(title, output, by_tag=False,
 
     # Print dictionaries as key - value
     if type(output) is dict:
-        output = format_output_dict(output, separator, raw_files)
-
+        output = format_output_dict(output, '\n', raw_files)
     # Print lists with one item per line
-    if type(output) is list:
-        output = format_output_list(output, by_tag, max_display,
-                                    separator, raw_files)
+    elif type(output) is list:
+        output = format_output_list(output, by_tag, max_display, '\n',
+                                    raw_files)
+    else:
+        if not raw_files:
+            output = clean_output(output)
+        if max_display:
+            remain = len(output) - max_display
+            output = output[:max_display]
+            output.append("{} more results...".format(remain))
 
     if title:
-        print "\n---- %s: " % title
-        print "-------------------------"
+        print "---- %s: " % title
 
     print output
 
@@ -668,7 +671,7 @@ def get_folder(folder):
     '''
     # Convert 'archive' to 'archive.2012.08'
     if folder == 'archive':
-        year_month = date.today().strftime("%y.%m")
+        year_month = date.today().strftime("%Y.%m")
         folder = "archive.%s" % (year_month)
 
     notes_home = get_notes_home()
@@ -694,7 +697,8 @@ def expand_short_command(command):
         '#': '!review',
         'v': '!view',
         '!': '!quit',
-        'a': '!archive'
+        'a': '!archive',
+        '?': '!help'
     }
     # Add configurable sort actions
     commands.update(parse_sort_actions_settings())
@@ -853,11 +857,15 @@ def archive(filename):
     # get_folder does some cleverness with the 'archive' name.
     folder = get_folder('archive')
     filename = move_to_folder(filename, folder)
+    print "Moved to %s" % folder
 
 
 def apply_command_to_file(filename, command):
     ''' The core of the interactive file sorting system. '''
     command = expand_short_command(command)
+    if '!help' in command:
+        print get_sort_menu()
+        doInboxInteractive(filename)
     if '!review' in command:
         doInboxInteractive(filename)
     if '!archive' in command:
@@ -883,6 +891,7 @@ def apply_command_to_file(filename, command):
     # If there's a calendar tag...move to the calendar folder.
     if hasCalendarTag(command):
         filename = move_to_folder(filename, 'calendar')
+        print "Moved to calendar" % filename
     else:
         # Move elsewhere if requested.
         folder_re = re.compile('>\S*')
@@ -1060,12 +1069,10 @@ def move_to_folder(filename, folder):
         origin = os.path.dirname(filename)
         destination = get_folder(folder)
         short_name = os.path.basename(filename)
-        print "Moving to " + destination
         final_name = os.path.join(destination, short_name)
         final_name = get_unique_name(final_name)
         shutil.move(filename, final_name)
         remove_empty_folder(origin)
-        print "Moved %s to %s" % (filename, final_name)
         return final_name
     except Exception as ex:
         raise ex
@@ -1087,7 +1094,7 @@ def get_sort_menu():
     fixed_actions = "Available actions:\n" +\
         "  !=quit a=archive r=rename #=review v=view o=open at the end\n" +\
         "  @{tag}=add {tag} -@{tag}=remove {tag} >{folder}=move to {folder}\n" +\
-        "  :{3-letter month}=>calendar (e.g. :Jan) <Enter>=next file\n"
+        "  :{3-letter month}=>calendar (e.g. :Jan) <Enter>=next file ?=help\n"
     sort_actions_settings = parse_sort_actions_settings()
     # build the sort menu; insert new_line if line is too long
     configurable_actions = " "
