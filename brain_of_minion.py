@@ -335,11 +335,10 @@ def select_file(match_files, max_files=10):
         return (choice_path, '')
 
     while len(match_files) > 1:
-        print "Notes:\n"
         if len(match_files) > max_files:
             print "%d matches." % len(match_files)
         else:
-            print "\n".join(match_files)
+            display_output('Notes:', match_files, max_display=20)
         choice = raw_input('Selection? ')
         if '!' in choice:
             break
@@ -404,7 +403,8 @@ def format_output_list(output, by_tag, max_display, separator, raw_files):
     if max_display:
         remain = len(output) - max_display
         output = output[:max_display]
-        output.append("{} more results...".format(remain))
+        if remain > 0:
+            output.append("{} more results...".format(remain))
 
     if by_tag:
         all_tags = sort_by_tag(output)
@@ -461,7 +461,8 @@ def display_output(title, output, by_tag=False,
         if max_display:
             remain = len(output) - max_display
             output = output[:max_display]
-            output.append("{} more results...".format(remain))
+            if remain > 0:
+                output.append("{} more results...".format(remain))
 
     if title:
         print "---- %s: " % title
@@ -1009,6 +1010,22 @@ def has_any_tag(filename, tags):
     return False
 
 
+def construct_note_title(topic, template):
+    # retrieve the extension
+    ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
+
+    # merge GLOBAL_DATA into data
+    data = {'topic': topic,
+            'ext': ext}
+    data.update(GLOBAL_DATA)
+
+    # merge data with the note title template
+    filename = template.format(**data)
+
+    return filename
+
+
 def string_to_file_name(topic, template='{topic}'):
     ''' Generates filename based on the topic and filename template.
         Extension is always appended.
@@ -1017,20 +1034,13 @@ def string_to_file_name(topic, template='{topic}'):
     name_sep = get_setting('compose', 'filename_sep')
     new_topic = topic.replace(' ', name_sep).replace('/', name_sep)
 
-    # retrieve the extension
-    ext = get_setting('compose', 'extension')
-    ext = ext.lstrip('.')
-
-    # merge GLOBAL_DATA into data
-    data = {'topic': new_topic,
-            'ext': ext}
-    data.update(GLOBAL_DATA)
-
-    # merge data with the template
-    filename = template.format(**data)
+    # the note filename will be the note title
+    filename = construct_note_title(new_topic, template)
 
     # append extension if not already there
-    if not filename.endswith(data['ext']):
+    ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
+    if not filename.endswith(ext):
         filename = '.'.join([filename.rstrip('.'), ext])
 
     return filename
@@ -1157,21 +1167,30 @@ def get_template_content(template):
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
 
-    underline = '=' * len(topic)
+    template_text = get_template_content(note_template)
 
+    # We need to construct the note title to be able to construct the
+    # right length underline string
+    note_title_template = template_text.split('\n')[0]
+    note_title = construct_note_title(topic, note_title_template)
+    underline = '=' * len(note_title)
+
+    # create the data structure to be used for template string substitution
     data = {'topic': topic,
             'filename': filename,
             'topic_underline': underline,
             'underline': underline}
     data.update(GLOBAL_DATA)
-    template_text = get_template_content(note_template)
 
+    # do the string substitution
     file_text = template_text.format(**data)
 
+    # write the merged string as the new note
     f = open(filename, 'a')
     f.write(file_text)
     f.close()
 
+    # calculate the last line of the note to position the cursor later
     last_line = len(file_text.split('\n')) + 1
 
     return last_line
@@ -1202,8 +1221,6 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
     ''' Create a new note, non-interactive.'''
-    if note_template is None:
-        note_template = get_setting('notes', 'default_template')
     filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
     if not os.path.exists(filename):
