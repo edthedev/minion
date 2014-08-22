@@ -83,6 +83,7 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('notes', 'notes_excluded_extensions', '~')
     settings.set('notes', 'default_template', 'note')
     settings.set('notes', 'default_recent_days', '14')
+    settings.set('notes', 'archive_folders_date_format', '%%y.%%m')
     # Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -91,7 +92,7 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('compose', 'filename_sep', '-')
     settings.set('compose', 'editor', 'vim')
     settings.set('compose', 'tagline', ':tags:')
-    # Default date format
+    # Default note date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
     # Sort actions
@@ -667,11 +668,11 @@ def get_inbox_files():
 
 
 def get_folder(folder):
-    '''Return a full path, relative to the notes home.
-    '''
+    '''Return a full path, relative to the notes home.  '''
     # Convert 'archive' to 'archive.2012.08'
     if folder == 'archive':
-        year_month = date.today().strftime("%Y.%m")
+        date_format = get_setting('notes', 'archive_folders_date_format')
+        year_month = date.today().strftime(date_format)
         folder = "archive.%s" % (year_month)
 
     notes_home = get_notes_home()
