@@ -942,7 +942,6 @@ def hasCalendarTag(text):
             return True
     return False
 
-
 def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
     included_exts_string =\

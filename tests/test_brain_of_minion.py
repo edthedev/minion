@@ -132,14 +132,26 @@ class TestFileStuff(unittest.TestCase):
         ''' Give the Minion log method a try. '''
         # Arrange
         TestFileStuff.clean_directory()
+        inbox_content = os.listdir( brain.get_inbox() ),
         self.assertEqual(
-             os.listdir( brain.get_inbox() ), 
-             0,
-             'start with clean inbox')
+             inbox_content,
+             ([], ),
+             'inbox did not start clean: ' + str(inbox_content))
 
         # Act
+        params = {
+            'filter': TEST_LOG_FILTER,
+            'archives': False,
+        }
+        filename, match_files = brain.choose_file(**params)
+
         # Log a thing...
-        brain.Log(
+        params = {
+            'filename': filename,
+            'line': TEST_LOG_LINE,
+        }
+        brain.log_line_to_file(**params)
+
 
         # Assert
         # Can we find the log file.

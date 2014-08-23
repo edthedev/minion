@@ -2,10 +2,13 @@
 from datetime import datetime
 import brain_of_minion as brain
 
-LOG_NAME = 'testing_log'
 
 TEST_DATA_DIRECTORY = '/tmp/test_minion'
 TEST_DATA_INBOX = '/tmp/test_minion/inbox'
+
+LOG_NAME = 'testing_log'
+TEST_LOG_FILTER = ['testing_log']
+TEST_LOG_LINE = 'This is a line to add to a log file.'
 
 
 def mock_get_setting(section, key):
