@@ -15,6 +15,7 @@ from tests.mock_data import *
 my_mock_open = mock_open()
 my_mock_os = MagicMock()
 
+
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
 class TestFileStuff(unittest.TestCase):
@@ -25,7 +26,10 @@ class TestFileStuff(unittest.TestCase):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY + '/*')
 
     def setUp(self):
-        os.mkdir(TEST_DATA_DIRECTORY)
+        try: 
+            os.mkdir(TEST_DATA_DIRECTORY)
+        except OSError:
+            pass
 
     def test_archive_note(self):
         ''' archive a note.'''
@@ -315,9 +319,17 @@ class TestGetSetting(unittest.TestCase):
 
 @patch('__builtin__.open', new_callable=mock_open)
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
-@patch('os.mkdir')
+# @patch('os.mkdir')
 class TestRemind(unittest.TestCase):
-    def test_remind(self, mkdir_mock, open_mock):
+    ''' Doing a bit of fancy mock stuff for remind. '''
+
+    def setUp(self):
+        try: 
+            os.mkdir(TEST_DATA_DIRECTORY)
+        except OSError:
+            pass
+
+    def test_remind(self, open_mock):
         ''' Test setting a reminder. '''
         # Arrange
         TestFileStuff.clean_directory()
@@ -331,9 +343,11 @@ class TestRemind(unittest.TestCase):
         # Assert
         # Remind should have been called.
         open_mock.assert_has_calls([call(test_filename, 'a')])
-        # One file should exist.
-        match_files = brain.get_files()
-        self.assertEqual(len(match_files), 1)
+
+        # No files exist, 
+        # because we mocked over the bit that would have written the file
+        match_files = brain.get_inbox_files()
+        self.assertEqual(len(match_files), 0)
 
 class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
