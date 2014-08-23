@@ -130,16 +130,26 @@ class TestFileStuff(unittest.TestCase):
 
     def test_log_a_string(self):
         ''' Give the Minion log method a try. '''
+        # Arrange
         TestFileStuff.clean_directory()
+        self.assertEqual(
+             os.listdir( brain.get_inbox() ), 
+             0,
+             'start with clean inbox')
 
+        # Act
+        # Log a thing...
+        brain.Log(
+
+        # Assert
         # Can we find the log file.
-        args = {
+        params = {
             'keyword_string': LOG_NAME,
             'archives': False,
             'full_text': False,
         }
-        match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1, msg='find log file' + LOG_NAME)
+        match_files = brain.get_keyword_files(**params)
+        self.assertEqual(len(match_files), 1, msg='find log file: ' + LOG_NAME)
 
     def test_string_to_file_name_with_default_filename_template(self):
         # Arrange
