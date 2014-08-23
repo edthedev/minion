@@ -31,6 +31,21 @@ class TestFileStuff(unittest.TestCase):
         except OSError:
             pass
 
+    def test_strays(self):
+        ''' Run the strays method. '''
+
+        # Arrange
+        TestFileStuff.clean_directory()
+        # Since we didn't tag it, it is considered 'stray'
+        _, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
+
+        # Act
+        results = brain.list_stray_files()
+
+        # Assert
+        self.assertEqual(len(results), 1)
+
+
     def test_archive_note(self):
         ''' archive a note.'''
         # Make a note
@@ -223,28 +238,6 @@ class TestFileStuff(unittest.TestCase):
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
-
-
-class TestFetchMethods(unittest.TestCase):
-    ''' Run some basic search methods.
-
-    This is just a kick the tires kind of test set.
-    We won't assert much - just make sure we run things to avoid typos.
-
-    '''
-    def test_strays(self):
-        ''' Run the strays method. '''
-
-        # Arrange
-        TestFileStuff.clean_directory()
-        # Since we didn't tag it, it is considered 'stray'
-        _, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
-
-        # Act
-        results = brain.list_stray_files()
-
-        # Assert
-        self.assertEqual(len(results), 1)
 
 class TestParsers(unittest.TestCase):
     ''' Test methods that parse through file contents looking for things.'''
