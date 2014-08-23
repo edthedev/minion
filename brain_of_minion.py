@@ -338,7 +338,7 @@ def select_file(match_files, max_files=10):
         if len(match_files) > max_files:
             print "%d matches." % len(match_files)
         else:
-            display_output('Notes:', match_files, max_display=20)
+            display_output('Notes (most recent first):', match_files, max_display=20)
         choice = raw_input('Selection? ')
         if '!' in choice:
             break
@@ -981,7 +981,7 @@ def get_files(directory, archives=False):
 
 
 def find_files(directory=None, archives=False, filter=[], full_text=False,
-               find_any=False):
+               find_any=False, days=None):
     ''' Find matching files... '''
     if directory is None:
         directory = get_notes_home()
@@ -998,7 +998,21 @@ def find_files(directory=None, archives=False, filter=[], full_text=False,
             if has_any_tag(f, filter):
                 files.append(f)
 
-    return files
+    # sort the files according to modification date, most recent first
+    file_tuples = []
+    for filename in files:
+        mod_datetime = datetime.fromtimestamp(os.path.getmtime(filename))
+        file_tuples.append((mod_datetime, filename))
+    sorted_tuples = sorted(file_tuples, reverse=True)
+
+    # return only files modified within last N days
+    if type(days) is int:
+        threshold_dt = datetime.today() - timedelta(days=days)
+        sorted_files = [x[1] for x in sorted_tuples if x[0] > threshold_dt]
+    else:
+        sorted_files = [x[1] for x in sorted_tuples]
+
+    return sorted_files
 
 
 def has_any_tag(filename, tags):
@@ -1314,20 +1328,20 @@ def print_favorites_summary():
     return output
 
 
-def list_recent(match_files, days):
+def list_recent(match_files):
     ''' Filter match_files. Return only those files that have modification dates
         newer than requested in 'days' parameter. The files are sorted based on
         the modification datetime.
     '''
-    threshold_date = (datetime.today() - timedelta(days=days)).date()
     recent_files = dict()
     for filename in match_files:
         mod_date = datetime.fromtimestamp(os.path.getmtime(filename)).date()
-        if mod_date > threshold_date:
-            if mod_date in recent_files:
-                recent_files[mod_date].append(filename)
-            else:
-                recent_files[mod_date] = [filename]
+        if mod_date in recent_files:
+            # intentionally inserting at the beginning of the array to match
+            #   the reversed chronological list when multiple files per day
+            recent_files[mod_date].insert(0, filename)
+        else:
+            recent_files[mod_date] = [filename]
     return recent_files
 
 

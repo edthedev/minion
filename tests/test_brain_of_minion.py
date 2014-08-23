@@ -192,7 +192,8 @@ class TestFileStuff(unittest.TestCase):
         expected = dict()
         expected[datetime.today().date()] = [recent_file_path]
         # Act
-        actual = brain.list_recent([recent_file_path], days=1)
+        match_files = brain.find_files(filter=[], days=1)
+        actual = brain.list_recent(match_files)
         # Assert
         self.assertEqual(expected, actual)
 
@@ -203,7 +204,8 @@ class TestFileStuff(unittest.TestCase):
         subprocess.call(["touch", "-d", "20140107", recent_file_path])
         expected = dict()
         # Act
-        actual = brain.list_recent([recent_file_path], days=1)
+        match_files = brain.find_files(filter=[], days=1)
+        actual = brain.list_recent(match_files)
         # Assert
         self.assertEqual(expected, actual)
 

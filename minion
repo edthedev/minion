@@ -107,10 +107,11 @@ CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
 # HELPER FUNCTIONS
 ###############################################################################
 
-def get_match_files():
+def get_match_files(days=None):
     match_files = brain.find_files(
         filter=args['<text>'],
-        archives=args['--archives'])
+        archives=args['--archives'],
+        days=days)
     return match_files
 
 
@@ -369,8 +370,9 @@ def minion_recent(args):
         days_back = int(args['--days'])
     except:
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
-    match_files = get_match_files()
-    recent_files = brain.list_recent(match_files, days=days_back)
+
+    match_files = get_match_files(days=days_back)
+    recent_files = brain.list_recent(match_files)
     print "Notes modified in last %s days (most recent last):" % days_back
     brain.display_output(
         title=args['<text>'],
@@ -468,8 +470,8 @@ if args['find'] or args['list']:
 
     # Display results / total
     notes_home = brain.get_notes_home()
-    match_template = "{matching} of {total} files match search \
-        {search} in directory {directory}"
+    match_template = "{matching} of {total} files match search " +\
+        "'{search}' in directory {directory}"
     print match_template.format(
         directory=notes_home,
         matching=len(match_files),
@@ -479,7 +481,7 @@ if args['find'] or args['list']:
     # Display results
     # print match_files
     brain.display_output(
-        title=filter,
+        title=None,
         output=match_files,
         raw_files=args['--files'],
     )
