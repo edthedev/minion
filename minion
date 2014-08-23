@@ -70,10 +70,10 @@ Command descriptions:
 # #babyTeddySays: m'0']..p p j\[ ''
 
 # Copyright 2011-2012 Edward Delaporte <edthedev@gmail.com>
-# Licensed under the University of Illinois / NCSA Open Source License
-# http://www.opensource.org/licenses/UoI-NCSA
+# Licensed under the GPLv2.
 # Created: 2011-04-28
 
+#  TODO: Can we merge the 'note' and 'open' commands, resulting in less duplication with new notes, and less need to call collect?
 
 ###############################################################################
 # IMPORTS
