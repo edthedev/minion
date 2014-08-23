@@ -991,13 +991,9 @@ def log_line_to_file(filename, line):
       'time': datetime.today().strftime("%H:%M"),
       'line': line,
     }
-    # TODO: select_file should probably create the file if it does not exist...
-    #  This would allow merging the 'note' and 'open' commands, resulting in
-    #  less duplication with new notes, and less need to call collect.
-    # TODO: Make this fetch from config file.
-    # TODO: Make match template fetch from config file too...
-    new_line_template = "\n{date} {time} : {line}"
-    new_line = new_line_template.format(**params)
+    # TODO: Make log_line_template fetch from config file.
+    log_line_template = "\n{date} {time} : {line}"
+    new_line = log_line_template.format(**params)
 
     print "Appending new line to %s" % filename
     f = open(filename, 'a')
