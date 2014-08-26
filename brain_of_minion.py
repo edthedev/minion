@@ -942,7 +942,6 @@ def hasCalendarTag(text):
             return True
     return False
 
-
 def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
     included_exts_string =\
@@ -980,6 +979,54 @@ def get_files(directory, archives=False):
 
     return files
 
+def log_line_to_file(filename, line):
+    ''' 
+    Add a log file line to the file. 
+
+    Log lines always start with the current day and time.
+    '''
+    params = {
+      'date': datetime.today().strftime(get_date_format()),
+      'time': datetime.today().strftime("%H:%M"),
+      'line': line,
+    }
+    # TODO: Make log_line_template fetch from config file.
+    log_line_template = "\n{date} {time} : {line}"
+    new_line = log_line_template.format(**params)
+
+    print "Appending new line to %s" % filename
+    f = open(filename, 'a')
+    f.write(new_line)
+    f.close()
+    print new_line
+    return
+
+def choose_file(filter=[], archives=False, full_text=False):
+    '''
+    Given the filter, suggest a single match file.
+
+    Also always return all other possible matches.
+
+    When there are too many matches, the first return is None.
+
+    When there are no matches at all, 
+    the first return is a suggestion for a new file.
+
+    The second return is always the list of possible matches.
+
+    '''
+    match_files = find_files(filter=filter, archives=archives, full_text=full_text)
+
+    # Filter word must always match a single file.
+    if len(match_files) > 1:
+        return None, match_files
+    elif len(match_files) == 1:
+        filename = match_files[0]
+        return filename, [filename]
+    else:
+        print "No matches, suggesting new filename."
+        filename = get_filename_for_topic(' '.join(filter))
+        return filename, []
 
 def find_files(directory=None, archives=False, filter=[], full_text=False,
                find_any=False, days=None):

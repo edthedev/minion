@@ -2,8 +2,13 @@
 from datetime import datetime
 import brain_of_minion as brain
 
+
 TEST_DATA_DIRECTORY = '/tmp/test_minion'
 TEST_DATA_INBOX = '/tmp/test_minion/inbox'
+
+LOG_NAME = 'testing_log'
+TEST_LOG_FILTER = ['testing_log']
+TEST_LOG_LINE = 'This is a line to add to a log file.'
 
 
 def mock_get_setting(section, key):
@@ -14,16 +19,16 @@ def mock_get_setting(section, key):
 
 EXPECTED_DATE = datetime(2014, 04, 14, 0, 0)
 
-TEST_FILE_TEMPLATE_CONTENT = \
-'''Weekend Plan for 2014-04-14
-==============================
-:date: 2014-04-14
-
-The topic is: {topic}
-
-Goals
-------
-Wow. Such goals. So accomplish.'''
+#TEST_FILE_TEMPLATE_CONTENT = \
+#'''Weekend Plan for 2014-04-14
+#==============================
+#:date: 2014-04-14
+#
+#The topic is: {topic}
+#
+#Goals
+#------
+#Wow. Such goals. So accomplish.'''
 
 TEST_FILE_CONTENT = \
 '''Weekend Plan for 2014-04-14
@@ -60,7 +65,7 @@ Goals
 Wow. Such goals. So accomplish.
 :tags: ninja'''
 
-TEST_FILE_TITLE = '''Weekend Plan for 2014-04-14'''
+# TEST_FILE_TITLE = '''Weekend Plan for 2014-04-14'''
 
 # This 'tag' should not appear in file content for testing.
 TEST_GIBBERISH = 'Slartibarfast'
@@ -70,7 +75,7 @@ TEST_TAG = 'Ninja'
 TEST_TAGS_IN = ['foo', 'BAR', 'Ninja']
 TEST_TAGS_OUT = ['bar', 'foo', 'ninja']
 # As it might come from the user:
-TEST_TAG_STRING = 'Ninja foo BAR'
+# TEST_TAG_STRING = 'Ninja foo BAR'
 # As we would add it to the file:
 TEST_TAG_LINE = ':tags: bar foo ninja'
 
@@ -80,7 +85,7 @@ TEST_FILE_INITIAL_CONTENT = \
     "=====================\n" +\
     ":date: "
 
-TEST_FILENAME = 'This-is-a-test-topic.txt'
+# TEST_FILENAME = 'This-is-a-test-topic.txt'
 
 TEST_FILE_PATH = '/tmp/test_minion/inbox/This-is-a-test-topic.txt'
 

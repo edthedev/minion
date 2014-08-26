@@ -70,10 +70,10 @@ Command descriptions:
 # #babyTeddySays: m'0']..p p j\[ ''
 
 # Copyright 2011-2012 Edward Delaporte <edthedev@gmail.com>
-# Licensed under the University of Illinois / NCSA Open Source License
-# http://www.opensource.org/licenses/UoI-NCSA
+# Licensed under the GPLv2.
 # Created: 2011-04-28
 
+#  TODO: Can we merge the 'note' and 'open' commands, resulting in less duplication with new notes, and less need to call collect?
 
 ###############################################################################
 # IMPORTS
@@ -286,40 +286,25 @@ def minion_view(args):
 
 def minion_log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
-    filename = ''
-    match_files = brain.find_files(
-        filter=[args['<log>']],
-        archives=args['--archives'])
-    if len(match_files) > 1:
+
+    # Find the log file.
+    params = {
+        'filter': [args['<log>']],
+        'archives':args['--archives'],
+    }
+    filename, match_files = brain.choose_file(**params)
+    if not filename:
         title = ("Too many matches for log "
                  "function with keyword '{}'").format(args['<log>'])
         brain.display_output(title, match_files, max_display=10)
         return False
-    elif len(match_files) == 1:
-        filename = match_files[0]
-    else:
-        print "Creating new log file..."
-        filename = brain.get_filename_for_title(args['<log>'])
 
-    data = dict()
-    data.update(args)
-    data['date'] = datetime.datetime.today().strftime(get_date_format())
-    data['time'] = datetime.datetime.today().strftime("%H:%M")
-    data['<comment>'] = ' '.join(args['<comment>'])
-    # TODO: select_file should probably create the file if it does not exist...
-    #  This would allow merging the 'note' and 'open' commands, resulting in
-    #  less duplication with new notes, and less need to call collect.
-    # TODO: Make this fetch from config file.
-    # TODO: Make match template fetch from config file too...
-    new_line_template = "\n{date} {time} : {<comment>}"
-    new_line = new_line_template.format(**data)
+    params = {
+        'filename': filename,
+        'line': ' '.join(args['<comment>']),
+    }
 
-    print "Appending new line to %s" % filename
-    f = open(filename, 'a')
-    f.write(new_line)
-    f.close()
-    print new_line
-
+    brain.log_line_to_file(**params)
 
 def minion_dates(args):
     '''Display all notes with dates in them and filtered by keywords.'''

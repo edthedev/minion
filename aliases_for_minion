@@ -13,3 +13,6 @@ alias weekend="minion template weekend"
 alias goals="minion open goals"
 alias today="minion find urgent today `date +%Y-%m-%d` goal `date +%A`"
 alias where_in_the_world_is="minion find --archives $@"
+
+# For development under Zshell
+alias testminion="pushd ~/.vim/bundle/minion/tests; ./run_all_tests.sh; popd"
