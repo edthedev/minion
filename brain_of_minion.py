@@ -338,8 +338,9 @@ def select_file(match_files, max_files=10):
         if len(match_files) > max_files:
             print "%d matches." % len(match_files)
         else:
-            display_output('Notes (most recent first):', match_files, max_display=20)
-        choice = raw_input('Selection? ')
+            display_output('Notes (most recent first):', match_files,
+                           max_display=20)
+            choice = raw_input('Selection? (\'!\' selects the first file):')
         if '!' in choice:
             break
         less_match_files = limit_notes(choice, match_files, True)
