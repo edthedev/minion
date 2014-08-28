@@ -18,11 +18,9 @@ LOGGER = logging.getLogger(__name__)
 # GLOBAL CONSTANTS
 ################################################################################
 
-TODAY = date.today()
-
 CONFIG_FILE = '~/.minion'
 
-# Linux preferred apps:
+# Linux preferred apps to view non-text files:
 NON_TEXT_VIEWERS = {
     'default': 'cat %s | less',
     '.jpg': 'eog',
@@ -33,7 +31,7 @@ NON_TEXT_VIEWERS = {
     '.xls': 'libreoffice',
     }
 
-# Mac OSX 10.9 preferred apps:
+# Mac OSX 10.9 preferred apps to view non-text files:
 if 'Darwin' in platform.platform():
     NON_TEXT_VIEWERS = {
         'default': '/usr/bin/open',
@@ -50,21 +48,11 @@ if 'Darwin' in platform.platform():
         '.xlsx': '/usr/bin/open',
         }
 
-TERMINAL_APP = ['vim', 'cat %s | less']
-
-REPLACE_APP = ['cat %s | less']
-
-EDITORS = NON_TEXT_VIEWERS
-
-GRAPHICAL_EDITORS = EDITORS
-
-GRAPHICAL_EDITORS['default'] = 'gvim'
-
-DONE = 'DONE:'
-
-TODO = 'TODO:'
-
-WAITING = ':WAITING:'
+# Cygwin preferred apps to view non-text files:
+if 'CYGWIN' in platform.platform():
+    NON_TEXT_VIEWERS = {
+        'default': 'cmd /q /c start "Launched from Minion"'
+    }
 
 
 ################################################################################
@@ -134,9 +122,6 @@ def get_setting(section, key):
     return GLOBAL_SETTINGS.get(section, key)
 
 
-EDITORS['default'] = get_setting('compose', 'editor')
-
-
 def parse_sort_actions_settings():
     return GLOBAL_SETTINGS.items('sort_actions')
 
@@ -150,6 +135,7 @@ def get_global_data():
     '''
     date_format = get_date_format()
     data = {}
+    TODAY = date.today()
     data['today'] = TODAY.strftime(date_format)
     monday = TODAY - timedelta(days=TODAY.weekday())
     for i, day in enumerate(('sunday', 'monday', 'tuesday', 'wednesday',
@@ -560,12 +546,11 @@ def get_viewer(filename):
     return get_editor(filename, view=True)
 
 
-def get_editor(filename, graphical=False, view=False):
-    apps = EDITORS
+def get_editor(filename, view=False):
+    apps = NON_TEXT_VIEWERS
+    apps['default'] = get_setting('compose', 'editor')
     if view:
         apps = NON_TEXT_VIEWERS
-    if graphical:
-        apps = GRAPHICAL_EDITORS
 
     extension = os.path.splitext(filename)[1]
     extension = extension.lower()
@@ -601,10 +586,12 @@ def open_with_editor(editor, file_list, line=0):
 
     subprocess.call(cmd_args)
 
-def open_file(filename, line=0, graphical=False):
+
+def open_file(filename, line=0):
     ''' Select an appropriate editor and open the file. '''
-    program = get_editor(filename, graphical)
+    program = get_editor(filename)
     open_with_editor(program, [filename], line)
+
 
 def open_files(filenames, max=10):
     ''' Open all the files in the list.
@@ -630,11 +617,6 @@ def open_files(filenames, max=10):
 def preview_file(filename):
     viewer = get_viewer(filename)
     LOGGER.info("Viewing file: " + filename + " with " + viewer)
-    # if viewer in REPLACE_APP:
-    #    os.system(viewer % filename)
-    # elif viewer in TERMINAL_APP:
-    #    os.system("%s %s" % (viewer, filename))
-    # else:
     subprocess.call([viewer, filename])
 
 
@@ -940,6 +922,7 @@ def hasCalendarTag(text):
             return True
     return False
 
+
 def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
     included_exts_string =\
@@ -977,16 +960,17 @@ def get_files(directory, archives=False):
 
     return files
 
+
 def log_line_to_file(filename, line):
-    ''' 
-    Add a log file line to the file. 
+    '''
+    Add a log file line to the file.
 
     Log lines always start with the current day and time.
     '''
     params = {
-      'date': datetime.today().strftime(get_date_format()),
-      'time': datetime.today().strftime("%H:%M"),
-      'line': line,
+        'date': datetime.today().strftime(get_date_format()),
+        'time': datetime.today().strftime("%H:%M"),
+        'line': line,
     }
     # TODO: Make log_line_template fetch from config file.
     log_line_template = "\n{date} {time} : {line}"
@@ -999,6 +983,7 @@ def log_line_to_file(filename, line):
     print new_line
     return
 
+
 def choose_file(filter=[], archives=False, full_text=False):
     '''
     Given the filter, suggest a single match file.
@@ -1007,13 +992,14 @@ def choose_file(filter=[], archives=False, full_text=False):
 
     When there are too many matches, the first return is None.
 
-    When there are no matches at all, 
+    When there are no matches at all,
     the first return is a suggestion for a new file.
 
     The second return is always the list of possible matches.
 
     '''
-    match_files = find_files(filter=filter, archives=archives, full_text=full_text)
+    match_files = find_files(filter=filter, archives=archives,
+                             full_text=full_text)
 
     # Filter word must always match a single file.
     if len(match_files) > 1:
@@ -1025,6 +1011,7 @@ def choose_file(filter=[], archives=False, full_text=False):
         print "No matches, suggesting new filename."
         filename = get_filename_for_topic(' '.join(filter))
         return filename, []
+
 
 def find_files(directory=None, archives=False, filter=[], full_text=False,
                find_any=False, days=None):
@@ -1223,6 +1210,7 @@ def get_template_content(template):
     template_text = ''.join(template_text)
     return template_text
 
+
 def template_note(title, template, directory=None):
     ''' Create or open a note based on a template. '''
     if not directory:
@@ -1233,6 +1221,7 @@ def template_note(title, template, directory=None):
         quick=True,
         notes_dir=directory)
     return filename
+
 
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
@@ -1287,6 +1276,7 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
     else:
         print "Note '%s' created ..." % filename
     return filename
+
 
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
