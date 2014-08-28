@@ -37,17 +37,36 @@ class TestFileStuff(unittest.TestCase):
 
         # Start clean
         TestFileStuff.clean_directory()
-    
+
+        # Create it elsewhere than the inbox.
         params = {
-          'title': 'testing note template',
+          'title': ['testing note template'],
+          'template': 'note',
+          'directory': TEST_DATA_NOT_INBOX,
+        }
+        _ = brain.template_note(**params)
+
+        # Then create another copy, without specifying where.
+        params = {
+          'title': ['testing note template'],
           'template': 'note',
         }
         _ = brain.template_note(**params)
-        _ = brain.template_note(**params)
 
-        dir_contents = os.listdir(TEST_DATA_INBOX)
+        # import pdb; pdb.set_trace()
+        dir_contents = os.listdir(TEST_DATA_NOT_INBOX)
         # Inbox exists.
-        self.assertEqual(len(dir_contents), 1, '1 in inbox')
+        self.assertEqual(len(dir_contents), 1, '1 in not_inbox')
+
+        # See if we can find more than one.
+        params = {
+          'filter': ['testing', 'note', 'template'],
+        }
+        results = brain.find_files(**params)
+        self.assertEqual(len(results), 1, 
+                'note_template created ' + \
+                        str(len(results)) + \
+                        ' files instead of exactly 1.')
 
     def test_strays(self):
         ''' Run the strays method. '''

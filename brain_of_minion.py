@@ -1223,14 +1223,15 @@ def get_template_content(template):
     template_text = ''.join(template_text)
     return template_text
 
-def template_note(title, template):
+def template_note(title, template, directory=None):
     ''' Create or open a note based on a template. '''
-    notes_dir = get_notes_dir(args)
+    if not directory:
+        directory = get_inbox()
     filename = new_note_interactive(
         title,
         note_template=template,
-        quick=quick,
-        notes_dir=notes_dir)
+        quick=True,
+        notes_dir=directory)
     return filename
 
 def write_template_to_file(topic, filename, note_template):

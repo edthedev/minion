@@ -5,6 +5,7 @@ import brain_of_minion as brain
 
 TEST_DATA_DIRECTORY = '/tmp/test_minion'
 TEST_DATA_INBOX = '/tmp/test_minion/inbox'
+TEST_DATA_NOT_INBOX = '/tmp/test_minion/not_inbox'
 
 LOG_NAME = 'testing_log'
 TEST_LOG_FILTER = ['testing_log']
