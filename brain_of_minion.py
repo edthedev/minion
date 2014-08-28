@@ -1286,7 +1286,7 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
         open_file(filename, line=last_line)
     else:
         print "Note '%s' created ..." % filename
-
+    return filename
 
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
