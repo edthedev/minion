@@ -83,6 +83,7 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('notes', 'notes_excluded_extensions', '~')
     settings.set('notes', 'default_template', 'note')
     settings.set('notes', 'default_recent_days', '14')
+    settings.set('notes', 'archive_folders_date_format', '%%y.%%m')
     # Default composition settings
     settings.add_section('compose')
     default_template_dir = os.path.join(os.path.dirname(__file__), 'templates')
@@ -91,9 +92,11 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('compose', 'filename_sep', '-')
     settings.set('compose', 'editor', 'vim')
     settings.set('compose', 'tagline', ':tags:')
-    # Default date format
+    # Default note date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
+    # Sort actions
+    settings.add_section('sort_actions')
 
     return settings
 
@@ -127,32 +130,15 @@ def get_settings():
 GLOBAL_SETTINGS = get_settings()
 
 
-def get_last_modified(directory=None, archives=False):
-    ''' Return the name of the file (from within the Minion folders)
-    last modified, by file system date and time. '''
-
-    if directory is None:
-        directory = get_notes_home()
-
-    files = get_files(directory, archives)
-
-    most_recent = None
-    result = None
-
-    for filename in files:
-        modified = os.path.getmtime(filename)
-        if most_recent < modified:
-            most_recent = modified
-            result = filename
-
-    return result
-
-
 def get_setting(section, key):
     return GLOBAL_SETTINGS.get(section, key)
 
 
 EDITORS['default'] = get_setting('compose', 'editor')
+
+
+def parse_sort_actions_settings():
+    return GLOBAL_SETTINGS.items('sort_actions')
 
 
 def get_date_format():
@@ -196,20 +182,21 @@ def list_stray_files(count=2):
 
 def sort_files_interactive(match_files):
     ''' Interactively sort the list of files. '''
-    print get_sort_menu()
+    print "Enter '?' to see available actions."
     total = len(match_files)
     count = 0
     to_open = []
     for item in match_files:
         count += 1
         # Show progress...
+        print
         print to_bar(count, total)
         # The main call...
         files_to_open = doInboxInteractive(item)
         to_open.extend(files_to_open)
 
     if len(to_open) > 0:
-        print "Files to open: %s" % '\n'.join(to_open)
+        print "Files to open:\n  %s" % '\n  '.join(to_open)
         open_files(to_open)
 
 
@@ -348,12 +335,12 @@ def select_file(match_files, max_files=10):
         return (choice_path, '')
 
     while len(match_files) > 1:
-        print "Notes:\n"
         if len(match_files) > max_files:
             print "%d matches." % len(match_files)
         else:
-            print "\n".join(match_files)
-        choice = raw_input('Selection? ')
+            display_output('Notes (most recent first):', match_files,
+                           max_display=20)
+            choice = raw_input('Selection? (\'!\' selects the first file):')
         if '!' in choice:
             break
         less_match_files = limit_notes(choice, match_files, True)
@@ -417,7 +404,8 @@ def format_output_list(output, by_tag, max_display, separator, raw_files):
     if max_display:
         remain = len(output) - max_display
         output = output[:max_display]
-        output.append("{} more results...".format(remain))
+        if remain > 0:
+            output.append("{} more results...".format(remain))
 
     if by_tag:
         all_tags = sort_by_tag(output)
@@ -456,25 +444,29 @@ def format_output_dict(output, separator, raw_files):
 
 def display_output(title, output, by_tag=False,
                    raw_files=False, max_display=None):
-    separator = '\n'
-
     # If empty list or empty string, etc:
     if not output:
-        print "\nNo %s items.\n" % title
+        print "No %s items.\n" % title
         return
 
     # Print dictionaries as key - value
     if type(output) is dict:
-        output = format_output_dict(output, separator, raw_files)
-
+        output = format_output_dict(output, '\n', raw_files)
     # Print lists with one item per line
-    if type(output) is list:
-        output = format_output_list(output, by_tag, max_display,
-                                    separator, raw_files)
+    elif type(output) is list:
+        output = format_output_list(output, by_tag, max_display, '\n',
+                                    raw_files)
+    else:
+        if not raw_files:
+            output = clean_output(output)
+        if max_display:
+            remain = len(output) - max_display
+            output = output[:max_display]
+            if remain > 0:
+                output.append("{} more results...".format(remain))
 
     if title:
-        print "\n---- %s: " % title
-        print "-------------------------"
+        print "---- %s: " % title
 
     print output
 
@@ -678,11 +670,11 @@ def get_inbox_files():
 
 
 def get_folder(folder):
-    '''Return a full path, relative to the notes home.
-    '''
+    '''Return a full path, relative to the notes home.  '''
     # Convert 'archive' to 'archive.2012.08'
     if folder == 'archive':
-        year_month = date.today().strftime("%y.%m")
+        date_format = get_setting('notes', 'archive_folders_date_format')
+        year_month = date.today().strftime(date_format)
         folder = "archive.%s" % (year_month)
 
     notes_home = get_notes_home()
@@ -702,17 +694,18 @@ def limit_notes_interactive(notes):
 
 
 def expand_short_command(command):
+    # Hardwired sort actions
     commands = {
-        'a': '>wiki/archive',
-        'w': '>wiki',
-        'wc': '>wiki/cites',
-        'wp': '>wiki/personal',
-        'd': '>archive',
         'r': '!rename',
         '#': '!review',
         'v': '!view',
-        '!': '!quit'
+        '!': '!quit',
+        'a': '!archive',
+        '?': '!help'
     }
+    # Add configurable sort actions
+    commands.update(parse_sort_actions_settings())
+
     if command in commands:
         return commands[command]
     return command
@@ -867,13 +860,19 @@ def archive(filename):
     # get_folder does some cleverness with the 'archive' name.
     folder = get_folder('archive')
     filename = move_to_folder(filename, folder)
+    print "Moved to %s" % folder
 
 
 def apply_command_to_file(filename, command):
     ''' The core of the interactive file sorting system. '''
     command = expand_short_command(command)
+    if '!help' in command:
+        print get_sort_menu()
+        doInboxInteractive(filename)
     if '!review' in command:
         doInboxInteractive(filename)
+    if '!archive' in command:
+        archive(filename)
     if '!rename' in command:
         new_name = command.replace('!rename', '')
         if len(new_name) == 0:
@@ -895,6 +894,7 @@ def apply_command_to_file(filename, command):
     # If there's a calendar tag...move to the calendar folder.
     if hasCalendarTag(command):
         filename = move_to_folder(filename, 'calendar')
+        print "Moved to calendar" % filename
     else:
         # Move elsewhere if requested.
         folder_re = re.compile('>\S*')
@@ -1029,7 +1029,7 @@ def choose_file(filter=[], archives=False, full_text=False):
         return filename, []
 
 def find_files(directory=None, archives=False, filter=[], full_text=False,
-               find_any=False):
+               find_any=False, days=None):
     ''' Find matching files... '''
     if directory is None:
         directory = get_notes_home()
@@ -1046,7 +1046,21 @@ def find_files(directory=None, archives=False, filter=[], full_text=False,
             if has_any_tag(f, filter):
                 files.append(f)
 
-    return files
+    # sort the files according to modification date, most recent first
+    file_tuples = []
+    for filename in files:
+        mod_datetime = datetime.fromtimestamp(os.path.getmtime(filename))
+        file_tuples.append((mod_datetime, filename))
+    sorted_tuples = sorted(file_tuples, reverse=True)
+
+    # return only files modified within last N days
+    if type(days) is int:
+        threshold_dt = datetime.today() - timedelta(days=days)
+        sorted_files = [x[1] for x in sorted_tuples if x[0] > threshold_dt]
+    else:
+        sorted_files = [x[1] for x in sorted_tuples]
+
+    return sorted_files
 
 
 def has_any_tag(filename, tags):
@@ -1058,6 +1072,22 @@ def has_any_tag(filename, tags):
     return False
 
 
+def construct_note_title(topic, template):
+    # retrieve the extension
+    ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
+
+    # merge GLOBAL_DATA into data
+    data = {'topic': topic,
+            'ext': ext}
+    data.update(GLOBAL_DATA)
+
+    # merge data with the note title template
+    filename = template.format(**data)
+
+    return filename
+
+
 def string_to_file_name(topic, template='{topic}'):
     ''' Generates filename based on the topic and filename template.
         Extension is always appended.
@@ -1066,20 +1096,13 @@ def string_to_file_name(topic, template='{topic}'):
     name_sep = get_setting('compose', 'filename_sep')
     new_topic = topic.replace(' ', name_sep).replace('/', name_sep)
 
-    # retrieve the extension
-    ext = get_setting('compose', 'extension')
-    ext = ext.lstrip('.')
-
-    # merge GLOBAL_DATA into data
-    data = {'topic': new_topic,
-            'ext': ext}
-    data.update(GLOBAL_DATA)
-
-    # merge data with the template
-    filename = template.format(**data)
+    # the note filename will be the note title
+    filename = construct_note_title(new_topic, template)
 
     # append extension if not already there
-    if not filename.endswith(data['ext']):
+    ext = get_setting('compose', 'extension')
+    ext = ext.lstrip('.')
+    if not filename.endswith(ext):
         filename = '.'.join([filename.rstrip('.'), ext])
 
     return filename
@@ -1119,12 +1142,10 @@ def move_to_folder(filename, folder):
         origin = os.path.dirname(filename)
         destination = get_folder(folder)
         short_name = os.path.basename(filename)
-        print "Moving to " + destination
         final_name = os.path.join(destination, short_name)
         final_name = get_unique_name(final_name)
         shutil.move(filename, final_name)
         remove_empty_folder(origin)
-        print "Moved %s to %s" % (filename, final_name)
         return final_name
     except Exception as ex:
         raise ex
@@ -1143,12 +1164,19 @@ def remove_empty_folder(folder):
 
 
 def get_sort_menu():
-    display_options = "Actions:\n" +\
-        "  r=rename #=review v=view a=archive d=done o=open at the end\n" +\
-        "  w=wiki wc=wiki/cites wp=wiki/personal ><folder>=move to folder\n" +\
-        "  @<tag>=add tag -@<tag>=remove tag @<month>=move to 'calendar'\n" +\
-        "  !=quit                              any other key = next file"
-    return display_options
+    fixed_actions = "Available actions:\n" +\
+        "  !=quit a=archive r=rename #=review v=view o=open at the end\n" +\
+        "  @{tag}=add {tag} -@{tag}=remove {tag} >{folder}=move to {folder}\n" +\
+        "  :{3-letter month}=>calendar (e.g. :Jan) <Enter>=next file ?=help\n"
+    sort_actions_settings = parse_sort_actions_settings()
+    # build the sort menu; insert new_line if line is too long
+    configurable_actions = " "
+    for (item, value) in sort_actions_settings:
+        new_item = " " + item + '=' + value
+        if len(configurable_actions + new_item) > 76:
+            configurable_actions += "\n "
+        configurable_actions += new_item
+    return fixed_actions + configurable_actions
 
 
 def find_file(filename):
@@ -1201,21 +1229,30 @@ def get_template_content(template):
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
 
-    underline = '=' * len(topic)
+    template_text = get_template_content(note_template)
 
+    # We need to construct the note title to be able to construct the
+    # right length underline string
+    note_title_template = template_text.split('\n')[0]
+    note_title = construct_note_title(topic, note_title_template)
+    underline = '=' * len(note_title)
+
+    # create the data structure to be used for template string substitution
     data = {'topic': topic,
             'filename': filename,
             'topic_underline': underline,
             'underline': underline}
     data.update(GLOBAL_DATA)
-    template_text = get_template_content(note_template)
 
+    # do the string substitution
     file_text = template_text.format(**data)
 
+    # write the merged string as the new note
     f = open(filename, 'a')
     f.write(file_text)
     f.close()
 
+    # calculate the last line of the note to position the cursor later
     last_line = len(file_text.split('\n')) + 1
 
     return last_line
@@ -1246,8 +1283,6 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
     ''' Create a new note, non-interactive.'''
-    if note_template is None:
-        note_template = get_setting('notes', 'default_template')
     filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
     if not os.path.exists(filename):
@@ -1341,18 +1376,39 @@ def print_favorites_summary():
     return output
 
 
-def list_recent(match_files, days):
+def list_recent(match_files):
     ''' Filter match_files. Return only those files that have modification dates
         newer than requested in 'days' parameter. The files are sorted based on
         the modification datetime.
     '''
-    threshold_date = (datetime.today() - timedelta(days=days)).date()
     recent_files = dict()
     for filename in match_files:
         mod_date = datetime.fromtimestamp(os.path.getmtime(filename)).date()
-        if mod_date > threshold_date:
-            if mod_date in recent_files:
-                recent_files[mod_date].append(filename)
-            else:
-                recent_files[mod_date] = [filename]
+        if mod_date in recent_files:
+            # intentionally inserting at the beginning of the array to match
+            #   the reversed chronological list when multiple files per day
+            recent_files[mod_date].insert(0, filename)
+        else:
+            recent_files[mod_date] = [filename]
     return recent_files
+
+
+def get_last_modified(directory=None, archives=False):
+    ''' Return the name of the file (from within the Minion folders)
+    last modified, by file system date and time. '''
+
+    if directory is None:
+        directory = get_notes_home()
+
+    files = get_files(directory, archives)
+
+    most_recent = None
+    result = None
+
+    for filename in files:
+        modified = os.path.getmtime(filename)
+        if most_recent < modified:
+            most_recent = modified
+            result = filename
+
+    return result
