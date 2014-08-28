@@ -29,7 +29,25 @@ class TestFileStuff(unittest.TestCase):
         try:
             os.mkdir(TEST_DATA_DIRECTORY)
         except OSError:
-            pass
+            print ''
+
+    def test_template_duplicates(self):
+        ''' Test that template does not recreate a file 
+        if a file with the same name alreadye exists. '''
+
+        # Start clean
+        TestFileStuff.clean_directory()
+    
+        params = {
+          'title': 'testing note template',
+          'template': 'note',
+        }
+        _ = brain.template_note(**params)
+        _ = brain.template_note(**params)
+
+        dir_contents = os.listdir(TEST_DATA_INBOX)
+        # Inbox exists.
+        self.assertEqual(len(dir_contents), 1, '1 in inbox')
 
     def test_strays(self):
         ''' Run the strays method. '''
@@ -362,7 +380,7 @@ class TestRemind(unittest.TestCase):
         try:
             os.mkdir(TEST_DATA_DIRECTORY)
         except OSError:
-            pass
+            print ''
 
     def test_remind(self, open_mock):
         ''' Test setting a reminder. '''

@@ -196,13 +196,16 @@ def format_2_cols(tuple_list):
 
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
-    notes_dir = get_notes_dir(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=args['<template>'],
-        quick=args['--quick'],
-        notes_dir=notes_dir)
+    # Create the file if it doesn't exist.
+    params = {
+      'title': args['<text>'],
+      'template': args['<template>'],
+    }
+    filename = brain.template_note(**params)
 
+    # Open the file, if not passed --quick
+    if not args['--quick']:
+        brain.open_file(filename)
 
 def minion_remind(args):
     '''Set a quick reminder.'''

@@ -601,12 +601,10 @@ def open_with_editor(editor, file_list, line=0):
 
     subprocess.call(cmd_args)
 
-
 def open_file(filename, line=0, graphical=False):
     ''' Select an appropriate editor and open the file. '''
     program = get_editor(filename, graphical)
     open_with_editor(program, [filename], line)
-
 
 def open_files(filenames, max=10):
     ''' Open all the files in the list.
@@ -1225,6 +1223,15 @@ def get_template_content(template):
     template_text = ''.join(template_text)
     return template_text
 
+def template_note(title, template):
+    ''' Create or open a note based on a template. '''
+    notes_dir = get_notes_dir(args)
+    filename = new_note_interactive(
+        title,
+        note_template=template,
+        quick=quick,
+        notes_dir=notes_dir)
+    return filename
 
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
