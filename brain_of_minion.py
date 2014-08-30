@@ -1225,13 +1225,14 @@ def get_template_content(template):
 
 def template_note(title, template, directory=None):
     ''' Create or open a note based on a template. '''
-    if not directory:
-        directory = get_inbox()
-    filename, last_line  = new_note_interactive(
-        title,
-        note_template=template,
-        quick=True,
-        notes_dir=directory)
+
+    params = {
+        'topic': ' '.join(title),
+        'note_template': template,
+        'notes_dir': directory,
+    }
+    filename, last_line  = create_new_note(**params)
+
     return filename, last_line
 
 def write_template_to_file(topic, filename, note_template):
@@ -1271,32 +1272,46 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
     ''' Create a new note with the filename constructed based on
         the first line in the note template.
     '''
-# TODO: Try to eliminate this method, just use create_new_note...
-    # get the first line of the template and use it as filename template
-    template_content = get_template_content(note_template)
-    filename_template = template_content.split('\n')[0]
+
     # construct the topic string
     topic = ' '.join(topic_fragments)
     # create the note
-    print "Note template used: " + note_template
     (filename, last_line) = create_new_note(topic,
                                             note_template,
-                                            notes_dir,
-                                            filename_template)
+                                            notes_dir)
+    # Decide whether to open it immediately.
     if not quick:
         open_file(filename, line=last_line)
     else:
         print "Note '%s' created ..." % filename
     return (filename, last_line)
 
-def create_new_note(topic, note_template=None, notes_dir=None,
-                    filename_template='{topic}'):
+def create_new_note(topic, note_template=None, notes_dir=None, 
+        filename_template=None):
     ''' Create a new note, non-interactive.'''
+    if not note_template:
+        note_template = 'note'
+
+    # When in doubt, put it in the inbox.
+    if not notes_dir:
+        notes_dir = get_inbox()
+
+    # get the first line of the template and use it as filename template
+    if not filename_template:
+        template_content = get_template_content(note_template)
+        filename_template = template_content.split('\n')[0]
+
+    # print "Note template used: " + note_template
+
     filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
+    # only create it if it does not exist
     if not os.path.exists(filename):
+        # Use the default template if none specified.
         if note_template is None:
             note_template = get_setting('notes', 'default_template')
+
+        # Write the template to the file.
         last_line = write_template_to_file(topic, filename, note_template)
     return (filename, last_line)
 
