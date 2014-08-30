@@ -201,11 +201,11 @@ def minion_template(args):
       'title': args['<text>'],
       'template': args['<template>'],
     }
-    filename = brain.template_note(**params)
+    filename, last_line = brain.template_note(**params)
 
     # Open the file, if not passed --quick
     if not args['--quick']:
-        brain.open_file(filename)
+        brain.open_file(filename, line=last_line)
 
 def minion_remind(args):
     '''Set a quick reminder.'''

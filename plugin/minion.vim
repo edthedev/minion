@@ -173,15 +173,20 @@ endfunction
 "  i.e. weekly, weekend, journal
 function! MinionTemplate(template, topic)
 python << EOF
-template = vim.eval("a:template")
-topic = vim.eval("a:topic")
-(filename, last_line) = brain.create_new_note(
-    topic,	
-	template=template,
-)
+
+# Create a file from template.
+params = {
+  'title': vim.eval("a:topic"),
+  'template': vim.eval("a:template"),
+}
+filename, last_line = brain.template_note(**params)
+
+# Escape spaces
 filename = filename.replace(' ', '\ ')
-# Open it in the new location.
+
+# Open it the found/new file.
 vim.command("e %(item)s" % {'item':filename})
+# Jump to the last line
 vim.command("call cursor(%d, 0)" % (last_line + 1))
 EOF
 endfunction
@@ -273,7 +278,8 @@ if g:minion_map_keys
 	:nnoremap <leader>mt :MinionTag 
 
 	" Start or open the weekly plan.
-	:nnoremap <leader>mw :MinionWeek
+	" :nnoremap <leader>mw :MinionWeek
+	:nnoremap <leader>mw :call MinionTemplate('week', '')<Cr>
 
 	" Review this file
 	" ":nnoremap <Leader>mr :!~/.vim/bundle/Minion/bin/minion --filename %<Cr>:q<Cr>

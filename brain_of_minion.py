@@ -1227,12 +1227,12 @@ def template_note(title, template, directory=None):
     ''' Create or open a note based on a template. '''
     if not directory:
         directory = get_inbox()
-    filename = new_note_interactive(
+    filename, last_line  = new_note_interactive(
         title,
         note_template=template,
         quick=True,
         notes_dir=directory)
-    return filename
+    return filename, last_line
 
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
@@ -1271,6 +1271,7 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
     ''' Create a new note with the filename constructed based on
         the first line in the note template.
     '''
+# TODO: Try to eliminate this method, just use create_new_note...
     # get the first line of the template and use it as filename template
     template_content = get_template_content(note_template)
     filename_template = template_content.split('\n')[0]
@@ -1286,7 +1287,7 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
         open_file(filename, line=last_line)
     else:
         print "Note '%s' created ..." % filename
-    return filename
+    return (filename, last_line)
 
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template='{topic}'):
