@@ -175,27 +175,6 @@ def format_2_cols(tuple_list):
     output = '\n'.join(output)
     return output
 
-###############################################################################
-# Shared parameters
-#  
-#   These parameters are used by many function calls below.
-###############################################################################
-PARAMS = {
-    'topic_fragments': args['<text>'],
-    'notes_dir': None,
-    'notes_template': None,
-}
-
-# Assign folder per command line parameter
-if args['--folder']:
-    folder = os.path.expanduser(args['--folder'])
-    notes_home = brain.get_notes_home()
-    PARAMS['notes_dir'] = os.path.join(notes_home, folder)
-
-if args['--template']:
-    PARAMS['notes_template'] = args['--template']
-else:
-    PARAMS['notes_template'] = brain.get_setting('notes', 'default_template')
 
 ###############################################################################
 # ENTRY POINT FUNCTIONS
@@ -267,9 +246,8 @@ def minion_strays(args):
         print CLEAN_STRAYS_MESSAGE
         sys.exit()
     else:
-        print brain.getOutput('cal')
+        # print brain.getOutput('cal')
         brain.sort_files_interactive(match_files)
-
 
 def minion_view(args):
     ''' Dump the contents of the chosen file(s) to standard out. '''
@@ -377,6 +355,29 @@ args = docopt(__doc__, version='1.0')
 filter = args['<text>']
 if args['<text>'] == ['all']:
     args['<text>'] = []
+
+###############################################################################
+# Shared parameters
+#
+#   These parameters are used by many function calls below.
+###############################################################################
+PARAMS = {
+    'topic_fragments': args['<text>'],
+    'notes_dir': None,
+    'notes_template': None,
+}
+
+# Assign folder per command line parameter
+if args['--folder']:
+    folder = os.path.expanduser(args['--folder'])
+    notes_home = brain.get_notes_home()
+    PARAMS['notes_dir'] = os.path.join(notes_home, folder)
+
+if args['--template']:
+    PARAMS['notes_template'] = args['--template']
+else:
+    PARAMS['notes_template'] = brain.get_setting('notes', 'default_template')
+
 
 # *************************************************************
 # Everything after this point requires searching for matches...
