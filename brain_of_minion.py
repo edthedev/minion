@@ -51,7 +51,8 @@ if 'Darwin' in platform.platform():
 # Cygwin preferred apps to view non-text files:
 if 'CYGWIN' in platform.platform():
     NON_TEXT_VIEWERS = {
-        'default': 'cmd /q /c start "Launched from Minion"'
+        'default': 'cmd /q /c start "Launched from Minion"',
+        '.jpg': 'cmd /q /c start "Launched from Minion"'
     }
 
 
@@ -326,7 +327,7 @@ def select_file(match_files, max_files=10):
         else:
             display_output('Notes (most recent first):', match_files,
                            max_display=20)
-            choice = raw_input('Selection? (\'!\' selects the first file):')
+            choice = raw_input('Selection? (\'!\' selects the first file): ')
         if '!' in choice:
             break
         less_match_files = limit_notes(choice, match_files, True)
@@ -548,9 +549,8 @@ def get_viewer(filename):
 
 def get_editor(filename, view=False):
     apps = NON_TEXT_VIEWERS
-    apps['default'] = get_setting('compose', 'editor')
-    if view:
-        apps = NON_TEXT_VIEWERS
+    if not view:
+        apps['default'] = get_setting('compose', 'editor')
 
     extension = os.path.splitext(filename)[1]
     extension = extension.lower()
@@ -578,12 +578,15 @@ def file_to_stdout(filename):
 def open_with_editor(editor, file_list, line=0):
     ''' Use the selected editor to open the selected files.
 
-    Where possible, jump to the specified line/position in each file.
+        Where possible, jump to the specified line/position in each file.
     '''
 
-    cmd_args = [editor]
+    # Split the editor command into the array in the case it has spaces in it.
+    # That's what subprocess.call requires.
+    cmd_args = editor.split(' ')
+    # Add the file(s) argument
     cmd_args.extend(file_list)
-
+    # Call the editor/viewer along with all the parameters
     subprocess.call(cmd_args)
 
 
@@ -1277,7 +1280,7 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
 
 
 def create_new_note(topic, note_template=None, notes_dir=None,
-                    filename_template='{topic}'):
+                    filename_template=None):
     ''' Create a new note, non-interactive.'''
     if not note_template:
         note_template = 'note'

@@ -369,7 +369,7 @@ if args['<text>'] == ['all']:
 PARAMS = {
     'topic_fragments': args['<text>'],
     'notes_dir': None,
-    'notes_template': None,
+    'note_template': None,
 }
 
 # Assign folder per command line parameter
@@ -379,9 +379,9 @@ if args['--folder']:
     PARAMS['notes_dir'] = os.path.join(notes_home, folder)
 
 if args['--template']:
-    PARAMS['notes_template'] = args['--template']
+    PARAMS['note_template'] = args['--template']
 else:
-    PARAMS['notes_template'] = brain.get_setting('notes', 'default_template')
+    PARAMS['note_template'] = brain.get_setting('notes', 'default_template')
 
 
 # *************************************************************
