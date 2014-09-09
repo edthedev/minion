@@ -134,20 +134,6 @@ def date_sort(filename):
     return datetime.datetime.now()
 
 
-def get_notes_dir(args):
-    notes_dir = None
-    if args['--folder']:
-        folder = os.path.expanduser(args['--folder'])
-        notes_home = brain.get_notes_home()
-        notes_dir = os.path.join(notes_home, folder)
-    return notes_dir
-
-
-def get_note_template(args):
-    note_template = args['--template']
-    if note_template is None:
-        note_template = brain.get_setting('notes', 'default_template')
-    return note_template
 
 
 def format_2_cols(tuple_list):
@@ -201,44 +187,30 @@ def minion_template(args):
       'title': args['<text>'],
       'template': args['<template>'],
     }
-    filename = brain.template_note(**params)
+    filename, last_line = brain.template_note(**params)
 
     # Open the file, if not passed --quick
     if not args['--quick']:
-        brain.open_file(filename)
+        brain.open_file(filename, line=last_line)
 
 def minion_remind(args):
     '''Set a quick reminder.'''
-    notes_dir = get_notes_dir(args)
-    note_template = get_note_template(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=note_template,
-        quick=True,
-        notes_dir=notes_dir)
 
+    params = PARAMS
+    # Don't open it, just make it.
+    params['quick'] = True
+    brain.new_note_interactive(**params)
 
 def minion_here(args):
     '''Create a Minion note in the current working directory.'''
-    notes_dir = os.curdir
-    note_template = get_note_template(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=note_template,
-        quick=args['--quick'],
-        notes_dir=notes_dir)
-
+    params = PARAMS
+    params['notes_dir'] = os.curdir
+    brain.new_note_interactive(**params)
 
 def minion_note(args):
     '''Create a Minion note.'''
-    notes_dir = get_notes_dir(args)
-    note_template = get_note_template(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=note_template,
-        quick=args['--quick'],
-        notes_dir=notes_dir)
-
+    # It's the most common use, so use the default PARAMS exactly.
+    brain.new_note_interactive(**PARAMS)
 
 def minion_sort(args):
     '''Interactively sort all matches.'''
@@ -274,9 +246,8 @@ def minion_strays(args):
         print CLEAN_STRAYS_MESSAGE
         sys.exit()
     else:
-        print brain.getOutput('cal')
+        # print brain.getOutput('cal')
         brain.sort_files_interactive(match_files)
-
 
 def minion_view(args):
     ''' Dump the contents of the chosen file(s) to standard out. '''
@@ -384,6 +355,29 @@ args = docopt(__doc__, version='1.0')
 filter = args['<text>']
 if args['<text>'] == ['all']:
     args['<text>'] = []
+
+###############################################################################
+# Shared parameters
+#
+#   These parameters are used by many function calls below.
+###############################################################################
+PARAMS = {
+    'topic_fragments': args['<text>'],
+    'notes_dir': None,
+    'notes_template': None,
+}
+
+# Assign folder per command line parameter
+if args['--folder']:
+    folder = os.path.expanduser(args['--folder'])
+    notes_home = brain.get_notes_home()
+    PARAMS['notes_dir'] = os.path.join(notes_home, folder)
+
+if args['--template']:
+    PARAMS['notes_template'] = args['--template']
+else:
+    PARAMS['notes_template'] = brain.get_setting('notes', 'default_template')
+
 
 # *************************************************************
 # Everything after this point requires searching for matches...
