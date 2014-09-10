@@ -11,6 +11,7 @@ from ConfigParser import SafeConfigParser
 from collections import defaultdict
 import logging
 import platform
+import shlex
 
 LOGGER = logging.getLogger(__name__)
 
@@ -51,8 +52,15 @@ if 'Darwin' in platform.platform():
 # Cygwin preferred apps to view non-text files:
 if 'CYGWIN' in platform.platform():
     NON_TEXT_VIEWERS = {
-        'default': 'cmd /q /c start "Launched from Minion"',
-        '.jpg': 'cmd /q /c start "Launched from Minion"'
+        'default': 'cmd /q /c start "Launched by Minion"',
+        '.jpg': 'cmd /q /c start "Launched by Minion"',
+        '.jpeg': 'cmd /q /c start "Launched by Minion"',
+        '.pdf': 'cmd /q /c start "Launched by Minion"',
+        '.png': 'cmd /q /c start "Launched by Minion"',
+        '.xls': 'cmd /q /c start "Launched by Minion"',
+        '.xlsx': 'cmd /q /c start "Launched by Minion"',
+        '.doc': 'cmd /q /c start "Launched by Minion"',
+        '.docx': 'cmd /q /c start "Launched by Minion"'
     }
 
 
@@ -575,18 +583,34 @@ def file_to_stdout(filename):
     print '\n'
 
 
+def get_windows_path(cygwin_path):
+    ''' Converts cygwin bash path to windows path in CYGWIN environment'''
+    # Escape the spaces in the cygwin_path
+    cygwin_path = cygwin_path.replace(' ', '\ ')
+    # Call external path converter (cygpath is part of CygWin environment)
+    cmd_line = 'cygpath -w ' + cygwin_path
+    w_path = subprocess.Popen(cmd_line, shell=True,
+                              stdout=subprocess.PIPE).stdout.read()
+    # remove carriage returns at the end of the w_path
+    return w_path.strip('\n')
+
+
 def open_with_editor(editor, file_list, line=0):
     ''' Use the selected editor to open the selected files.
 
         Where possible, jump to the specified line/position in each file.
     '''
 
-    # Split the editor command into the array in the case it has spaces in it.
-    # That's what subprocess.call requires.
-    cmd_args = editor.split(' ')
-    # Add the file(s) argument
+    # Convert file paths if running on CygWIN to support launching windows
+    # viewers/editors
+    if editor.startswith('cmd '):
+        if 'CYGWIN' in platform.platform():
+            # convert CygWin paths to Windows paths
+            file_list = [get_windows_path(fi) for fi in file_list]
+    # Split the editor command into the array taking into account escape
+    # characters, etc. This is what subprocess.call requires.
+    cmd_args = shlex.split(editor)
     cmd_args.extend(file_list)
-    # Call the editor/viewer along with all the parameters
     subprocess.call(cmd_args)
 
 
