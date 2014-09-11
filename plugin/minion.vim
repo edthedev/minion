@@ -171,20 +171,27 @@ endfunction
 function! MinionRename(new_name)
     let s:current_file = expand('%')
 python << EOF
+
+# Construct the new filename
 new_name = vim.eval("a:new_name")
 new_name = brain.string_to_file_name(new_name)
+
+# Close current buffer.
+vim.command('bdelete')
+
+# Move the file.
 args = {
     'filename':vim.eval("s:current_file"),
     'new_name': new_name,
 }
-
-# Close current buffer.
-# vim.command('bdelete')
-# Move the file.
 new_filename = brain.rename_file(**args)
+
 # Open it in the new location.
+# Escape spaces in file names.
+new_filename = new_filename.replace(' ', '\ ')
 vim.command("badd %(item)s" % {'item':new_filename})
 vim.command("echom 'Your buffer may have moved in the list.'")
+
 EOF
 bd
 endfunction
