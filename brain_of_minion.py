@@ -53,6 +53,7 @@ if 'Darwin' in platform.platform():
 if 'CYGWIN' in platform.platform():
     NON_TEXT_VIEWERS = {
         'default': 'cmd /q /c start "Launched by Minion"',
+        '.txt': 'vim',
         '.jpg': 'cmd /q /c start "Launched by Minion"',
         '.jpeg': 'cmd /q /c start "Launched by Minion"',
         '.pdf': 'cmd /q /c start "Launched by Minion"',
@@ -585,8 +586,10 @@ def file_to_stdout(filename):
 
 def get_windows_path(cygwin_path):
     ''' Converts cygwin bash path to windows path in CYGWIN environment'''
-    # Escape the spaces in the cygwin_path
+    # Escape the special characters in the cygwin_path
     cygwin_path = cygwin_path.replace(' ', '\ ')
+    cygwin_path = cygwin_path.replace('(', '\(')
+    cygwin_path = cygwin_path.replace(')', '\)')
     # Call external path converter (cygpath is part of CygWin environment)
     cmd_line = 'cygpath -w ' + cygwin_path
     w_path = subprocess.Popen(cmd_line, shell=True,
@@ -642,9 +645,8 @@ def open_files(filenames, max=10):
 
 
 def preview_file(filename):
-    viewer = get_viewer(filename)
-    LOGGER.info("Viewing file: " + filename + " with " + viewer)
-    subprocess.call([viewer, filename])
+    program = get_viewer(filename)
+    open_with_editor(program, [filename])
 
 
 def get_notes_home():
