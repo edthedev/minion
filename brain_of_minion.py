@@ -1153,7 +1153,7 @@ def rename_file(filename, new_name):
 
 
 def move_to_folder(filename, folder):
-    ''' Move the file to a difference folder. '''
+    ''' Move the file to a different folder. '''
     try:
         origin = os.path.dirname(filename)
         destination = get_folder(folder)

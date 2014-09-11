@@ -223,7 +223,7 @@ def minion_open(args):
 
     if len(match_files) > 0:
         (choice_path, filename) = brain.select_file(match_files, args['--max'])
-        brain.open_file(filename)
+        brain.open_in_editor(filename)
     else:
         brain.display_output(title=filter, output=match_files)
 
@@ -341,7 +341,7 @@ def minion_recent(args):
 def minion_last(args):
     ''' Open the most recently modified file. '''
     filename = brain.get_last_modified(archives=args['--archives'])
-    brain.open_file(filename)
+    brain.open_in_editor(filename)
 
 ###############################################################################
 # MAIN SCRIPT
