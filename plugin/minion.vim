@@ -175,11 +175,11 @@ function! MinionTemplate(template, topic)
 python << EOF
 
 # Create a file from template.
-params = {
-  'title': vim.eval("a:topic"),
-  'template': vim.eval("a:template"),
+args = {
+  'topic': vim.eval("a:topic"),
+  'note_template': vim.eval("a:template"),
 }
-filename, last_line = brain.template_note(**params)
+filename, last_line = brain.create_new_note(**args)
 
 # Escape spaces
 filename = filename.replace(' ', '\ ')
