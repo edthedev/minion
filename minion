@@ -181,21 +181,14 @@ def format_2_cols(tuple_list):
 
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
-    # Create the file if it doesn't exist.
-    params = {
-        'title': args['<text>'],
-        'template': args['<template>'],
-    }
-    filename, last_line = brain.template_note(**params)
-
-    # Open the file, if not passed --quick
-    if not args['--quick']:
-        brain.open_file(filename, line=last_line)
+    params = PARAMS
+    # Use the template specified on the command line
+    params['note_template'] = args['<template>']
+    brain.new_note_interactive(**params)
 
 
 def minion_remind(args):
     '''Set a quick reminder.'''
-
     params = PARAMS
     # Don't open it, just make it.
     params['quick'] = True
@@ -205,6 +198,7 @@ def minion_remind(args):
 def minion_here(args):
     '''Create a Minion note in the current working directory.'''
     params = PARAMS
+    # Use current directory
     params['notes_dir'] = os.curdir
     brain.new_note_interactive(**params)
 
@@ -381,8 +375,6 @@ if args['--folder']:
 
 if args['--template']:
     PARAMS['note_template'] = args['--template']
-else:
-    PARAMS['note_template'] = brain.get_setting('notes', 'default_template')
 
 if args['--quick']:
     PARAMS['quick'] = True

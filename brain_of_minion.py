@@ -598,29 +598,31 @@ def get_windows_path(cygwin_path):
     return w_path.strip('\n')
 
 
-def open_with_editor(editor, file_list, line=0):
-    ''' Use the selected editor to open the selected files.
+def open_file(program, file_list, line=0):
+    ''' Use the selected program to open the selected files.
 
-        Where possible, jump to the specified line/position in each file.
+        Where possible, jump to the specified line/position in the file.
     '''
 
     # Convert file paths if running on CygWIN to support launching windows
-    # viewers/editors
-    if editor.startswith('cmd '):
+    # viewers/programs
+    if program.startswith('cmd '):
         if 'CYGWIN' in platform.platform():
             # convert CygWin paths to Windows paths
             file_list = [get_windows_path(fi) for fi in file_list]
-    # Split the editor command into the array taking into account escape
+    if program.startswith('vim'):
+        program += ' +' + str(line)
+    # Split the program command into the array taking into account escape
     # characters, etc. This is what subprocess.call requires.
-    cmd_args = shlex.split(editor)
+    cmd_args = shlex.split(program)
     cmd_args.extend(file_list)
     subprocess.call(cmd_args)
 
 
-def open_file(filename, line=0):
+def open_in_editor(filename, line=0):
     ''' Select an appropriate editor and open the file. '''
     program = get_editor(filename)
-    open_with_editor(program, [filename], line)
+    open_file(program, [filename], line)
 
 
 def open_files(filenames, max=10):
@@ -641,12 +643,12 @@ def open_files(filenames, max=10):
     # Open files with editors
     for editor in editors:
         # Open each file list with the chosen editor.
-        open_with_editor(editor, editors[editor])
+        open_file(editor, editors[editor])
 
 
 def preview_file(filename):
     program = get_viewer(filename)
-    open_with_editor(program, [filename])
+    open_file(program, [filename])
 
 
 def get_notes_home():
@@ -1240,19 +1242,6 @@ def get_template_content(template):
     return template_text
 
 
-def template_note(title, template, directory=None):
-    ''' Create or open a note based on a template. '''
-
-    params = {
-        'topic': ' '.join(title),
-        'note_template': template,
-        'notes_dir': directory,
-    }
-    filename, last_line = create_new_note(**params)
-
-    return filename, last_line
-
-
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
 
@@ -1280,7 +1269,7 @@ def write_template_to_file(topic, filename, note_template):
     f.close()
 
     # calculate the last line of the note to position the cursor later
-    last_line = len(file_text.split('\n')) + 1
+    last_line = len(file_text.split('\n'))
 
     return last_line
 
@@ -1294,12 +1283,10 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
     # construct the topic string
     topic = ' '.join(topic_fragments)
     # create the note
-    (filename, last_line) = create_new_note(topic,
-                                            note_template,
-                                            notes_dir)
+    (filename, last_line) = create_new_note(topic, note_template, notes_dir)
     # Decide whether to open it immediately.
     if not quick:
-        open_file(filename, line=last_line)
+        open_in_editor(filename, line=last_line)
     else:
         print "Note '%s' created ..." % filename
     return (filename, last_line)
@@ -1308,30 +1295,29 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
 def create_new_note(topic, note_template=None, notes_dir=None,
                     filename_template=None):
     ''' Create a new note, non-interactive.'''
-    if not note_template:
-        note_template = 'note'
 
-    # When in doubt, put it in the inbox.
-    if not notes_dir:
+    # When no template, use the default one
+    if note_template is None:
+        note_template = get_setting('notes', 'default_template')
+
+    # When not defined, put the note in the inbox.
+    if notes_dir is None:
         notes_dir = get_inbox()
 
     # get the first line of the template and use it as filename template
-    if not filename_template:
+    if filename_template is None:
         template_content = get_template_content(note_template)
         filename_template = template_content.split('\n')[0]
-
-    # print "Note template used: " + note_template
+    print "Note template used: " + note_template
 
     filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
-    # only create it if it does not exist
-    if not os.path.exists(filename):
-        # Use the default template if none specified.
-        if note_template is None:
-            note_template = get_setting('notes', 'default_template')
 
+    # only create new note if it does not exist
+    if not os.path.exists(filename):
         # Write the template to the file.
         last_line = write_template_to_file(topic, filename, note_template)
+
     return (filename, last_line)
 
 
