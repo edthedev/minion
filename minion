@@ -370,6 +370,7 @@ PARAMS = {
     'topic_fragments': args['<text>'],
     'notes_dir': None,
     'note_template': None,
+    'quick': False
 }
 
 # Assign folder per command line parameter
@@ -382,6 +383,9 @@ if args['--template']:
     PARAMS['note_template'] = args['--template']
 else:
     PARAMS['note_template'] = brain.get_setting('notes', 'default_template')
+
+if args['--quick']:
+    PARAMS['quick'] = True
 
 
 # *************************************************************
