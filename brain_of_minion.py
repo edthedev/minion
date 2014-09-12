@@ -21,20 +21,23 @@ LOGGER = logging.getLogger(__name__)
 
 CONFIG_FILE = '~/.minion'
 
-# Linux preferred apps to view non-text files:
-NON_TEXT_VIEWERS = {
-    'default': 'cat %s | less',
+# Linux preferred apps to view files:
+VIEWERS = {
+    'default': 'xdg-open',
+    '.txt': 'vim',
+    '.pdf': 'evince',
     '.jpg': 'eog',
     '.jpeg': 'eog',
     '.png': 'eog',
-    '.pnm': 'eog',
-    '.pdf': 'evince',
+    '.doc': 'libreoffice',
+    '.docx': 'libreoffice',
     '.xls': 'libreoffice',
+    '.xlsx': 'libreoffice'
     }
 
-# Mac OSX 10.9 preferred apps to view non-text files:
+# Mac OSX 10.9 preferred apps to view files:
 if 'Darwin' in platform.platform():
-    NON_TEXT_VIEWERS = {
+    VIEWERS = {
         'default': '/usr/bin/open',
         '.doc': '/usr/bin/open',
         '.docx': '/usr/bin/open',
@@ -49,19 +52,11 @@ if 'Darwin' in platform.platform():
         '.xlsx': '/usr/bin/open',
         }
 
-# Cygwin preferred apps to view non-text files:
+# Cygwin preferred apps to view files:
 if 'CYGWIN' in platform.platform():
-    NON_TEXT_VIEWERS = {
+    VIEWERS = {
         'default': 'cmd /q /c start "Launched by Minion"',
-        '.txt': 'vim',
-        '.jpg': 'cmd /q /c start "Launched by Minion"',
-        '.jpeg': 'cmd /q /c start "Launched by Minion"',
-        '.pdf': 'cmd /q /c start "Launched by Minion"',
-        '.png': 'cmd /q /c start "Launched by Minion"',
-        '.xls': 'cmd /q /c start "Launched by Minion"',
-        '.xlsx': 'cmd /q /c start "Launched by Minion"',
-        '.doc': 'cmd /q /c start "Launched by Minion"',
-        '.docx': 'cmd /q /c start "Launched by Minion"'
+        '.txt': 'vim'
     }
 
 
@@ -250,7 +245,7 @@ def get_file_content(filename, include_filename=True):
     # Don't try to get non-text content.
     _, extension = os.path.splitext(filename)
     extension.lower()
-    if extension not in NON_TEXT_VIEWERS:
+    if extension not in VIEWERS:
         f = open(filename, 'r')
         content = f.read()
         f.close()
@@ -557,7 +552,7 @@ def get_viewer(filename):
 
 
 def get_editor(filename, view=False):
-    apps = NON_TEXT_VIEWERS
+    apps = VIEWERS
     if not view:
         apps['default'] = get_setting('compose', 'editor')
 
@@ -879,11 +874,15 @@ def apply_command_to_file(filename, command):
     command = expand_short_command(command)
     if '!help' in command:
         print get_sort_menu()
+        print
         doInboxInteractive(filename)
+
     if '!review' in command:
         doInboxInteractive(filename)
+
     if '!archive' in command:
         archive(filename)
+
     if '!rename' in command:
         new_name = command.replace('!rename', '')
         if len(new_name) == 0:
@@ -896,11 +895,17 @@ def apply_command_to_file(filename, command):
 
     # Add tags
     tags_to_add = get_tags_from_string(command)
-    filename = add_tags_to_file(tags_to_add, filename)
+    if len(tags_to_add) > 0:
+        filename = add_tags_to_file(tags_to_add, filename)
+        print "Tag(s) %s added." % str(tags_to_add)
+        doInboxInteractive(filename)
 
     # Remove tags
     remove_tags = get_remove_tags(command)
-    filename = remove_tags_from_file(remove_tags, filename)
+    if len(remove_tags) > 0:
+        filename = remove_tags_from_file(remove_tags, filename)
+        print "Tag(s) %s removed." % str(remove_tags)
+        doInboxInteractive(filename)
 
     # If there's a calendar tag...move to the calendar folder.
     if hasCalendarTag(command):
