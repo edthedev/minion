@@ -593,16 +593,22 @@ def file_to_stdout(filename):
 
 def get_windows_path(cygwin_path):
     ''' Converts cygwin bash path to windows path in CYGWIN environment'''
+
     # Escape the special characters in the cygwin_path
     cygwin_path = cygwin_path.replace(' ', '\ ')
     cygwin_path = cygwin_path.replace('(', '\(')
     cygwin_path = cygwin_path.replace(')', '\)')
+
     # Call external path converter (cygpath is part of CygWin environment)
     cmd_line = 'cygpath -w ' + cygwin_path
     w_path = subprocess.Popen(cmd_line, shell=True,
                               stdout=subprocess.PIPE).stdout.read()
-    # remove carriage returns at the end of the w_path
-    return w_path.strip('\n')
+
+    # remove carriage returns at the end of the w_path and
+    # add quotes around the path to preserve backslashes and filename spaces
+    w_path = '"' + w_path.strip('\n') + '"'
+
+    return w_path
 
 
 def open_file(program, file_list, line=0):
