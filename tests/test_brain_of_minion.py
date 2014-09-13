@@ -446,14 +446,10 @@ class TestTags(unittest.TestCase):
             'content': TEST_FILE_CONTENT_WITH_TAGS,
             'tag': TEST_TAG,
             }
-        self.assertTrue(
-            brain.content_has_tag(**args)
-            )
+        self.assertTrue(brain.content_has_tag(**args))
 
         args['tag'] = TEST_GIBBERISH
-        self.assertFalse(
-            brain.content_has_tag(**args)
-            )
+        self.assertFalse(brain.content_has_tag(**args))
 
 if __name__ == '__main__':
     unittest.main()
