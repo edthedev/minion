@@ -32,7 +32,7 @@ class TestFileStuff(unittest.TestCase):
             print ''
 
     def test_template_duplicates(self):
-        ''' Test that template does not recreate a file 
+        ''' Test that template does not recreate a file
         if a file with the same name alreadye exists. '''
 
         # Start clean
@@ -40,33 +40,33 @@ class TestFileStuff(unittest.TestCase):
 
         # Create it elsewhere than the inbox.
         params = {
-          'title': ['testing note template'],
-          'template': 'note',
-          'directory': TEST_DATA_NOT_INBOX,
+            'topic_fragments': ['testing', 'note', 'template'],
+            'note_template': 'note',
+            'notes_dir': TEST_DATA_NOT_INBOX,
+            'quick': True
         }
-        _ = brain.template_note(**params)
+        brain.new_note_interactive(**params)
 
         # Then create another copy, without specifying where.
         params = {
-          'title': ['testing note template'],
-          'template': 'note',
+            'topic_fragments': ['testing', 'note', 'template'],
+            'note_template': 'note',
+            'quick': True
         }
-        _ = brain.template_note(**params)
+        brain.new_note_interactive(**params)
 
-        # import pdb; pdb.set_trace()
         dir_contents = os.listdir(TEST_DATA_NOT_INBOX)
         # Inbox exists.
         self.assertEqual(len(dir_contents), 1, '1 in not_inbox')
 
         # See if we can find more than one.
         params = {
-          'filter': ['testing', 'note', 'template'],
+            'filter': ['testing', 'note', 'template'],
         }
         results = brain.find_files(**params)
-        self.assertEqual(len(results), 1, 
-                'note_template created ' + \
-                        str(len(results)) + \
-                        ' files instead of exactly 1.')
+        self.assertEqual(len(results), 1,
+                         'note_template created ' + str(len(results)) +
+                         ' files instead of exactly 1.')
 
     def test_strays(self):
         ''' Run the strays method. '''
@@ -235,7 +235,7 @@ class TestFileStuff(unittest.TestCase):
         TestFileStuff.clean_directory()
         topic = 'test note 347'
         expected_filename = 'test-note-347.txt'
-        expected_line = 5
+        expected_line = 4
         # Act
         (actual_filename, actual_line) = brain.create_new_note(
             topic,
@@ -255,7 +255,7 @@ class TestFileStuff(unittest.TestCase):
         topic = 'test note 348'
         today_date = date.today()
         expected_filename = today_date.isoformat() + '-test-note-348.txt'
-        expected_line = 5
+        expected_line = 4
         # Act
         (actual_filename, actual_line) = brain.create_new_note(
             topic,

@@ -11,7 +11,7 @@ from ConfigParser import SafeConfigParser
 from collections import defaultdict
 import logging
 import platform
-import shlex
+import sys
 
 LOGGER = logging.getLogger(__name__)
 
@@ -22,9 +22,8 @@ LOGGER = logging.getLogger(__name__)
 CONFIG_FILE = '~/.minion'
 
 # Linux preferred apps to view files:
-VIEWERS = {
-    'default': 'xdg-open',
-    '.txt': 'vim',
+NON_TEXT_VIEWERS = {
+    'default': 'cat %s | less',
     '.pdf': 'evince',
     '.jpg': 'eog',
     '.jpeg': 'eog',
@@ -32,12 +31,12 @@ VIEWERS = {
     '.doc': 'libreoffice',
     '.docx': 'libreoffice',
     '.xls': 'libreoffice',
-    '.xlsx': 'libreoffice'
+    '.xlsx': 'libreoffice',
     }
 
 # Mac OSX 10.9 preferred apps to view files:
 if 'Darwin' in platform.platform():
-    VIEWERS = {
+    NON_TEXT_VIEWERS = {
         'default': '/usr/bin/open',
         '.doc': '/usr/bin/open',
         '.docx': '/usr/bin/open',
@@ -54,9 +53,16 @@ if 'Darwin' in platform.platform():
 
 # Cygwin preferred apps to view files:
 if 'CYGWIN' in platform.platform():
-    VIEWERS = {
-        'default': 'cmd /q /c start "Launched by Minion"',
-        '.txt': 'vim'
+    NON_TEXT_VIEWERS = {
+        'default': 'vim',
+        '.pdf': 'cmd /q /c start "Launched by Minion"',
+        '.jpg': 'cmd /q /c start "Launched by Minion"',
+        '.jpeg': 'cmd /q /c start "Launched by Minion"',
+        '.png': 'cmd /q /c start "Launched by Minion"',
+        '.doc': 'cmd /q /c start "Launched by Minion"',
+        '.docx': 'cmd /q /c start "Launched by Minion"',
+        '.xls': 'cmd /q /c start "Launched by Minion"',
+        '.xlsx': 'cmd /q /c start "Launched by Minion"',
     }
 
 
@@ -245,7 +251,7 @@ def get_file_content(filename, include_filename=True):
     # Don't try to get non-text content.
     _, extension = os.path.splitext(filename)
     extension.lower()
-    if extension not in VIEWERS:
+    if extension not in NON_TEXT_VIEWERS:
         f = open(filename, 'r')
         content = f.read()
         f.close()
@@ -331,9 +337,13 @@ def select_file(match_files, max_files=10):
         else:
             display_output('Notes (most recent first):', match_files,
                            max_display=20)
-            choice = raw_input('Selection? (\'!\' selects the first file): ')
-        if '!' in choice:
+            choice = raw_input(
+                "Selection? ('!' selects the first file, 'q' quits): ")
+        if choice == '!':
             break
+        if choice == 'q':
+            print "Exiting ...\n"
+            sys.exit()
         less_match_files = limit_notes(choice, match_files, True)
         if len(less_match_files) == 0:
             print "No %s %s matches." % (choice_path, choice)
@@ -357,16 +367,16 @@ def remove_archives(file_list):
 
 
 def get_remove_tags(text_string):
-    tag_re = re.compile("-@\w*")
+    tag_re = re.compile("-[\@\w]*")
     tags = tag_re.findall(text_string)
-    tags = [x.lstrip('-@') for x in tags]
+    tags = [x.lstrip('-') for x in tags]
     return tags
 
 
 def get_tags_from_string(text_string):
-    tag_re = re.compile("@\w*")
+    tag_re = re.compile("\+[\@\w]*")
     tags = tag_re.findall(text_string)
-    results = [x.lstrip('@') for x in tags]
+    results = [x.lstrip('+') for x in tags]
     return results
 
 
@@ -486,7 +496,6 @@ def content_has_tag(content, tag):
     ''' Return true if the file content's tags line has the given tag. '''
     content = content.split('\n')
     TAG_INDICATOR = get_setting('compose', 'tagline')
-    tag = tag.lower()
     for line in content:
         if TAG_INDICATOR in line:
             if tag in line:
@@ -552,7 +561,10 @@ def get_viewer(filename):
 
 
 def get_editor(filename, view=False):
-    apps = VIEWERS
+    # make a copy of non-text viewers
+    apps = dict()
+    apps.update(NON_TEXT_VIEWERS)
+
     if not view:
         apps['default'] = get_setting('compose', 'editor')
 
@@ -599,19 +611,31 @@ def open_file(program, file_list, line=0):
         Where possible, jump to the specified line/position in the file.
     '''
 
-    # Convert file paths if running on CygWIN to support launching windows
-    # viewers/programs
+    # Special treatment if launching windows programs in CygWin
     if program.startswith('cmd '):
+        # Convert file paths if running on CygWIN to support launching windows
+        # viewers/programs
         if 'CYGWIN' in platform.platform():
             # convert CygWin paths to Windows paths
             file_list = [get_windows_path(fi) for fi in file_list]
+
+    # add initial line parameter for launching vim
     if program.startswith('vim'):
         program += ' +' + str(line)
-    # Split the program command into the array taking into account escape
-    # characters, etc. This is what subprocess.call requires.
-    cmd_args = shlex.split(program)
-    cmd_args.extend(file_list)
-    subprocess.call(cmd_args)
+
+    # escape spaces in the filenames, but only if not launching cmd on CygWin
+    if not program.startswith('cmd'):
+        file_list = [fi.replace(' ', '\ ') for fi in file_list]
+
+    # insert filenames placeholder to the command line if not already there
+    if "%s" not in program:
+        program = program + ' %s'
+
+    # apply the filename placeholder
+    program = program % ' '.join(file_list)
+
+    # call the external program
+    subprocess.call(program, shell=True)
 
 
 def open_in_editor(filename, line=0):
@@ -703,10 +727,11 @@ def expand_short_command(command):
     # Hardwired sort actions
     commands = {
         'r': '!rename',
-        '#': '!review',
+        'e': '!edit',
         'v': '!view',
-        '!': '!quit',
+        'q': '!quit',
         'a': '!archive',
+        'd': '!delete',
         '?': '!help'
     }
     # Add configurable sort actions
@@ -760,7 +785,7 @@ def create_tag_line(tags, TAG_INDICATOR=None):
     tags = list(set(tags))
     # Remove any line breaks
     # TODO: Find a way to support multiple lines of tags, someday, maybe.
-    tags = [x.replace('\n', ' ').lower() for x in tags]
+    tags = [x.replace('\n', ' ') for x in tags]
     tags = sorted(tags)
 
     # Always put the tag indicator at the start.
@@ -781,7 +806,6 @@ def remove_tags_from_content(tags, content):
         if (TAG_INDICATOR in line):
             all_tags = parse_tags(line, TAG_INDICATOR)
             for tag in tags:
-                tag = tag.lower()
                 if tag in all_tags:
                     all_tags.pop(all_tags.index(tag))
             line = create_tag_line(all_tags, TAG_INDICATOR)
@@ -869,58 +893,89 @@ def archive(filename):
     print "Moved to %s" % folder
 
 
+def rename_note(filename, new_name):
+    if len(new_name) == 0:
+        new_name = raw_input('New name? ')
+    new_name = string_to_file_name(new_name)
+    new_file = "%s/%s" % (get_inbox(), new_name)
+    new_file = rename_file(filename, new_file)
+    return new_file
+
+
+def check_add_remove_tags(filename, command):
+    # if there are any tags to be added, add them
+    tags_to_add = get_tags_from_string(command)
+    if len(tags_to_add) > 0:
+        add_tags_to_file(tags_to_add, filename)
+        print "Tag(s) %s added." % str(tags_to_add)
+
+    # if there are any tags to be removed, remove them
+    remove_tags = get_remove_tags(command)
+    if len(remove_tags) > 0:
+        remove_tags_from_file(remove_tags, filename)
+        print "Tag(s) %s removed." % str(remove_tags)
+
+    if len(tags_to_add) > 0 or len(remove_tags) > 0:
+        return True
+    else:
+        return False
+
+
+def check_move_note(filename, command):
+    folder_re = re.compile('>\S*')
+    folders = folder_re.findall(command)
+    if len(folders) > 0:
+        folder = folders[0]
+        folder = folder.replace('>', '')
+        folder = os.path.expanduser(folder)
+        filename = move_to_folder(filename, folder)
+        print "Moved to %s" % folder
+    return filename
+
+
+def delete_note(filename):
+    action = raw_input(
+        'Delete note %s? (type "YES" to confirm): '
+        % filename)
+    if action == "YES":
+        os.remove(filename)
+        print "Note %s was deleted!" % filename
+    else:
+        print "Note %s was NOT deleted." % filename
+
+
 def apply_command_to_file(filename, command):
     ''' The core of the interactive file sorting system. '''
     command = expand_short_command(command)
     if '!help' in command:
-        print get_sort_menu()
-        print
+        print get_sort_menu() + '\n'
         doInboxInteractive(filename)
 
-    if '!review' in command:
+    if '!edit' in command:
+        open_in_editor(filename)
         doInboxInteractive(filename)
 
     if '!archive' in command:
         archive(filename)
 
     if '!rename' in command:
-        new_name = command.replace('!rename', '')
-        if len(new_name) == 0:
-            new_name = raw_input('New name? ')
-        new_name = string_to_file_name(new_name)
-        new_file = "%s/%s" % (get_inbox(), new_name)
-        new_file = rename_file(filename, new_file)
-        doInboxInteractive(new_file)
-        return new_file
+        new_filename = rename_note(filename, command.replace('!rename', ''))
+        doInboxInteractive(new_filename)
+        return new_filename
 
-    # Add tags
-    tags_to_add = get_tags_from_string(command)
-    if len(tags_to_add) > 0:
-        filename = add_tags_to_file(tags_to_add, filename)
-        print "Tag(s) %s added." % str(tags_to_add)
-        doInboxInteractive(filename)
+    if '!delete' in command:
+        delete_note(filename)
 
-    # Remove tags
-    remove_tags = get_remove_tags(command)
-    if len(remove_tags) > 0:
-        filename = remove_tags_from_file(remove_tags, filename)
-        print "Tag(s) %s removed." % str(remove_tags)
+    if check_add_remove_tags(filename, command):
         doInboxInteractive(filename)
 
     # If there's a calendar tag...move to the calendar folder.
     if hasCalendarTag(command):
         filename = move_to_folder(filename, 'calendar')
-        print "Moved to calendar" % filename
+        print "Moved %s to calendar folder." % filename
     else:
         # Move elsewhere if requested.
-        folder_re = re.compile('>\S*')
-        folders = folder_re.findall(command)
-        if len(folders) > 0:
-            folder = folders[0]
-            folder = folder.replace('>', '')
-            folder = os.path.expanduser(folder)
-            filename = move_to_folder(filename, folder)
-            print "Moved to %s" % folder
+        filename = check_move_note(filename, command)
 
     if '!view' in command:
         preview_file(filename)
@@ -928,7 +983,6 @@ def apply_command_to_file(filename, command):
 
     if '!quit' in command:
         print "Exiting sort ...\n"
-        import sys
         sys.exit()
 
     return filename
@@ -939,7 +993,8 @@ def doInboxInteractive(item):
     display_output('Selected', item, by_tag=False)
     choice = raw_input('Action? ')
     if len(choice) > 0:
-        apply_command_to_file(item, choice)
+        # some commands can change the name of the file/item
+        item = apply_command_to_file(item, choice)
         if choice == 'o':
             to_open.append(item)
     return to_open
@@ -1186,8 +1241,8 @@ def remove_empty_folder(folder):
 
 def get_sort_menu():
     fixed_actions = "Available actions:\n" +\
-        "  !=quit a=archive r=rename #=review v=view o=open at the end\n" +\
-        "  @{tag}=add {tag} -@{tag}=remove {tag} >{folder}=move to {folder}\n" +\
+        "  q=quit a=archive r=rename e=edit v=view d=delete o=mark to open\n" +\
+        "  +{tag}=add {tag} -{tag}=remove {tag} >{folder}=move to {folder}\n" +\
         "  :{3-letter month}=>calendar (e.g. :Jan) <Enter>=next file ?=help\n"
     sort_actions_settings = parse_sort_actions_settings()
     # build the sort menu; insert new_line if line is too long
