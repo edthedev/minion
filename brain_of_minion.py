@@ -32,7 +32,7 @@ NON_TEXT_VIEWERS = {
     '.docx': 'libreoffice',
     '.xls': 'libreoffice',
     '.xlsx': 'libreoffice',
-    }
+}
 
 # Mac OSX 10.9 preferred apps to view files:
 if 'Darwin' in platform.platform():
@@ -49,12 +49,12 @@ if 'Darwin' in platform.platform():
         '.pdf': '/usr/bin/open',
         '.xls': '/usr/bin/open',
         '.xlsx': '/usr/bin/open',
-        }
+    }
 
 # Cygwin preferred apps to view files:
 if 'CYGWIN' in platform.platform():
     NON_TEXT_VIEWERS = {
-        'default': 'vim',
+        'default': 'cat %s | less',
         '.pdf': 'cmd /q /c start "Launched by Minion"',
         '.jpg': 'cmd /q /c start "Launched by Minion"',
         '.jpeg': 'cmd /q /c start "Launched by Minion"',
