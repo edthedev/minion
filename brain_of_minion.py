@@ -11,6 +11,7 @@ from ConfigParser import SafeConfigParser
 from collections import defaultdict
 import logging
 import platform
+import sys
 
 LOGGER = logging.getLogger(__name__)
 
@@ -18,22 +19,22 @@ LOGGER = logging.getLogger(__name__)
 # GLOBAL CONSTANTS
 ################################################################################
 
-TODAY = date.today()
-
 CONFIG_FILE = '~/.minion'
 
-# Linux preferred apps:
+# Linux preferred apps to view files:
 NON_TEXT_VIEWERS = {
     'default': 'cat %s | less',
+    '.pdf': 'evince',
     '.jpg': 'eog',
     '.jpeg': 'eog',
     '.png': 'eog',
-    '.pnm': 'eog',
-    '.pdf': 'evince',
+    '.doc': 'libreoffice',
+    '.docx': 'libreoffice',
     '.xls': 'libreoffice',
-    }
+    '.xlsx': 'libreoffice',
+}
 
-# Mac OSX 10.9 preferred apps:
+# Mac OSX 10.9 preferred apps to view files:
 if 'Darwin' in platform.platform():
     NON_TEXT_VIEWERS = {
         'default': '/usr/bin/open',
@@ -48,23 +49,21 @@ if 'Darwin' in platform.platform():
         '.pdf': '/usr/bin/open',
         '.xls': '/usr/bin/open',
         '.xlsx': '/usr/bin/open',
-        }
+    }
 
-TERMINAL_APP = ['vim', 'cat %s | less']
-
-REPLACE_APP = ['cat %s | less']
-
-EDITORS = NON_TEXT_VIEWERS
-
-GRAPHICAL_EDITORS = EDITORS
-
-GRAPHICAL_EDITORS['default'] = 'gvim'
-
-DONE = 'DONE:'
-
-TODO = 'TODO:'
-
-WAITING = ':WAITING:'
+# Cygwin preferred apps to view files:
+if 'CYGWIN' in platform.platform():
+    NON_TEXT_VIEWERS = {
+        'default': 'cat %s | less',
+        '.pdf': 'cmd /q /c start "Launched by Minion"',
+        '.jpg': 'cmd /q /c start "Launched by Minion"',
+        '.jpeg': 'cmd /q /c start "Launched by Minion"',
+        '.png': 'cmd /q /c start "Launched by Minion"',
+        '.doc': 'cmd /q /c start "Launched by Minion"',
+        '.docx': 'cmd /q /c start "Launched by Minion"',
+        '.xls': 'cmd /q /c start "Launched by Minion"',
+        '.xlsx': 'cmd /q /c start "Launched by Minion"',
+    }
 
 
 ################################################################################
@@ -92,6 +91,7 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('compose', 'filename_sep', '-')
     settings.set('compose', 'editor', 'vim')
     settings.set('compose', 'tagline', ':tags:')
+    settings.set('compose', 'tags_case_sensitive', 'false')
     # Default note date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
@@ -134,9 +134,6 @@ def get_setting(section, key):
     return GLOBAL_SETTINGS.get(section, key)
 
 
-EDITORS['default'] = get_setting('compose', 'editor')
-
-
 def parse_sort_actions_settings():
     return GLOBAL_SETTINGS.items('sort_actions')
 
@@ -150,6 +147,7 @@ def get_global_data():
     '''
     date_format = get_date_format()
     data = {}
+    TODAY = date.today()
     data['today'] = TODAY.strftime(date_format)
     monday = TODAY - timedelta(days=TODAY.weekday())
     for i, day in enumerate(('sunday', 'monday', 'tuesday', 'wednesday',
@@ -340,9 +338,13 @@ def select_file(match_files, max_files=10):
         else:
             display_output('Notes (most recent first):', match_files,
                            max_display=20)
-            choice = raw_input('Selection? (\'!\' selects the first file):')
-        if '!' in choice:
+            choice = raw_input(
+                "Selection? ('!' selects the first file, 'q' quits): ")
+        if choice == '!':
             break
+        if choice == 'q':
+            print "Exiting ...\n"
+            sys.exit()
         less_match_files = limit_notes(choice, match_files, True)
         if len(less_match_files) == 0:
             print "No %s %s matches." % (choice_path, choice)
@@ -366,16 +368,16 @@ def remove_archives(file_list):
 
 
 def get_remove_tags(text_string):
-    tag_re = re.compile("-@\w*")
+    tag_re = re.compile("-[\@\w]*")
     tags = tag_re.findall(text_string)
-    tags = [x.lstrip('-@') for x in tags]
+    tags = [x.lstrip('-') for x in tags]
     return tags
 
 
 def get_tags_from_string(text_string):
-    tag_re = re.compile("@\w*")
+    tag_re = re.compile("\+[\@\w]*")
     tags = tag_re.findall(text_string)
-    results = [x.lstrip('@') for x in tags]
+    results = [x.lstrip('+') for x in tags]
     return results
 
 
@@ -495,7 +497,8 @@ def content_has_tag(content, tag):
     ''' Return true if the file content's tags line has the given tag. '''
     content = content.split('\n')
     TAG_INDICATOR = get_setting('compose', 'tagline')
-    tag = tag.lower()
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tag = tag.lower()
     for line in content:
         if TAG_INDICATOR in line:
             if tag in line:
@@ -560,12 +563,13 @@ def get_viewer(filename):
     return get_editor(filename, view=True)
 
 
-def get_editor(filename, graphical=False, view=False):
-    apps = EDITORS
-    if view:
-        apps = NON_TEXT_VIEWERS
-    if graphical:
-        apps = GRAPHICAL_EDITORS
+def get_editor(filename, view=False):
+    # make a copy of non-text viewers
+    apps = dict()
+    apps.update(NON_TEXT_VIEWERS)
+
+    if not view:
+        apps['default'] = get_setting('compose', 'editor')
 
     extension = os.path.splitext(filename)[1]
     extension = extension.lower()
@@ -590,21 +594,64 @@ def file_to_stdout(filename):
     print '\n'
 
 
-def open_with_editor(editor, file_list, line=0):
-    ''' Use the selected editor to open the selected files.
+def get_windows_path(cygwin_path):
+    ''' Converts cygwin bash path to windows path in CYGWIN environment'''
 
-    Where possible, jump to the specified line/position in each file.
+    # Escape the special characters in the cygwin_path
+    cygwin_path = cygwin_path.replace(' ', '\ ')
+    cygwin_path = cygwin_path.replace('(', '\(')
+    cygwin_path = cygwin_path.replace(')', '\)')
+
+    # Call external path converter (cygpath is part of CygWin environment)
+    cmd_line = 'cygpath -w ' + cygwin_path
+    w_path = subprocess.Popen(cmd_line, shell=True,
+                              stdout=subprocess.PIPE).stdout.read()
+
+    # remove carriage returns at the end of the w_path and
+    # add quotes around the path to preserve backslashes and filename spaces
+    w_path = '"' + w_path.strip('\n') + '"'
+
+    return w_path
+
+
+def open_file(program, file_list, line=0):
+    ''' Use the selected program to open the selected files.
+
+        Where possible, jump to the specified line/position in the file.
     '''
 
-    cmd_args = [editor]
-    cmd_args.extend(file_list)
+    # Special treatment if launching windows programs in CygWin
+    if program.startswith('cmd '):
+        # Convert file paths if running on CygWIN to support launching windows
+        # viewers/programs
+        if 'CYGWIN' in platform.platform():
+            # convert CygWin paths to Windows paths
+            file_list = [get_windows_path(fi) for fi in file_list]
 
-    subprocess.call(cmd_args)
+    # add initial line parameter for launching vim
+    if program.startswith('vim'):
+        program += ' +' + str(line)
 
-def open_file(filename, line=0, graphical=False):
+    # escape spaces in the filenames, but only if not launching cmd on CygWin
+    if not program.startswith('cmd'):
+        file_list = [fi.replace(' ', '\ ') for fi in file_list]
+
+    # insert filenames placeholder to the command line if not already there
+    if "%s" not in program:
+        program = program + ' %s'
+
+    # apply the filename placeholder
+    program = program % ' '.join(file_list)
+
+    # call the external program
+    subprocess.call(program, shell=True)
+
+
+def open_in_editor(filename, line=0):
     ''' Select an appropriate editor and open the file. '''
-    program = get_editor(filename, graphical)
-    open_with_editor(program, [filename], line)
+    program = get_editor(filename)
+    open_file(program, [filename], line)
+
 
 def open_files(filenames, max=10):
     ''' Open all the files in the list.
@@ -624,18 +671,12 @@ def open_files(filenames, max=10):
     # Open files with editors
     for editor in editors:
         # Open each file list with the chosen editor.
-        open_with_editor(editor, editors[editor])
+        open_file(editor, editors[editor])
 
 
 def preview_file(filename):
-    viewer = get_viewer(filename)
-    LOGGER.info("Viewing file: " + filename + " with " + viewer)
-    # if viewer in REPLACE_APP:
-    #    os.system(viewer % filename)
-    # elif viewer in TERMINAL_APP:
-    #    os.system("%s %s" % (viewer, filename))
-    # else:
-    subprocess.call([viewer, filename])
+    program = get_viewer(filename)
+    open_file(program, [filename])
 
 
 def get_notes_home():
@@ -695,10 +736,11 @@ def expand_short_command(command):
     # Hardwired sort actions
     commands = {
         'r': '!rename',
-        '#': '!review',
+        'e': '!edit',
         'v': '!view',
-        '!': '!quit',
+        'q': '!quit',
         'a': '!archive',
+        'd': '!delete',
         '?': '!help'
     }
     # Add configurable sort actions
@@ -739,11 +781,10 @@ def parse_tags(line, TAG_INDICATOR=None):
 
 def create_tag_line(tags, TAG_INDICATOR=None):
     ''' Create a line of text that stores tags
-    in a test file.
+        in a test file.
 
-    Note that all tags are stored in lower case,
-    to simplify sorting and retrieval.
-
+        Note that all tags are stored in lower case,
+        to simplify sorting and retrieval.
     '''
     if not TAG_INDICATOR:
         TAG_INDICATOR = get_setting('compose', 'tagline')
@@ -751,8 +792,10 @@ def create_tag_line(tags, TAG_INDICATOR=None):
     # Unique-ify
     tags = list(set(tags))
     # Remove any line breaks
-    # TODO: Find a way to support multiple lines of tags, someday, maybe.
-    tags = [x.replace('\n', ' ').lower() for x in tags]
+    tags = [x.replace('\n', ' ') for x in tags]
+    # Make sure all the tags are lower case if case sensitive switch off
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tags = [x.lower() for x in tags]
     tags = sorted(tags)
 
     # Always put the tag indicator at the start.
@@ -766,6 +809,10 @@ def create_tag_line(tags, TAG_INDICATOR=None):
 def remove_tags_from_content(tags, content):
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
+    # Make sure all the tags are lower case if case sensitive switch off
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tags = [x.lower() for x in tags]
+
     all_tags = []
     updated_content = []
     content = content.split('\n')
@@ -773,7 +820,6 @@ def remove_tags_from_content(tags, content):
         if (TAG_INDICATOR in line):
             all_tags = parse_tags(line, TAG_INDICATOR)
             for tag in tags:
-                tag = tag.lower()
                 if tag in all_tags:
                     all_tags.pop(all_tags.index(tag))
             line = create_tag_line(all_tags, TAG_INDICATOR)
@@ -813,6 +859,9 @@ def add_tags(tags, content):
     all_tags = []
     updated_content = []
     found_tags = False
+    # Make sure all the tags are lower case if case sensitive switch off
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tags = [x.lower() for x in tags]
     for line in content.split('\n'):
         if (TAG_INDICATOR in line):
             found_tags = True
@@ -861,48 +910,89 @@ def archive(filename):
     print "Moved to %s" % folder
 
 
+def rename_note(filename, new_name):
+    if len(new_name) == 0:
+        new_name = raw_input('New name? ')
+    new_name = string_to_file_name(new_name)
+    new_file = "%s/%s" % (get_inbox(), new_name)
+    new_file = rename_file(filename, new_file)
+    return new_file
+
+
+def check_add_remove_tags(filename, command):
+    # if there are any tags to be added, add them
+    tags_to_add = get_tags_from_string(command)
+    if len(tags_to_add) > 0:
+        add_tags_to_file(tags_to_add, filename)
+        print "Tag(s) %s added." % str(tags_to_add)
+
+    # if there are any tags to be removed, remove them
+    remove_tags = get_remove_tags(command)
+    if len(remove_tags) > 0:
+        remove_tags_from_file(remove_tags, filename)
+        print "Tag(s) %s removed." % str(remove_tags)
+
+    if len(tags_to_add) > 0 or len(remove_tags) > 0:
+        return True
+    else:
+        return False
+
+
+def check_move_note(filename, command):
+    folder_re = re.compile('>\S*')
+    folders = folder_re.findall(command)
+    if len(folders) > 0:
+        folder = folders[0]
+        folder = folder.replace('>', '')
+        folder = os.path.expanduser(folder)
+        filename = move_to_folder(filename, folder)
+        print "Moved to %s" % folder
+    return filename
+
+
+def delete_note(filename):
+    action = raw_input(
+        'Delete note %s? (type "YES" to confirm): '
+        % filename)
+    if action == "YES":
+        os.remove(filename)
+        print "Note %s was deleted!" % filename
+    else:
+        print "Note %s was NOT deleted." % filename
+
+
 def apply_command_to_file(filename, command):
     ''' The core of the interactive file sorting system. '''
     command = expand_short_command(command)
     if '!help' in command:
-        print get_sort_menu()
+        print get_sort_menu() + '\n'
         doInboxInteractive(filename)
-    if '!review' in command:
+
+    if '!edit' in command:
+        open_in_editor(filename)
         doInboxInteractive(filename)
+
     if '!archive' in command:
         archive(filename)
+
     if '!rename' in command:
-        new_name = command.replace('!rename', '')
-        if len(new_name) == 0:
-            new_name = raw_input('New name? ')
-        new_name = string_to_file_name(new_name)
-        new_file = "%s/%s" % (get_inbox(), new_name)
-        new_file = rename_file(filename, new_file)
-        doInboxInteractive(new_file)
-        return new_file
+        new_filename = rename_note(filename, command.replace('!rename', ''))
+        doInboxInteractive(new_filename)
+        return new_filename
 
-    # Add tags
-    tags_to_add = get_tags_from_string(command)
-    filename = add_tags_to_file(tags_to_add, filename)
+    if '!delete' in command:
+        delete_note(filename)
 
-    # Remove tags
-    remove_tags = get_remove_tags(command)
-    filename = remove_tags_from_file(remove_tags, filename)
+    if check_add_remove_tags(filename, command):
+        doInboxInteractive(filename)
 
     # If there's a calendar tag...move to the calendar folder.
     if hasCalendarTag(command):
         filename = move_to_folder(filename, 'calendar')
-        print "Moved to calendar" % filename
+        print "Moved %s to calendar folder." % filename
     else:
         # Move elsewhere if requested.
-        folder_re = re.compile('>\S*')
-        folders = folder_re.findall(command)
-        if len(folders) > 0:
-            folder = folders[0]
-            folder = folder.replace('>', '')
-            folder = os.path.expanduser(folder)
-            filename = move_to_folder(filename, folder)
-            print "Moved to %s" % folder
+        filename = check_move_note(filename, command)
 
     if '!view' in command:
         preview_file(filename)
@@ -910,7 +1000,6 @@ def apply_command_to_file(filename, command):
 
     if '!quit' in command:
         print "Exiting sort ...\n"
-        import sys
         sys.exit()
 
     return filename
@@ -921,7 +1010,8 @@ def doInboxInteractive(item):
     display_output('Selected', item, by_tag=False)
     choice = raw_input('Action? ')
     if len(choice) > 0:
-        apply_command_to_file(item, choice)
+        # some commands can change the name of the file/item
+        item = apply_command_to_file(item, choice)
         if choice == 'o':
             to_open.append(item)
     return to_open
@@ -939,6 +1029,7 @@ def hasCalendarTag(text):
         if tag in text:
             return True
     return False
+
 
 def get_files(directory, archives=False):
     ''' Called by find_files to get a list of files, before sorting. '''
@@ -977,16 +1068,17 @@ def get_files(directory, archives=False):
 
     return files
 
+
 def log_line_to_file(filename, line):
-    ''' 
-    Add a log file line to the file. 
+    '''
+    Add a log file line to the file.
 
     Log lines always start with the current day and time.
     '''
     params = {
-      'date': datetime.today().strftime(get_date_format()),
-      'time': datetime.today().strftime("%H:%M"),
-      'line': line,
+        'date': datetime.today().strftime(get_date_format()),
+        'time': datetime.today().strftime("%H:%M"),
+        'line': line,
     }
     # TODO: Make log_line_template fetch from config file.
     log_line_template = "\n{date} {time} : {line}"
@@ -999,6 +1091,7 @@ def log_line_to_file(filename, line):
     print new_line
     return
 
+
 def choose_file(filter=[], archives=False, full_text=False):
     '''
     Given the filter, suggest a single match file.
@@ -1007,13 +1100,14 @@ def choose_file(filter=[], archives=False, full_text=False):
 
     When there are too many matches, the first return is None.
 
-    When there are no matches at all, 
+    When there are no matches at all,
     the first return is a suggestion for a new file.
 
     The second return is always the list of possible matches.
 
     '''
-    match_files = find_files(filter=filter, archives=archives, full_text=full_text)
+    match_files = find_files(filter=filter, archives=archives,
+                             full_text=full_text)
 
     # Filter word must always match a single file.
     if len(match_files) > 1:
@@ -1025,6 +1119,7 @@ def choose_file(filter=[], archives=False, full_text=False):
         print "No matches, suggesting new filename."
         filename = get_filename_for_topic(' '.join(filter))
         return filename, []
+
 
 def find_files(directory=None, archives=False, filter=[], full_text=False,
                find_any=False, days=None):
@@ -1135,7 +1230,7 @@ def rename_file(filename, new_name):
 
 
 def move_to_folder(filename, folder):
-    ''' Move the file to a difference folder. '''
+    ''' Move the file to a different folder. '''
     try:
         origin = os.path.dirname(filename)
         destination = get_folder(folder)
@@ -1163,8 +1258,8 @@ def remove_empty_folder(folder):
 
 def get_sort_menu():
     fixed_actions = "Available actions:\n" +\
-        "  !=quit a=archive r=rename #=review v=view o=open at the end\n" +\
-        "  @{tag}=add {tag} -@{tag}=remove {tag} >{folder}=move to {folder}\n" +\
+        "  q=quit a=archive r=rename e=edit v=view d=delete o=mark to open\n" +\
+        "  +{tag}=add {tag} -{tag}=remove {tag} >{folder}=move to {folder}\n" +\
         "  :{3-letter month}=>calendar (e.g. :Jan) <Enter>=next file ?=help\n"
     sort_actions_settings = parse_sort_actions_settings()
     # build the sort menu; insert new_line if line is too long
@@ -1223,17 +1318,6 @@ def get_template_content(template):
     template_text = ''.join(template_text)
     return template_text
 
-def template_note(title, template, directory=None):
-    ''' Create or open a note based on a template. '''
-
-    params = {
-        'topic': ' '.join(title),
-        'note_template': template,
-        'notes_dir': directory,
-    }
-    filename, last_line  = create_new_note(**params)
-
-    return filename, last_line
 
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
@@ -1262,7 +1346,7 @@ def write_template_to_file(topic, filename, note_template):
     f.close()
 
     # calculate the last line of the note to position the cursor later
-    last_line = len(file_text.split('\n')) + 1
+    last_line = len(file_text.split('\n'))
 
     return last_line
 
@@ -1276,43 +1360,41 @@ def new_note_interactive(topic_fragments, note_template, quick=False,
     # construct the topic string
     topic = ' '.join(topic_fragments)
     # create the note
-    (filename, last_line) = create_new_note(topic,
-                                            note_template,
-                                            notes_dir)
+    (filename, last_line) = create_new_note(topic, note_template, notes_dir)
     # Decide whether to open it immediately.
     if not quick:
-        open_file(filename, line=last_line)
+        open_in_editor(filename, line=last_line)
     else:
         print "Note '%s' created ..." % filename
     return (filename, last_line)
 
-def create_new_note(topic, note_template=None, notes_dir=None, 
-        filename_template=None):
-    ''' Create a new note, non-interactive.'''
-    if not note_template:
-        note_template = 'note'
 
-    # When in doubt, put it in the inbox.
-    if not notes_dir:
+def create_new_note(topic, note_template=None, notes_dir=None,
+                    filename_template=None):
+    ''' Create a new note, non-interactive.'''
+
+    # When no template, use the default one
+    if note_template is None:
+        note_template = get_setting('notes', 'default_template')
+
+    # When not defined, put the note in the inbox.
+    if notes_dir is None:
         notes_dir = get_inbox()
 
     # get the first line of the template and use it as filename template
-    if not filename_template:
+    if filename_template is None:
         template_content = get_template_content(note_template)
         filename_template = template_content.split('\n')[0]
-
-    # print "Note template used: " + note_template
+    print "Note template used: " + note_template
 
     filename = get_filename_for_topic(topic, notes_dir, filename_template)
     last_line = 0
-    # only create it if it does not exist
-    if not os.path.exists(filename):
-        # Use the default template if none specified.
-        if note_template is None:
-            note_template = get_setting('notes', 'default_template')
 
+    # only create new note if it does not exist
+    if not os.path.exists(filename):
         # Write the template to the file.
         last_line = write_template_to_file(topic, filename, note_template)
+
     return (filename, last_line)
 
 
