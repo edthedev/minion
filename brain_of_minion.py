@@ -91,6 +91,7 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     settings.set('compose', 'filename_sep', '-')
     settings.set('compose', 'editor', 'vim')
     settings.set('compose', 'tagline', ':tags:')
+    settings.set('compose', 'tags_case_sensitive', 'false')
     # Default note date format
     settings.add_section('date')
     settings.set('date', 'format', '%%Y-%%m-%%d')
@@ -496,6 +497,8 @@ def content_has_tag(content, tag):
     ''' Return true if the file content's tags line has the given tag. '''
     content = content.split('\n')
     TAG_INDICATOR = get_setting('compose', 'tagline')
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tag = tag.lower()
     for line in content:
         if TAG_INDICATOR in line:
             if tag in line:
@@ -778,11 +781,10 @@ def parse_tags(line, TAG_INDICATOR=None):
 
 def create_tag_line(tags, TAG_INDICATOR=None):
     ''' Create a line of text that stores tags
-    in a test file.
+        in a test file.
 
-    Note that all tags are stored in lower case,
-    to simplify sorting and retrieval.
-
+        Note that all tags are stored in lower case,
+        to simplify sorting and retrieval.
     '''
     if not TAG_INDICATOR:
         TAG_INDICATOR = get_setting('compose', 'tagline')
@@ -790,8 +792,10 @@ def create_tag_line(tags, TAG_INDICATOR=None):
     # Unique-ify
     tags = list(set(tags))
     # Remove any line breaks
-    # TODO: Find a way to support multiple lines of tags, someday, maybe.
     tags = [x.replace('\n', ' ') for x in tags]
+    # Make sure all the tags are lower case if case sensitive switch off
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tags = [x.lower() for x in tags]
     tags = sorted(tags)
 
     # Always put the tag indicator at the start.
@@ -804,6 +808,10 @@ def create_tag_line(tags, TAG_INDICATOR=None):
 
 def remove_tags_from_content(tags, content):
     TAG_INDICATOR = get_setting('compose', 'tagline')
+
+    # Make sure all the tags are lower case if case sensitive switch off
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tags = [x.lower() for x in tags]
 
     all_tags = []
     updated_content = []
@@ -851,6 +859,9 @@ def add_tags(tags, content):
     all_tags = []
     updated_content = []
     found_tags = False
+    # Make sure all the tags are lower case if case sensitive switch off
+    if get_setting('compose', 'tags_case_sensitive') != 'true':
+        tags = [x.lower() for x in tags]
     for line in content.split('\n'):
         if (TAG_INDICATOR in line):
             found_tags = True
