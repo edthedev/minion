@@ -2,26 +2,19 @@ Weekly Plan for {monday}
 ==============================
 :date: {today}
 
-Commitments
-------------
+Commitments / Deliverables Schedule
+------------------------------------
 
-Deliverables This Week
------------------------
+Goals for this week
+--------------------
 
-Deliverables Schedule
-----------------------
+Next Week:
 
-Goals
-------
-
-Management
------------
+Assignments / Management
+-------------------------
 
 My Professional Development
 ----------------------------
-
-Next Week
-----------
 
 Later
 ------
