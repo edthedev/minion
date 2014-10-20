@@ -32,13 +32,7 @@ Minion requires [Python2](http://python.org).
 	git clone https://github.com/edthedev/minion
 	```
 
-2. Move the example `.minion` file to your home directory, and edit it as needed:
-
-	```
-	mv minion/DOTminion .minion
-	```
-
-3. Configure your shell:
+2. Configure your shell:
 	* `bash`/`zsh`/`sh`:
 		
 		Add the following to your profile (e.g. `~/.bashrc`):
@@ -68,20 +62,20 @@ Minion requires [Python2](http://python.org).
 		# alias favorites="minion favorites"
 		```
 
-4. Run Minion once to ensure that a default `~/.minion` file gets created.
+3. Run Minion once to ensure that a default `~/.minion` file gets created.
 
 	```
 	minion dates .
 	```
 
-5. Edit `~/.minion` to set your notes directory.
+4. Edit `~/.minion` to set your notes directory.
 
 	```
 	[notes]
 	home = ~/Documents
 	```
 
-6. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
+5. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
 
 	```
 	[compose]
