@@ -28,7 +28,9 @@ Minion requires [Python2](http://python.org).
 
 1. Clone the source code from GitHub: `git clone https://github.com/edthedev/minion`
 
-2. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
+2. Move the example .minion file to your home directory, and edit it as needed: `mv minion/DOTminion .minion`
+
+3. Edit your bash/zsh/sh profile (e.g. ~/.bashrc)  to add `source ~/minion/add_to_your_profile`.
 
 	If you use `fish` add the following to your ~/.config/fish/config.fish
 
@@ -48,16 +50,16 @@ Minion requires [Python2](http://python.org).
 		# alias summary="minion summary" 
 		# alias favorites="minion favorites"
 		
-3. Run Minion once to ensure that a default `~/.minion` file gets created.
+4. Run Minion once to ensure that a default `~/.minion` file gets created.
 
 	`minion dates .`
 
-4. Edit `~/.minion` to set your notes directory.
+5. Edit `~/.minion` to set your notes directory.
 
 	[notes]
 	home = ~/Documents
 
-5. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
+6. Optionally, edit `~/.minion` to modify the default editor, templates, and text file extension.
 
 	[compose]
 	templates = /Users/edward/.vim/bundle/minion/plugin/../templates
