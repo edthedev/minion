@@ -1,4 +1,5 @@
 ## Minion
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/edthedev/minion?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Minion is a digital assitant that runs on the command line and stores everything in text files. Minion takes notes, tags notes, finds notes, and gets things done.
 
