@@ -225,7 +225,7 @@ Here are some handy things you can do when stepping through results:
 
 ```
 a - archive - Move the file into the 'Archive.YYYY.MM' folder.
-d - done - Move the file into the 'Archive.YYYY.MM' folder.
+d - done - Delete the file (after confirmation).
 r - rename - Lets you type in a new name. Renaming resets all tags, so retype any tags that you want to keep.
 v - view the file inline
 >later - Move the file into a folder next to the inbox called 'later'. If the folder does not exist yet, it will be created.
