@@ -16,7 +16,7 @@ Commands:
 		Moves the file of the current buffer to a different Minion folder.
 
 	MinionNote <sentence>
-		Creates a new file in the inbox, named based on the given sentence, and the default extension.
+		Creates/opens a new file in the inbox, named based on the given sentence, and the default extension.
 
 	MinionOpen <keywords>
 		Open all files matching keywords in buffers.
@@ -29,6 +29,9 @@ Commands:
 	MinionSummary 
 		Display counts of files in the ten minion folders 
 		containing the most files.
+
+    MinionTemplate <template name>
+        Creates/opens a new file in the inbox, based on your chosen template.
 
 Useful related Vim commands:
 

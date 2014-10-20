@@ -5,7 +5,7 @@ Usage:
     minion collect [--archives] [--year=<year>] <text> ...
     minion count [--archives] <text> ...
     minion command <command> <filename>
-    minion dates <text> ...
+    minion dates [<text>] ...
     minion find [--archives] [--files] <text> ...
     minion favorites
     minion folder <text> ...
@@ -17,7 +17,7 @@ Usage:
     minion note [--folder=<folder>] [--template=<template>] [--quick] <text> ...
     minion open [--archives] [--max=<max>] <text> ...
     minion openall [--archives] [--max=<max>] <text> ...
-    minion recent [--archives] [--days=<days>] [--files] <text> ...
+    minion recent [--archives] [--days=<days>] [--files] [<text>] ...
     minion remind [--folder=<folder>] [--template=<template>] <text> ...
     minion sample [--files] <text> ...
     minion sort <text> ...
@@ -70,10 +70,11 @@ Command descriptions:
 # #babyTeddySays: m'0']..p p j\[ ''
 
 # Copyright 2011-2012 Edward Delaporte <edthedev@gmail.com>
-# Licensed under the University of Illinois / NCSA Open Source License
-# http://www.opensource.org/licenses/UoI-NCSA
+# Licensed under the GPLv2.
 # Created: 2011-04-28
 
+#  TODO: Can we merge the 'note' and 'open' commands, resulting in less
+#  duplication with new notes, and less need to call collect?
 
 ###############################################################################
 # IMPORTS
@@ -107,10 +108,11 @@ CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
 # HELPER FUNCTIONS
 ###############################################################################
 
-def get_match_files():
+def get_match_files(days=None):
     match_files = brain.find_files(
         filter=args['<text>'],
-        archives=args['--archives'])
+        archives=args['--archives'],
+        days=days)
     return match_files
 
 
@@ -131,22 +133,6 @@ def date_sort(filename):
     if first_date:
         return first_date
     return datetime.datetime.now()
-
-
-def get_notes_dir(args):
-    notes_dir = None
-    if args['--folder']:
-        folder = os.path.expanduser(args['--folder'])
-        notes_home = brain.get_notes_home()
-        notes_dir = os.path.join(notes_home, folder)
-    return notes_dir
-
-
-def get_note_template(args):
-    note_template = args['--template']
-    if note_template is None:
-        note_template = brain.get_setting('notes', 'default_template')
-    return note_template
 
 
 def format_2_cols(tuple_list):
@@ -195,45 +181,32 @@ def format_2_cols(tuple_list):
 
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
-    notes_dir = get_notes_dir(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=args['<template>'],
-        quick=args['--quick'],
-        notes_dir=notes_dir)
+    params = PARAMS
+    # Use the template specified on the command line
+    params['note_template'] = args['<template>']
+    brain.new_note_interactive(**params)
 
 
 def minion_remind(args):
     '''Set a quick reminder.'''
-    notes_dir = get_notes_dir(args)
-    note_template = get_note_template(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=note_template,
-        quick=True,
-        notes_dir=notes_dir)
+    params = PARAMS
+    # Don't open it, just make it.
+    params['quick'] = True
+    brain.new_note_interactive(**params)
 
 
 def minion_here(args):
     '''Create a Minion note in the current working directory.'''
-    notes_dir = os.curdir
-    note_template = get_note_template(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=note_template,
-        quick=args['--quick'],
-        notes_dir=notes_dir)
+    params = PARAMS
+    # Use current directory
+    params['notes_dir'] = os.curdir
+    brain.new_note_interactive(**params)
 
 
 def minion_note(args):
     '''Create a Minion note.'''
-    notes_dir = get_notes_dir(args)
-    note_template = get_note_template(args)
-    brain.new_note_interactive(
-        args['<text>'],
-        note_template=note_template,
-        quick=args['--quick'],
-        notes_dir=notes_dir)
+    # It's the most common use, so use the default PARAMS exactly.
+    brain.new_note_interactive(**PARAMS)
 
 
 def minion_sort(args):
@@ -250,7 +223,7 @@ def minion_open(args):
 
     if len(match_files) > 0:
         (choice_path, filename) = brain.select_file(match_files, args['--max'])
-        brain.open_file(filename)
+        brain.open_in_editor(filename)
     else:
         brain.display_output(title=filter, output=match_files)
 
@@ -270,7 +243,7 @@ def minion_strays(args):
         print CLEAN_STRAYS_MESSAGE
         sys.exit()
     else:
-        print brain.getOutput('cal')
+        # print brain.getOutput('cal')
         brain.sort_files_interactive(match_files)
 
 
@@ -285,39 +258,25 @@ def minion_view(args):
 
 def minion_log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
-    filename = ''
-    match_files = brain.find_files(
-        filter=[args['<log>']],
-        archives=args['--archives'])
-    if len(match_files) > 1:
+
+    # Find the log file.
+    params = {
+        'filter': [args['<log>']],
+        'archives': args['--archives'],
+    }
+    filename, match_files = brain.choose_file(**params)
+    if not filename:
         title = ("Too many matches for log "
                  "function with keyword '{}'").format(args['<log>'])
         brain.display_output(title, match_files, max_display=10)
         return False
-    elif len(match_files) == 1:
-        filename = match_files[0]
-    else:
-        print "Creating new log file..."
-        filename = brain.get_filename_for_title(args['<log>'])
 
-    data = dict()
-    data.update(args)
-    data['date'] = datetime.datetime.today().strftime(get_date_format())
-    data['time'] = datetime.datetime.today().strftime("%H:%M")
-    data['<comment>'] = ' '.join(args['<comment>'])
-    # TODO: select_file should probably create the file if it does not exist...
-    #  This would allow merging the 'note' and 'open' commands, resulting in
-    #  less duplication with new notes, and less need to call collect.
-    # TODO: Make this fetch from config file.
-    # TODO: Make match template fetch from config file too...
-    new_line_template = "\n{date} {time} : {<comment>}"
-    new_line = new_line_template.format(**data)
+    params = {
+        'filename': filename,
+        'line': ' '.join(args['<comment>']),
+    }
 
-    print "Appending new line to %s" % filename
-    f = open(filename, 'a')
-    f.write(new_line)
-    f.close()
-    print new_line
+    brain.log_line_to_file(**params)
 
 
 def minion_dates(args):
@@ -356,8 +315,11 @@ def minion_dates(args):
             recent[date_str] = events[key]
 
     brain.display_output('Recent Dates', recent)
+    print
     brain.display_output('Today', today)
+    print
     brain.display_output('Upcoming Dates', upcoming)
+    print
 
 
 def minion_recent(args):
@@ -366,8 +328,9 @@ def minion_recent(args):
         days_back = int(args['--days'])
     except:
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
-    match_files = get_match_files()
-    recent_files = brain.list_recent(match_files, days=days_back)
+
+    match_files = get_match_files(days=days_back)
+    recent_files = brain.list_recent(match_files)
     print "Notes modified in last %s days (most recent last):" % days_back
     brain.display_output(
         title=args['<text>'],
@@ -378,7 +341,7 @@ def minion_recent(args):
 def minion_last(args):
     ''' Open the most recently modified file. '''
     filename = brain.get_last_modified(archives=args['--archives'])
-    brain.open_file(filename)
+    brain.open_in_editor(filename)
 
 ###############################################################################
 # MAIN SCRIPT
@@ -391,6 +354,31 @@ args = docopt(__doc__, version='1.0')
 filter = args['<text>']
 if args['<text>'] == ['all']:
     args['<text>'] = []
+
+###############################################################################
+# Shared parameters
+#
+#   These parameters are used by many function calls below.
+###############################################################################
+PARAMS = {
+    'topic_fragments': args['<text>'],
+    'notes_dir': None,
+    'note_template': None,
+    'quick': False
+}
+
+# Assign folder per command line parameter
+if args['--folder']:
+    folder = os.path.expanduser(args['--folder'])
+    notes_home = brain.get_notes_home()
+    PARAMS['notes_dir'] = os.path.join(notes_home, folder)
+
+if args['--template']:
+    PARAMS['note_template'] = args['--template']
+
+if args['--quick']:
+    PARAMS['quick'] = True
+
 
 # *************************************************************
 # Everything after this point requires searching for matches...
@@ -465,8 +453,8 @@ if args['find'] or args['list']:
 
     # Display results / total
     notes_home = brain.get_notes_home()
-    match_template = "{matching} of {total} files match search \
-        {search} in directory {directory}"
+    match_template = "{matching} of {total} files match search " +\
+        "'{search}' in directory {directory}"
     print match_template.format(
         directory=notes_home,
         matching=len(match_files),
@@ -476,7 +464,7 @@ if args['find'] or args['list']:
     # Display results
     # print match_files
     brain.display_output(
-        title=filter,
+        title=None,
         output=match_files,
         raw_files=args['--files'],
     )

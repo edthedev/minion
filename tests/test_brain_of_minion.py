@@ -26,10 +26,61 @@ class TestFileStuff(unittest.TestCase):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY + '/*')
 
     def setUp(self):
-        try: 
+        try:
             os.mkdir(TEST_DATA_DIRECTORY)
         except OSError:
-            pass
+            print ''
+
+    def test_template_duplicates(self):
+        ''' Test that template does not recreate a file
+        if a file with the same name alreadye exists. '''
+
+        # Start clean
+        TestFileStuff.clean_directory()
+
+        # Create it elsewhere than the inbox.
+        params = {
+            'topic_fragments': ['testing', 'note', 'template'],
+            'note_template': 'note',
+            'notes_dir': TEST_DATA_NOT_INBOX,
+            'quick': True
+        }
+        brain.new_note_interactive(**params)
+
+        # Then create another copy, without specifying where.
+        params = {
+            'topic_fragments': ['testing', 'note', 'template'],
+            'note_template': 'note',
+            'quick': True
+        }
+        brain.new_note_interactive(**params)
+
+        dir_contents = os.listdir(TEST_DATA_NOT_INBOX)
+        # Inbox exists.
+        self.assertEqual(len(dir_contents), 1, '1 in not_inbox')
+
+        # See if we can find more than one.
+        params = {
+            'filter': ['testing', 'note', 'template'],
+        }
+        results = brain.find_files(**params)
+        self.assertEqual(len(results), 1,
+                         'note_template created ' + str(len(results)) +
+                         ' files instead of exactly 1.')
+
+    def test_strays(self):
+        ''' Run the strays method. '''
+
+        # Arrange
+        TestFileStuff.clean_directory()
+        # Since we didn't tag it, it is considered 'stray'
+        _, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
+
+        # Act
+        results = brain.list_stray_files()
+
+        # Assert
+        self.assertEqual(len(results), 1)
 
     def test_archive_note(self):
         ''' archive a note.'''
@@ -115,16 +166,37 @@ class TestFileStuff(unittest.TestCase):
 
     def test_log_a_string(self):
         ''' Give the Minion log method a try. '''
+        # Arrange
         TestFileStuff.clean_directory()
+        inbox_content = os.listdir(brain.get_inbox()),
+        self.assertEqual(
+            inbox_content,
+            ([], ),
+            'inbox did not start clean: ' + str(inbox_content))
 
+        # Act
+        params = {
+            'filter': TEST_LOG_FILTER,
+            'archives': False,
+        }
+        filename, match_files = brain.choose_file(**params)
+
+        # Log a thing...
+        params = {
+            'filename': filename,
+            'line': TEST_LOG_LINE,
+        }
+        brain.log_line_to_file(**params)
+
+        # Assert
         # Can we find the log file.
-        args = {
+        params = {
             'keyword_string': LOG_NAME,
             'archives': False,
             'full_text': False,
         }
-        match_files = brain.get_keyword_files(**args)
-        self.assertEqual(len(match_files), 1, msg='find log file' + LOG_NAME)
+        match_files = brain.get_keyword_files(**params)
+        self.assertEqual(len(match_files), 1, msg='find log file: ' + LOG_NAME)
 
     def test_string_to_file_name_with_default_filename_template(self):
         # Arrange
@@ -163,7 +235,7 @@ class TestFileStuff(unittest.TestCase):
         TestFileStuff.clean_directory()
         topic = 'test note 347'
         expected_filename = 'test-note-347.txt'
-        expected_line = 5
+        expected_line = 4
         # Act
         (actual_filename, actual_line) = brain.create_new_note(
             topic,
@@ -183,7 +255,7 @@ class TestFileStuff(unittest.TestCase):
         topic = 'test note 348'
         today_date = date.today()
         expected_filename = today_date.isoformat() + '-test-note-348.txt'
-        expected_line = 5
+        expected_line = 4
         # Act
         (actual_filename, actual_line) = brain.create_new_note(
             topic,
@@ -203,48 +275,30 @@ class TestFileStuff(unittest.TestCase):
         expected = dict()
         expected[datetime.today().date()] = [recent_file_path]
         # Act
-        actual = brain.list_recent([recent_file_path], days=1)
+        match_files = brain.find_files(filter=[], days=1)
+        actual = brain.list_recent(match_files)
         # Assert
         self.assertEqual(expected, actual)
 
     def test_list_recent_with_old_file(self):
-        # Arrange
-        TestFileStuff.clean_directory()
         if not sys.platform == 'darwin':
+            # Arrange
+            TestFileStuff.clean_directory()
             recent_file_path, _ = brain.create_new_note(TEST_TOPIC, 'note')
-            old_date = 2014040107
+            old_date = 2014-04-01
             os.utime(recent_file_path, (old_date, old_date))
             expected = dict()
 
             # Act
-            actual = brain.list_recent([recent_file_path], days=1)
+            match_files = brain.find_files(filter=[], days=1)
+            actual = brain.list_recent(match_files)
+
             # Assert
             self.assertEqual(expected, actual)
 
     def tearDown(self):
         os.system('rm -rf ' + TEST_DATA_DIRECTORY)
 
-
-class TestFetchMethods(unittest.TestCase):
-    ''' Run some basic search methods.
-
-    This is just a kick the tires kind of test set.
-    We won't assert much - just make sure we run things to avoid typos.
-
-    '''
-    def test_strays(self):
-        ''' Run the strays method. '''
-
-        # Arrange
-        TestFileStuff.clean_directory()
-        # Since we didn't tag it, it is considered 'stray'
-        _, _ = brain.create_new_note(TEST_TOPIC, note_template='note')
-
-        # Act
-        results = brain.list_stray_files()
-
-        # Assert
-        self.assertEqual(len(results), 1)
 
 class TestParsers(unittest.TestCase):
     ''' Test methods that parse through file contents looking for things.'''
@@ -301,6 +355,7 @@ class TestParsers(unittest.TestCase):
         result = brain.get_content_tags(TEST_FILE_CONTENT_WITH_TAGS)
         self.assertEqual(TEST_TAGS_OUT, result)
 
+
 class TestGetSetting(unittest.TestCase):
 
     def test_get_setting(self):
@@ -317,6 +372,23 @@ class TestGetSetting(unittest.TestCase):
         # Default date format
         self.assertNotEqual(None, settings.get('date', 'format'))
 
+    def test_get_sort_actions_settings(self):
+        ''' Retrieve all the options in the 'sort_actions' section'''
+        # Arrange
+        # Clean and fill 'sort_actions' section for test purposes
+        brain.GLOBAL_SETTINGS.remove_section('sort_actions')
+        brain.GLOBAL_SETTINGS.add_section('sort_actions')
+        brain.GLOBAL_SETTINGS.set('sort_actions', 't', '>trash')
+        brain.GLOBAL_SETTINGS.set('sort_actions', 'w', '>wiki')
+        expected_actions = [('t', '>trash'), ('w', '>wiki')]
+
+        # Act
+        actual_actions = brain.parse_sort_actions_settings()
+
+        # Assert
+        self.assertEqual(expected_actions, actual_actions)
+
+
 @patch('__builtin__.open', new_callable=mock_open)
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
 # @patch('os.mkdir')
@@ -324,10 +396,10 @@ class TestRemind(unittest.TestCase):
     ''' Doing a bit of fancy mock stuff for remind. '''
 
     def setUp(self):
-        try: 
+        try:
             os.mkdir(TEST_DATA_DIRECTORY)
         except OSError:
-            pass
+            print ''
 
     def test_remind(self, open_mock):
         ''' Test setting a reminder. '''
@@ -344,10 +416,11 @@ class TestRemind(unittest.TestCase):
         # Remind should have been called.
         open_mock.assert_has_calls([call(test_filename, 'a')])
 
-        # No files exist, 
+        # No files exist,
         # because we mocked over the bit that would have written the file
         match_files = brain.get_inbox_files()
         self.assertEqual(len(match_files), 0)
+
 
 class TestTags(unittest.TestCase):
     ''' Test suite for tag handling. '''
@@ -373,14 +446,10 @@ class TestTags(unittest.TestCase):
             'content': TEST_FILE_CONTENT_WITH_TAGS,
             'tag': TEST_TAG,
             }
-        self.assertTrue(
-            brain.content_has_tag(**args)
-            )
+        self.assertTrue(brain.content_has_tag(**args))
 
         args['tag'] = TEST_GIBBERISH
-        self.assertFalse(
-            brain.content_has_tag(**args)
-            )
+        self.assertFalse(brain.content_has_tag(**args))
 
 if __name__ == '__main__':
     unittest.main()
