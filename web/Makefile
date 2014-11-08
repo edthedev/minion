@@ -1,8 +1,9 @@
-source ENV/bin/activate
 
 env:
 	virtualenv ENV
+	source ./ENV/bin/activate
 	pip install -r requirements.txt
 
-runserver: activate
+runserver: 
+	source ENV/bin/activate
 	python web.py
