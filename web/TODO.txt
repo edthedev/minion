@@ -1,0 +1,5 @@
+
+[ ] Switch to pretty print for list output.
+[ ] Configure a simple static file loader for linking to results.
+[ ] Add more common searches to navigation.
+[ ] Switch to Bootstrap for navigation style?
