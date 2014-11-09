@@ -13,6 +13,10 @@ from brain_of_minion import find_files
 
 app = Flask(__name__)
 
+@app.route('/file/')
+def get_file():
+    pass
+
 @app.route('/')
 @app.route('/today')
 @app.route('/next')
