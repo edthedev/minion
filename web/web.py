@@ -1,5 +1,6 @@
 # Python libraries
 import sys
+import urllib
 
 # Find brain.
 sys.path.insert(0, '..')
@@ -17,9 +18,10 @@ app = Flask(__name__)
 @app.route('/next')
 def today():
     context = {}
-    context['files'] = ['Hello', 'World']
-    context['files'] = find_files(
+    files  = find_files(
             filter = ['today'])
+    url_files = [urllib.quote(item) for item in files ]
+    context['files'] = url_files
     return render_template('today.html', **context)
 
 def render_minion_list(method):

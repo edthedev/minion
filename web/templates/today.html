@@ -3,7 +3,7 @@
 <h2>Items for today</h2>
 <ul>
 	{% for item in files %}
-	<li> {{ item }} </li>
+	<li> <a href="file:{{ item }}"> {{ item }} </a> </li>
 	{% endfor %}
 </ul>
 {% endblock %}
