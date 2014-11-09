@@ -1,5 +1,7 @@
+Steps to get it running::
 
+    make env
+    make requirements
+    make runserver
 
-	virtualenv ENV
-	source ENV/bin/activate
-	pip install -r requirements.txt
+Alternately, open Makefile, and run the commands found there.
