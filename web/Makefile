@@ -1,9 +1,9 @@
 
 env:
-	virtualenv ENV
-	source ./ENV/bin/activate
-	pip install -r requirements.txt
+	virtualenv --no-site-packages ENV; chmod +x ENV/bin/activate
+
+requirements:
+	ENV/bin/activate; ENV/bin/pip install -r requirements.txt
 
 runserver: 
-	source ENV/bin/activate
-	python web.py
+	ENV/bin/activate; ENV/bin/python web.py
