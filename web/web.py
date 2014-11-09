@@ -1,6 +1,6 @@
 # Python libraries
 import sys
-import urllib
+# import urllib
 
 # Find brain.
 sys.path.insert(0, '..')
@@ -17,20 +17,28 @@ app = Flask(__name__)
 def get_file():
     pass
 
-@app.route('/')
-@app.route('/today')
-@app.route('/next')
-def today():
+
+def render_minion_files(method, **kwargs ):
     context = {}
-    files  = find_files(
-            filter = ['today'])
-    url_files = [urllib.quote(item) for item in files ]
-    context['files'] = url_files
+    files = method(**kwargs)
+    # url_files = [urllib.quote(item) for item in files ]
+    context['files'] = files
     return render_template('today.html', **context)
 
-def render_minion_list(method):
-    method = find_files
-    return None
+@app.route('/')
+@app.route('/today')
+def today():
+    return render_minion_files(
+            find_files,
+            filter = ['today']
+            )
+
+@app.route('/next')
+def minion_next():
+    return render_minion_files(
+            find_files,
+            filter = ['next']
+            )
 
 if __name__ == '__main__':
     app.run(debug=True)
