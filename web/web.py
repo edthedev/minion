@@ -4,7 +4,7 @@ app = Flask(__name__)
 @app.route('/')
 def today():
     context = {}
-    context['list'] = ['Hello', 'World']
+    context['files'] = ['Hello', 'World']
     return render_template('today.html', **context)
 
 if __name__ == '__main__':
