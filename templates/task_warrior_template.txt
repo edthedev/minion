@@ -36,6 +36,10 @@ With Cmd.vim, pressing <Leader>cc with the cursor on that line with generate and
 
 	2 tasks
 
+You can also create and use fairly complex queries::
+
+    >task owner:john or owner:jane or project:project_1 list
+
 To use this template:
 
 1. Make a copy of this file with a different name, such as 'my_taskwarrior.template'.

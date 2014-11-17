@@ -17,7 +17,7 @@ alias done="minion log weekly $@"
 alias journal="minion template journal $@"
 alias remind="minion remind $@"
 alias rem="minion remind $@"
-alias weekend="minion template weekend"
+# alias weekend="minion template weekend"
 
 # Let's review content.
 alias goals="minion openall goal"
