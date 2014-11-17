@@ -1,0 +1,73 @@
+About this Template
+--------------------
+You'll want to remove this section from the template, once you're familiar with it. Alternately, simply copy and rename the file, excluding this section from the copy.
+
+This template expects integration with TaskWarrior, through a tool for running the current line from the command line and pasting the output into the buffer below. 
+	
+This integration can be accomplished with a simple alias in your ~/.vimrc.
+
+If you prefer to use a plugin, http://github.com/edthedev/cmd.vim is one that will work.
+
+Managing Other's Tasks
+~~~~~~~~~~~~~~~~~~~~~~~
+If you manage other people, you may want to add an 'owner' field to the TaskWarrior ~/.taskrc::
+
+	uda.owner.type=string
+	uda.owner.label=Owner
+
+To assign a task to another user::
+
+	!task add owner:username task description here.
+
+To reassign a task::
+
+	!task 13 modify owner:username
+
+Keep this single line (for each team member) in the file somewhere::
+
+	>task owner:<owner_name> list
+
+With Cmd.vim, pressing <Leader>cc with the cursor on that line with generate and paste text from TaskWarrior that looks something like::
+
+	ID Owner  Proj    Age Description
+	-- ------ ------- --- -------------------------------------
+	 2 owner1 project 1d  Do somethings.
+	 3 owner1 project 1d  Do some other things.
+
+	2 tasks
+
+To use this template:
+
+1. Make a copy of this file with a different name, such as 'my_taskwarrior.template'.
+2. In the copy, update the section below with project names and team member names you wish to track.
+3. Remove the this entire 'About this template' section from the copy.
+4. Call minion daily as needed to use the template::
+
+	>minion template my_taskwarrior
+
+Tasklist for {{today}}
+=======================
+:date: {today}
+
+My Tasks
+---------
+>task owner: or owner:<my_name> list
+
+Top Priority Projects
+----------------------
+>task project:<project_name> list
+
+>task project:<project_name> list
+
+Assignments / Management
+-------------------------
+>task owner:<owner_name> list
+
+>task owner:<owner_name> list
+
+>task owner:<owner_name> list
+
+>task owner:<owner_name> list
+
+>task owner:<owner_name> list
+
