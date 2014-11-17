@@ -3,6 +3,9 @@ ENV
 htmlcov
 *.py[co]
 
+# User templates
+my*template.txt
+
 # Packages
 *.egg
 *.egg-info
