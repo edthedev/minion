@@ -810,7 +810,9 @@ def remove_tags_from_content(tags, content):
     TAG_INDICATOR = get_setting('compose', 'tagline')
 
     # Make sure all the tags are lower case if case sensitive switch off
-    if get_setting('compose', 'tags_case_sensitive') != 'true':
+    case_sensitive = \
+        (get_setting('compose', 'tags_case_sensitive') == 'true')
+    if not case_sensitive:
         tags = [x.lower() for x in tags]
 
     all_tags = []
@@ -819,6 +821,8 @@ def remove_tags_from_content(tags, content):
     for line in content:
         if (TAG_INDICATOR in line):
             all_tags = parse_tags(line, TAG_INDICATOR)
+            if not case_sensitive:
+                all_tags = [x.lower() for x in all_tags]
             for tag in tags:
                 if tag in all_tags:
                     all_tags.pop(all_tags.index(tag))
