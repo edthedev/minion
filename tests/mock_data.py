@@ -41,7 +41,7 @@ The topic is: This is a great topic.
 Goals
 ------
 Wow. Such goals. So accomplish.
-:tags: BAR Ninja foo'''
+:tags: bar foo ninja'''
 
 TEST_FILE_CONTENT_WITH_ONE_TAG = \
 '''Weekend Plan for 2014-04-14
@@ -53,7 +53,7 @@ The topic is: This is a great topic.
 Goals
 ------
 Wow. Such goals. So accomplish.
-:tags: Ninja'''
+:tags: ninja'''
 
 # This 'tag' should not appear in file content for testing.
 TEST_GIBBERISH = 'Slartibarfast'
@@ -61,9 +61,9 @@ TEST_GIBBERISH = 'Slartibarfast'
 # This 'tag' should appear in various file content for testing.
 TEST_TAG = 'Ninja'
 TEST_TAGS_IN = ['foo', 'BAR', 'Ninja']
-TEST_TAGS_OUT = ['BAR', 'Ninja', 'foo']
+TEST_TAGS_OUT = ['bar', 'foo', 'ninja']
 # As we would add it to the file:
-TEST_TAG_LINE = ':tags: BAR Ninja foo'
+TEST_TAG_LINE = ':tags: bar foo ninja'
 
 TEST_FILE_INITIAL_CONTENT = \
     "/tmp/test_minion/inbox/This-is-a-test-topic.txt " +\
