@@ -1,5 +1,7 @@
 ## Minion
 
+[![Build Status](https://travis-ci.org/edthedev/minion.svg?branch=develop)](https://travis-ci.org/edthedev/minion)
+
 Minion is a digital assitant that runs on the command line and stores everything in text files. Minion takes notes, tags notes, finds notes, and gets things done.
 
 Minion is compatible with other systems. Minion creates, finds, sorts and archives files in a folder using subfolders on the filesystem. Because Minion uses plain text files, it is already compatible with other software.
