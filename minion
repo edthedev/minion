@@ -90,12 +90,9 @@ Command descriptions:
 
 # #babyTeddySays: m'0']..p p j\[ ''
 
-# Copyright 2011-2012 Edward Delaporte <edthedev@gmail.com>
+# Copyright 2011-2014 Edward Delaporte <edthedev@gmail.com>
 # Licensed under the GPLv2.
 # Created: 2011-04-28
-
-#  Can we merge the 'note' and 'open' commands, resulting in less
-#  duplication with new notes, and less need to call collect?
 
 ###############################################################################
 # IMPORTS
@@ -108,7 +105,9 @@ from docopt import docopt
 import brain_of_minion as brain
 from brain_of_minion import get_date_format
 import sys
+import logging
 
+_LOGGER = logging.getLogger(__name__)
 
 ###############################################################################
 # CONSTANTS
@@ -130,14 +129,15 @@ CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
 ###############################################################################
 
 def get_match_files(days=None):
-    match_files = brain.find_files(
+    matches = brain.find_files(
         filter=args['<text>'],
         archives=args['--archives'],
         days=days)
-    return match_files
-
+    return matches
 
 def should_collect(filename):
+    ''' Decide whether is plain text,
+    and eligible to be added to a collection. '''
     filename, ext = os.path.splitext(filename)
     allowed_ext = ['.txt', '.rst']
     if ext in allowed_ext:
@@ -243,10 +243,10 @@ def minion_open():
     match_files = get_match_files()
 
     if len(match_files) > 0:
-        (choice_path, filename) = brain.select_file(match_files, args['--max'])
+        (_, filename) = brain.select_file(match_files, args['--max'])
         brain.open_in_editor(filename)
     else:
-        brain.display_output(title=filter, output=match_files)
+        brain.display_output(title=search_filter, output=match_files)
 
 
 def minion_openall():
@@ -316,7 +316,7 @@ def minion_dates():
                         events[date] = [filename]
                 except ValueError:
                     # Date before 1900
-                    pass
+                    _LOGGER.warn('Encountered date before 1900.')
 
     days_back = int(brain.get_setting('notes', 'default_recent_days'))
     recent_date = datetime.datetime.today() - datetime.timedelta(days=days_back)
@@ -347,7 +347,7 @@ def minion_recent():
     ''' Show N most recent notes'''
     try:
         days_back = int(args['--days'])
-    except:
+    except ValueError:
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
 
     match_files = get_match_files(days=days_back)
@@ -372,7 +372,6 @@ def minion_last():
 args = docopt(__doc__, version='1.0')
 
 # Search terms to filter by.
-import pdb; pdb.set_trace()
 search_filter = args['<text>']
 if args['<text>'] == ['all']:
     args['<text>'] = []
@@ -562,8 +561,6 @@ if __name__ == '__main__':
     # Cool hack: use DocOpt args to call methods in this file.
     # Note that this only avails those methods whose name matches a documented
     #     arg.
-
-    import pdb; pdb.set_trace()
 
     for method in dir():
         argname = method.replace('minion_', '')
