@@ -101,8 +101,8 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
     return settings
 
 
-def get_settings():
-    minion_file = os.path.expanduser(CONFIG_FILE)
+def get_settings(config_file=CONFIG_FILE):
+    minion_file = os.path.expanduser(config_file)
 
     settings = _settings_parser()
 

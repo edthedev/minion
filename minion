@@ -363,6 +363,9 @@ _LOGGER.debug(args)
 
 CONFIG_FILE = args['--config']
 _LOGGER.info('Using config file %s', CONFIG_FILE)
+# brain.CONFIG_FILE = CONFIG_FILE
+
+brain.GLOBAL_SETTINGS = brain.get_settings(CONFIG_FILE)
 
 # Search terms to filter by.
 search_filter = args['<text>']
