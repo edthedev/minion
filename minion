@@ -1,25 +1,5 @@
 #!/usr/bin/env python2.7
-""" Does some stuff. 
-
-Usage:
-    minion [--conf=<conf>]
-
-Options:
-    -a --archives            Search archive folders for matches.
-    -d --days=<days>         Show notes modified last N days .
-    -f --files               Display raw file names when listing files.
-    -F --folder=<folder>     Place the new note into the given folder.
-    -h --help                Show this help.
-    -m --max=<max>           Maximum results to display. [default: 10]
-    -q --quick               Create without opening in an editor
-    -r --conf=<conf>         Use a different minion file for this command.
-    -t --template=<template> Use template. [default: 'note']
-    -y --year=<year>         Limit results to those created in the given year.
-    -v --version             Show version.
-
-"""
-
-my_foo = """Creates and manages a folder full of reminder files.
+"""Creates and manages a folder full of reminder files.
 
 Usage:
     minion collect [--rcfile=<rcfile>] [--archives] [--year=<year>] <text> ...
