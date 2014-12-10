@@ -111,7 +111,7 @@ _LOGGER = logging.getLogger(__name__)
 # log_to_file = logging.FileHandler('minion.log')
 log_to_console = logging.StreamHandler()
 # log_to_file.setLevel(logging.DEBUG)
-log_to_console.setLevel(logging.DEBUG)
+log_to_console.setLevel(logging.ERROR)
 _LOGGER.addHandler(log_to_console)
 _LOGGER.setLevel(logging.DEBUG)
 
