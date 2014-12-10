@@ -371,6 +371,17 @@ def minion_last():
 # Parse the input arguments; see docopt manual on github.com
 args = docopt(__doc__, version='1.0')
 
+# logging.basicConfig(filename='minion.log', level=logging.DEBUG)
+# create console handler and set level to debug
+# log_to_file = logging.FileHandler('minion.log')
+log_to_console = logging.StreamHandler()
+# log_to_file.setLevel(logging.DEBUG)
+log_to_console.setLevel(logging.DEBUG)
+_LOGGER.addHandler(log_to_console)
+_LOGGER.setLevel(logging.DEBUG)
+
+_LOGGER.debug(args)
+
 # Search terms to filter by.
 search_filter = args['<text>']
 if args['<text>'] == ['all']:
