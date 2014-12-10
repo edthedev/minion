@@ -92,6 +92,8 @@ import logging
 # CONSTANTS
 ###############################################################################
 
+VERSION = "1.9"
+
 CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*~*~*~*~*
  No items to be sorted
 *~*~*~*~*~*~*~*~*~*~*~*
@@ -358,7 +360,7 @@ def minion_last():
 ###############################################################################
 
 # Parse the input arguments; see docopt manual on github.com
-args = docopt(__doc__, version='1.0')
+args = docopt(__doc__, version=VERSION)
 _LOGGER.debug(args)
 
 CONFIG_FILE = args['--config']
