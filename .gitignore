@@ -38,3 +38,5 @@ pip-log.txt
 #Vim
 *.swp
 
+# User templates
+templates/my*
