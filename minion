@@ -348,7 +348,7 @@ def minion_last(args):
 ###############################################################################
 
 # Parse the input arguments; see docopt manual on github.com
-args = docopt(__doc__, version='1.0')
+args = docopt(__doc__, version='1.8.2')
 
 # Search terms to filter by.
 filter = args['<text>']
