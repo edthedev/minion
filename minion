@@ -92,7 +92,7 @@ import logging
 # CONSTANTS
 ###############################################################################
 
-VERSION = "1.9"
+VERSION = "1.9.1"
 
 CLEAN_SORT_MESSAGE = '''*~*~*~*~*~*~*~*~*~*~*~*
  No items to be sorted
