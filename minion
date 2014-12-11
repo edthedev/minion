@@ -2,8 +2,8 @@
 """Creates and manages a folder full of reminder files.
 
 Usage:
-    minion collect [--config=<config>] [--archives] [--year=<year>] <text> ...
-    minion count [--config=<config>] [--archives] <text> ...
+    minion collect [options] <text> ...
+    minion count [options] <text> ...
     minion command [--config=<config>] <command> <filename>
     minion dates [--config=<config>] [<text>] ...
     minion find [--config=<config>] [--archives] [--files] <text> ...
@@ -35,7 +35,7 @@ Options:
     -h --help                Show this help.
     -m --max=<max>           Maximum results to display. [default: 10]
     -q --quick               Create without opening in an editor
-    -r --config=<config>     Use a different .minion file for this command. [default: '~/.minion']
+    -r --config=<config>     Use a different .minion file for this command. [default: ~/.minion]
     -t --template=<template> Use template. [default: 'note']
     -y --year=<year>         Limit results to those created in the given year.
     -v --version             Show version.
