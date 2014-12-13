@@ -26,7 +26,7 @@ In Vernor Vinge's novel, 'The Peace War', chess players can instantly upload tho
 
 ## Installation
 
-See either [Command Line Install](https://github.com/edthedev/minion/wiki/Install) or [Vim Plugin Install](https://github.com/edthedev/minion/wiki/Vim_Plugin_Install).
+See either [Command Line Install](https://github.com/edthedev/minion/wiki/Install) or [Vim Plugin Install](https://github.com/edthedev/minion/wiki/Install_Vim_Plugin).
 
 ## Usage
 
