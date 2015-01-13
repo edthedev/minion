@@ -108,11 +108,12 @@ CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
 # Set up Logging
 ###############################################################################
 _LOGGER = logging.getLogger(__name__)
-# log_to_file = logging.FileHandler('minion.log')
+log_to_file = logging.FileHandler('minion.log')
 log_to_console = logging.StreamHandler()
-# log_to_file.setLevel(logging.DEBUG)
+log_to_file.setLevel(logging.DEBUG)
 log_to_console.setLevel(logging.ERROR)
 _LOGGER.addHandler(log_to_console)
+_LOGGER.addHandler(log_to_file)
 _LOGGER.setLevel(logging.DEBUG)
 
 ###############################################################################
@@ -194,6 +195,7 @@ def format_2_cols(tuple_list):
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
     # Use the template specified on the command line
+    import pdb; pdb.set_trace()
     params = get_params(args)
     templates = args['<template>']
     if len(templates) != 1:
@@ -554,8 +556,8 @@ if __name__ == '__main__':
 
     # Parse the input arguments; see docopt manual on github.com
     args = docopt(__doc__, version=VERSION)
+    print args
 # PROBLEM: No args here...?!
-    import pdb; pdb.set_trace()
     _LOGGER.debug(args)
     CONFIG_FILE = args['--config']
     _LOGGER.info('Using config file %s', CONFIG_FILE)
