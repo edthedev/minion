@@ -195,14 +195,12 @@ def format_2_cols(tuple_list):
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
     # Use the template specified on the command line
-    import pdb; pdb.set_trace()
     params = get_params(args)
     templates = args['<template>']
     if len(templates) != 1:
         print 'Please specify exactly one template.'
     params['note_template'] = templates[0]
     brain.new_note_interactive(**params)
-
 
 def minion_remind(params):
     '''Set a quick reminder.'''

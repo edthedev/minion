@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.abspath('.'))
 import minion
 from tests.mock_data import *
 
+# Quick = True avoids opening editor during testing...
 _TEST_ARGS = {'--archives': False,
  '--config': '~/.minion',
  '--days': None,
@@ -18,7 +19,7 @@ _TEST_ARGS = {'--archives': False,
  '--folder': None,
  '--help': False,
  '--max': '10',
- '--quick': False,
+'--quick': True,
  '--template': None,
  '--version': False,
  '--year': None,
@@ -82,7 +83,7 @@ class TestMinionMethods(unittest.TestCase):
         }
         args = _TEST_ARGS
         args.update({
-            '<template>': 'journal',
+            '<template>': ['journal'],
             '<text>':'',
         })
 
