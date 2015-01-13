@@ -4,3 +4,4 @@ cd ..
 export PYTHONPATH=`pwd`
 cd tests
 python test_brain_of_minion.py
+python test_minion.py
