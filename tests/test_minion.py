@@ -11,9 +11,47 @@ sys.path.insert(0, os.path.abspath('.'))
 import minion
 from tests.mock_data import *
 
-_TEST_ARGS = {
-
-}
+_TEST_ARGS = {'--archives': False,
+ '--config': '~/.minion',
+ '--days': None,
+ '--files': False,
+ '--folder': None,
+ '--help': False,
+ '--max': '10',
+ '--quick': False,
+ '--template': None,
+ '--version': False,
+ '--year': None,
+ '<command>': None,
+ '<comment>': [],
+ '<filename>': None,
+ '<log>': None,
+ '<template>': [],
+ '<text>': ['testing'],
+ 'collect': False,
+ 'command': False,
+ 'count': False,
+ 'dates': False,
+ 'favorites': False,
+ 'find': False,
+ 'folder': False,
+ 'folders': False,
+ 'here': False,
+ 'last': False,
+ 'list': False,
+ 'log': False,
+ 'note': True,
+ 'open': False,
+ 'openall': False,
+ 'recent': False,
+ 'remind': False,
+ 'sample': False,
+ 'sort': False,
+ 'strays': False,
+ 'summary': False,
+ 'tags': False,
+ 'template': False,
+ 'view': False}
 
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
@@ -42,10 +80,11 @@ class TestMinionMethods(unittest.TestCase):
             'notes_dir': TEST_DATA_NOT_INBOX,
             'quick': True
         }
-        args = {
+        args = _TEST_ARGS
+        args.update({
             '<template>': 'journal',
             '<text>':'',
-        }
+        })
 
         minion.minion_template(args)
 
