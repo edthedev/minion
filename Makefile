@@ -1,14 +1,16 @@
 BASEDIR=$(PWD)
 VPYTHON=$(BASEDIR)/tests/ENV/bin/python
-VPIP=$(BASEDIR)/tests/ENV/bin/pip
+VPIP=$(BASEDIR)/ENV/bin/pip
 export PYTHONPATH=$(BASEDIR)
 
-env:
+env_for_testing:
 	virtualenv ENV
 
-requirements:
-	$(VPIP) -r requirements.txt
+requirements_for_testing: env_for_testing
+	$(VPIP) install -r tests/requirements.txt
 
+test_brain:
+	$(VPYTHON) tests/test_brain_of_minion.py
 
-test:
+test_command_line:
 	$(VPYTHON) tests/test_brain_of_minion.py
