@@ -362,8 +362,11 @@ def minion_last():
 # MAIN SCRIPT
 ###############################################################################
 
-# Parse the input arguments; see docopt manual on github.com
-args = docopt(__doc__, version=VERSION)
+# Only parse args if being run directly.
+if __name__ == '__main__':
+    # Parse the input arguments; see docopt manual on github.com
+    args = docopt(__doc__, version=VERSION)
+
 _LOGGER.debug(args)
 
 CONFIG_FILE = args['--config']
@@ -570,4 +573,4 @@ if __name__ == '__main__':
                 # print "Running {}".format(method)
                 locals()[method]()
 
-sys.exit(0)
+    sys.exit(0)
