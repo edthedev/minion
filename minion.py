@@ -363,59 +363,11 @@ CONFIG_FILE = ''
 
 PARAMS = {}
 
-# Only parse args if being run directly.
-if __name__ == '__main__':
-    # Parse the input arguments; see docopt manual on github.com
-    args = docopt(__doc__, version=VERSION)
-    _LOGGER.debug(args)
-    CONFIG_FILE = args['--config']
-    _LOGGER.info('Using config file %s', CONFIG_FILE)
-# brain.CONFIG_FILE = CONFIG_FILE
-    brain.GLOBAL_SETTINGS = brain.get_settings(CONFIG_FILE)
-
-# Search terms to filter by.
-    search_filter = args['<text>']
-    if args['<text>'] == ['all']:
-        args['<text>'] = []
-
 ###############################################################################
 # Shared parameters
 #
 #   These parameters are used by many function calls below.
 ###############################################################################
-    PARAMS = {
-        'topic_fragments': args['<text>'],
-        'notes_dir': None,
-        'note_template': None,
-        'quick': False
-    }
-
-# Assign folder per command line parameter
-    if args['--folder']:
-        folder = os.path.expanduser(args['--folder'])
-        notes_home = brain.get_notes_home()
-        PARAMS['notes_dir'] = os.path.join(notes_home, folder)
-
-    if args['--template']:
-        PARAMS['note_template'] = args['--template']
-
-    if args['--quick']:
-        PARAMS['quick'] = True
-else:
-    # Cheap hack until all methods get updated to minion_ 
-    args = {
-        'collect':None,
-        'command':None,
-        'count':None,
-        'find':None,
-        'list':None,
-        'favorites':None,
-        'summary':None,
-        'folder':None,
-        'folders':None,
-        'tags':None,
-    }
-
 
 def get_params(args):
     ''' Return some parameters common to many methods. '''
@@ -445,7 +397,7 @@ def get_params(args):
 # *************************************************************
 
 # Collect stories
-if args['collect']:
+def minion_collect(args):
     if '<year>' in args:
         YEAR = args['<year>']
         match_files = get_match_files()
@@ -485,13 +437,13 @@ if args['collect']:
     f.close()
     brain.display_output('Created Collection', collected_filename)
 
+def minion_command(args):
+    if args['<command>'] and args['<filename>']:
+        brain.apply_command_to_file(
+            args['<filename>'],
+            args['<command>'])
 
-if args['command'] and args['<command>'] and args['<filename>']:
-    brain.apply_command_to_file(
-        args['<filename>'],
-        args['<command>'])
-
-if args['count']:
+def minion_count(args):
     search_terms = "%s: %s" % (
         os.path.basename(brain.get_notes_home()), ','.join(args['<text>'])
     )
@@ -501,7 +453,7 @@ if args['count']:
     sys.exit()
 
 # List the results
-if args['find'] or args['list']:
+def minion_find(args):
     find_any = False
     if args['find']:
         find_any = True
@@ -531,21 +483,24 @@ if args['find'] or args['list']:
 
     sys.exit(0)
 
-if args['favorites']:
+def minion_list(args):
+    minion_find(args)
+
+def minion_favorites(args):
     print brain.print_favorites_summary()
 
-if args['summary']:
+def minion_summary(args):
     summary = brain.get_folder_summary(archives=args['--archives'])
     limit = int(args['--max'])
     summary = summary[:limit]
     output = format_2_cols(summary)
     print output
 
-if args['folder']:
+def minion_folder(args):
     # Do interactive inbox search, but for directories, not files
     print "Not implemented yet."
 
-if args['folders']:
+def minion_folders(args):
     updated_files = []
     # match_files = get_match_files()
     match_files = brain.find_files()
@@ -569,7 +524,7 @@ if args['folders']:
         print brain.to_bar(count, total)
         files_to_open = brain.doInboxInteractive(item)
 
-if args['tags']:
+def minion_tags(args):
     # Rid of this. Concept of 'tags' does not play well with the
     #       filesystem.
     # Switch to simply using any word as a 'tag'.
@@ -596,11 +551,26 @@ if args['tags']:
 
 # Run all the things!!!!
 if __name__ == '__main__':
+
+    # Parse the input arguments; see docopt manual on github.com
+    args = docopt(__doc__, version=VERSION)
+# PROBLEM: No args here...?!
+    import pdb; pdb.set_trace()
+    _LOGGER.debug(args)
+    CONFIG_FILE = args['--config']
+    _LOGGER.info('Using config file %s', CONFIG_FILE)
+# brain.CONFIG_FILE = CONFIG_FILE
+    brain.GLOBAL_SETTINGS = brain.get_settings(CONFIG_FILE)
+
+# Search terms to filter by.
+    search_filter = args['<text>']
+    if args['<text>'] == ['all']:
+        args['<text>'] = []
+
     # Run any method named in the keyword args.
     # Cool hack: use DocOpt args to call methods in this file.
     # Note that this only avails those methods whose name matches a documented
     #     arg.
-    import pdb; pdb.set_trace()
 
     for method in dir():
         argname = method.replace('minion_', '')
