@@ -11,9 +11,13 @@ sys.path.insert(0, os.path.abspath('.'))
 import minion
 from tests.mock_data import *
 
+_TEST_ARGS = {
+
+}
+
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
-class TestFileStuff(unittest.TestCase):
+class TestMinionMethods(unittest.TestCase):
     ''' Run tests that create or look for files.'''
 
     @staticmethod
@@ -29,14 +33,21 @@ class TestFileStuff(unittest.TestCase):
     def test_template(self):
         ''' Test creating a note from a template.'''
         # Start clean
-        TestFileStuff.clean_directory()
+        TestMinionMethods.clean_directory()
 
         # Create it elsewhere than the inbox.
         PARAMS = {
-            'topic_fragments': ['testing', 'note', 'template'],
+            'topic_fragments': [],
             'note_template': 'journal',
             'notes_dir': TEST_DATA_NOT_INBOX,
             'quick': True
         }
+        args = {
+            '<template>': 'journal',
+            '<text>':'',
+        }
 
-        minion.minion_template()
+        minion.minion_template(args)
+
+if __name__ == '__main__':
+    unittest.main()
