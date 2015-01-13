@@ -195,7 +195,10 @@ def minion_template():
     '''Create a Minion note from a specialized template.'''
     params = PARAMS
     # Use the template specified on the command line
-    params['note_template'] = args['<template>']
+    templates = args['<template>']
+    if len(templates) != 1:
+        print 'Please specify exactly one template.'
+    params['note_template'] = templates[0]
     brain.new_note_interactive(**params)
 
 
