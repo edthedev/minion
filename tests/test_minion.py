@@ -72,18 +72,31 @@ class TestMinionWrite(unittest.TestCase):
 
     def setUp(self):
         setup_test_dir()
+        clean_directory()
 
     def test_note(self):
         ''' Test creating a default note. '''
-        clean_directory()
-        args = _TEST_ARGS
-        minion.minion_note(args)
+        minion.minion_note(_TEST_ARGS)
+
+    def test_here(self):
+        ''' Test creating a default note in the current directory. 
+        
+        Messy. May re-add later, when sure that cleanup 
+        won't be destructive.
+        
+        '''
+        pass
+        # minion.minion_here(_TEST_ARGS)
+
+    def test_remind(self):
+        ''' Test create a reminder. 
+        Functionally no different that test note,
+        but has a different entrypoint.
+        '''
+        minion.minion_remind(_TEST_ARGS)
 
     def test_template(self):
         ''' Test creating a note from a template.'''
-        # Start clean
-        clean_directory()
-
         # Create it elsewhere than the inbox.
         args = _TEST_ARGS
         args.update({
