@@ -205,19 +205,19 @@ def minion_template(args):
     params['note_template'] = templates[0]
     brain.new_note_interactive(**params)
 
-def minion_remind(params):
+def minion_remind(args):
     '''Set a quick reminder.'''
     # Don't open it, just make it.
+    params = get_params(args)
     params['quick'] = True
     brain.new_note_interactive(**params)
 
-
-def minion_here(params):
+def minion_here(args):
     '''Create a Minion note in the current working directory.'''
+    params = get_params(args)
     # Use current directory
     params['notes_dir'] = os.curdir
     brain.new_note_interactive(**params)
-
 
 def minion_note(args):
     '''Create a Minion note.'''
