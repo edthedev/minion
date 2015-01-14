@@ -131,6 +131,21 @@ class TestMinionListMethods(unittest.TestCase):
         ''' Just make sure it doesn't explode.'''
         minion.minion_view(_TEST_ARGS)
 
+    def test_dates(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_dates(_TEST_ARGS)
+
+    def test_recent(self):
+        ''' Just make sure it doesn't explode.'''
+        args = _TEST_ARGS
+        args['--days'] = '30'
+        minion.minion_recent(args)
+
+    def test_last(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_recent(_TEST_ARGS)
+
+
     def test_summary(self):
         ''' Just make sure it doesn't explode.'''
         minion.minion_summary(_TEST_ARGS)

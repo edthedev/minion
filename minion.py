@@ -301,8 +301,6 @@ def minion_view(args):
     for filename in match_files:
         brain.file_to_stdout(filename)
 
-
-
 def minion_dates(args):
     '''Display all notes with dates in them and filtered by keywords.'''
     events = dict()
@@ -350,7 +348,7 @@ def minion_recent(args):
     ''' Show N most recent notes'''
     try:
         days_back = int(args['--days'])
-    except ValueError:
+    except (ValueError,TypeError):
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
 
     match_files = get_match_files(args, days=days_back)
