@@ -120,7 +120,7 @@ _LOGGER.setLevel(logging.DEBUG)
 # HELPER FUNCTIONS
 ###############################################################################
 
-def get_match_files(days=None):
+def get_match_files(args, days=None):
     matches = brain.find_files(
         filter=args['<text>'],
         archives=args['--archives'],
@@ -231,7 +231,7 @@ def minion_note(args):
 
 def minion_sort(params):
     '''Interactively sort all matches.'''
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     if len(match_files) == 0:
         print CLEAN_SORT_MESSAGE
     else:
@@ -241,7 +241,8 @@ def minion_sort(params):
 # ----------------------------
 
 def minion_open(args):
-    match_files = get_match_files()
+    match_files = get_match_files(args)
+    search_filter = args['<text>']
 
     if len(match_files) > 0:
         (_, filename) = brain.select_file(match_files, args['--max'])
@@ -251,7 +252,7 @@ def minion_open(args):
 
 
 def minion_openall(args):
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     brain.open_files(match_files, max=args['--max'])
 
 
@@ -271,7 +272,7 @@ def minion_strays(args):
 
 def minion_view(args):
     ''' Dump the contents of the chosen file(s) to standard out. '''
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     print "Outputting contents of %(number)d matches to search terms \
         '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
     for filename in match_files:
@@ -304,7 +305,7 @@ def minion_log(args):
 def minion_dates(args):
     '''Display all notes with dates in them and filtered by keywords.'''
     events = dict()
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     for filename in match_files:
         content = brain.get_file_content(filename)
         dates = brain.get_unique_dates(content)
@@ -351,7 +352,7 @@ def minion_recent(args):
     except ValueError:
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
 
-    match_files = get_match_files(days=days_back)
+    match_files = get_match_files(args, days=days_back)
     recent_files = brain.list_recent(match_files)
     print "Notes modified in last %s days (most recent last):" % days_back
     brain.display_output(
@@ -408,9 +409,10 @@ def get_params(args):
 
 # Collect stories
 def minion_collect(args):
+    search_filter = args['<text>']
     if '<year>' in args:
         YEAR = args['<year>']
-        match_files = get_match_files()
+        match_files = get_match_files(args)
         collected_matches = brain.limit_to_year(YEAR, match_files)
         collection_title = 'Collected-%s-%s' % (YEAR, ' '.join(search_filter))
 
@@ -457,13 +459,14 @@ def minion_count(args):
     search_terms = "%s: %s" % (
         os.path.basename(brain.get_notes_home()), ','.join(args['<text>'])
     )
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     count = len(match_files)
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
 # List the results
 def minion_find(args):
+    search_filter = args['<text>']
     find_any = False
     if args['find']:
         find_any = True
@@ -512,7 +515,7 @@ def minion_folder(args):
 
 def minion_folders(args):
     updated_files = []
-    # match_files = get_match_files()
+    # match_files = get_match_files(args)
     match_files = brain.find_files()
     # All poorly used folders
     too_few = 5

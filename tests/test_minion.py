@@ -112,6 +112,10 @@ class TestMinionListMethods(unittest.TestCase):
     def setUp(self):
         setup_test_dir()
 
+    def test_open(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_open(_TEST_ARGS)
+
     def test_summary(self):
         ''' Just make sure it doesn't explode.'''
         minion.minion_summary(_TEST_ARGS)
