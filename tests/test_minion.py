@@ -143,8 +143,9 @@ class TestMinionListMethods(unittest.TestCase):
 
     def test_last(self):
         ''' Just make sure it doesn't explode.'''
-        minion.minion_recent(_TEST_ARGS)
-
+        # Interaction is disruptive. Disabled for now.
+        # minion.minion_last(_TEST_ARGS)
+        pass
 
     def test_summary(self):
         ''' Just make sure it doesn't explode.'''
