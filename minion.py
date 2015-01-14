@@ -192,6 +192,9 @@ def format_2_cols(tuple_list):
 # ENTRY POINT FUNCTIONS
 ###############################################################################
 
+# Methods that creates notes. 
+# ----------------------------
+
 def minion_template(args):
     '''Create a Minion note from a specialized template.'''
     # Use the template specified on the command line
@@ -222,6 +225,10 @@ def minion_note(args):
     params = get_params(args)
     brain.new_note_interactive(**params)
 
+
+# Methods organize notes. 
+# ----------------------------
+
 def minion_sort(params):
     '''Interactively sort all matches.'''
     match_files = get_match_files()
@@ -229,6 +236,9 @@ def minion_sort(params):
         print CLEAN_SORT_MESSAGE
     else:
         brain.sort_files_interactive(match_files)
+
+# Methods access notes. 
+# ----------------------------
 
 def minion_open(args):
     match_files = get_match_files()
