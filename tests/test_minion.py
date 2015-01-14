@@ -116,6 +116,21 @@ class TestMinionListMethods(unittest.TestCase):
         ''' Just make sure it doesn't explode.'''
         minion.minion_open(_TEST_ARGS)
 
+    def test_openall(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_openall(_TEST_ARGS)
+
+    def test_strays(self):
+        ''' Just make sure it doesn't explode.'''
+        # Interactive method is distruptive. 
+        # Disabled unless needed.
+        # minion.minion_strays(_TEST_ARGS)
+        pass
+
+    def test_view(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_view(_TEST_ARGS)
+
     def test_summary(self):
         ''' Just make sure it doesn't explode.'''
         minion.minion_summary(_TEST_ARGS)

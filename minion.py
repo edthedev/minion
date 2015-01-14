@@ -225,60 +225,6 @@ def minion_note(args):
     params = get_params(args)
     brain.new_note_interactive(**params)
 
-
-# Methods organize notes. 
-# ----------------------------
-
-def minion_sort(params):
-    '''Interactively sort all matches.'''
-    match_files = get_match_files(args)
-    if len(match_files) == 0:
-        print CLEAN_SORT_MESSAGE
-    else:
-        brain.sort_files_interactive(match_files)
-
-# Methods access notes. 
-# ----------------------------
-
-def minion_open(args):
-    match_files = get_match_files(args)
-    search_filter = args['<text>']
-
-    if len(match_files) > 0:
-        (_, filename) = brain.select_file(match_files, args['--max'])
-        brain.open_in_editor(filename)
-    else:
-        brain.display_output(title=search_filter, output=match_files)
-
-
-def minion_openall(args):
-    match_files = get_match_files(args)
-    brain.open_files(match_files, max=args['--max'])
-
-
-def minion_strays(args):
-    ''' Run an interactive sort on the contents of any folders that
-        only have one or two items.
-    '''
-    match_files = brain.list_stray_files()
-    total = len(match_files)
-    if total == 0:
-        print CLEAN_STRAYS_MESSAGE
-        sys.exit()
-    else:
-        # print brain.getOutput('cal')
-        brain.sort_files_interactive(match_files)
-
-
-def minion_view(args):
-    ''' Dump the contents of the chosen file(s) to standard out. '''
-    match_files = get_match_files(args)
-    print "Outputting contents of %(number)d matches to search terms \
-        '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
-    for filename in match_files:
-        brain.file_to_stdout(filename)
-
-
 def minion_log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
 
@@ -300,6 +246,61 @@ def minion_log(args):
     }
 
     brain.log_line_to_file(**params)
+
+
+
+# Methods organize notes. 
+# ----------------------------
+
+def minion_sort(params):
+    '''Interactively sort all matches.'''
+    match_files = get_match_files(args)
+    if len(match_files) == 0:
+        print CLEAN_SORT_MESSAGE
+    else:
+        brain.sort_files_interactive(match_files)
+
+def minion_strays(args):
+    ''' Run an interactive sort on the contents of any folders that
+        only have one or two items.
+    '''
+    match_files = brain.list_stray_files()
+    total = len(match_files)
+    if total == 0:
+        print CLEAN_STRAYS_MESSAGE
+        sys.exit()
+    else:
+        # print brain.getOutput('cal')
+        brain.sort_files_interactive(match_files)
+
+# Methods access notes. 
+# ----------------------------
+
+def minion_open(args):
+    match_files = get_match_files(args)
+    search_filter = args['<text>']
+
+    if len(match_files) > 0:
+        (_, filename) = brain.select_file(match_files, args['--max'])
+        brain.open_in_editor(filename)
+    else:
+        brain.display_output(title=search_filter, output=match_files)
+
+
+def minion_openall(args):
+    match_files = get_match_files(args)
+    brain.open_files(match_files, max=args['--max'])
+
+
+
+def minion_view(args):
+    ''' Dump the contents of the chosen file(s) to standard out. '''
+    match_files = get_match_files(args)
+    print "Outputting contents of %(number)d matches to search terms \
+        '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
+    for filename in match_files:
+        brain.file_to_stdout(filename)
+
 
 
 def minion_dates(args):
