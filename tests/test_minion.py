@@ -73,6 +73,12 @@ class TestMinionWrite(unittest.TestCase):
     def setUp(self):
         setup_test_dir()
 
+    def test_note(self):
+        ''' Test creating a default note. '''
+        clean_directory()
+        args = _TEST_ARGS
+        minion.minion_note(args)
+
     def test_template(self):
         ''' Test creating a note from a template.'''
         # Start clean

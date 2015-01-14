@@ -216,11 +216,11 @@ def minion_here(params):
     brain.new_note_interactive(**params)
 
 
-def minion_note(params):
+def minion_note(args):
     '''Create a Minion note.'''
     # It's the most common use, so use the default PARAMS exactly.
+    params = get_params(args)
     brain.new_note_interactive(**params)
-
 
 def minion_sort(params):
     '''Interactively sort all matches.'''
