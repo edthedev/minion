@@ -112,6 +112,41 @@ class TestMinionListMethods(unittest.TestCase):
     def setUp(self):
         setup_test_dir()
 
+    def test_open(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_open(_TEST_ARGS)
+
+    def test_openall(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_openall(_TEST_ARGS)
+
+    def test_strays(self):
+        ''' Just make sure it doesn't explode.'''
+        # Interactive method is distruptive. 
+        # Disabled unless needed.
+        # minion.minion_strays(_TEST_ARGS)
+        pass
+
+    def test_view(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_view(_TEST_ARGS)
+
+    def test_dates(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_dates(_TEST_ARGS)
+
+    def test_recent(self):
+        ''' Just make sure it doesn't explode.'''
+        args = _TEST_ARGS
+        args['--days'] = '30'
+        minion.minion_recent(args)
+
+    def test_last(self):
+        ''' Just make sure it doesn't explode.'''
+        # Interaction is disruptive. Disabled for now.
+        # minion.minion_last(_TEST_ARGS)
+        pass
+
     def test_summary(self):
         ''' Just make sure it doesn't explode.'''
         minion.minion_summary(_TEST_ARGS)
