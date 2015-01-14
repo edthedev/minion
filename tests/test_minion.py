@@ -54,33 +54,50 @@ _TEST_ARGS = {'--archives': False,
  'template': False,
  'view': False}
 
+def setup_test_dir():
+    ''' Make sure content directory exists. '''
+    try:
+        os.mkdir(TEST_DATA_DIRECTORY)
+    except OSError:
+        print ''
+
+def clean_directory():
+    ''' Make sure content directory is empty. '''
+    os.system('rm -rf ' + TEST_DATA_DIRECTORY + '/*')
+
 # Use custom mock settings.
 @patch('brain_of_minion.get_setting', new=mock_get_setting)
-class TestMinionMethods(unittest.TestCase):
+class TestMinionWrite(unittest.TestCase):
     ''' Run tests that create or look for files.'''
 
-    @staticmethod
-    def clean_directory():
-        os.system('rm -rf ' + TEST_DATA_DIRECTORY + '/*')
-
     def setUp(self):
-        try:
-            os.mkdir(TEST_DATA_DIRECTORY)
-        except OSError:
-            print ''
+        setup_test_dir()
+        clean_directory()
+
+    def test_note(self):
+        ''' Test creating a default note. '''
+        minion.minion_note(_TEST_ARGS)
+
+    def test_here(self):
+        ''' Test creating a default note in the current directory. 
+        
+        Messy. May re-add later, when sure that cleanup 
+        won't be destructive.
+        
+        '''
+        pass
+        # minion.minion_here(_TEST_ARGS)
+
+    def test_remind(self):
+        ''' Test create a reminder. 
+        Functionally no different that test note,
+        but has a different entrypoint.
+        '''
+        minion.minion_remind(_TEST_ARGS)
 
     def test_template(self):
         ''' Test creating a note from a template.'''
-        # Start clean
-        TestMinionMethods.clean_directory()
-
         # Create it elsewhere than the inbox.
-        PARAMS = {
-            'topic_fragments': [],
-            'note_template': 'journal',
-            'notes_dir': TEST_DATA_NOT_INBOX,
-            'quick': True
-        }
         args = _TEST_ARGS
         args.update({
             '<template>': ['journal'],
@@ -88,6 +105,17 @@ class TestMinionMethods(unittest.TestCase):
         })
 
         minion.minion_template(args)
+
+@patch('brain_of_minion.get_setting', new=mock_get_setting)
+class TestMinionListMethods(unittest.TestCase):
+    ''' Test methods that find, list, etc. '''
+    def setUp(self):
+        setup_test_dir()
+
+    def test_summary(self):
+        ''' Just make sure it doesn't explode.'''
+        minion.minion_summary(_TEST_ARGS)
+
 
 if __name__ == '__main__':
     unittest.main()
