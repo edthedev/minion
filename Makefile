@@ -25,4 +25,8 @@ coverage:
 
 html_coverage:
 	$(BIN)/coverage html
+	# For Mac:
 	open htmlcov/index.html
+	# For Linux:
+	# firefox htmlcov/index.html
+
