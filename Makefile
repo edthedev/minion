@@ -10,16 +10,17 @@ env_for_testing:
 requirements_for_testing: env_for_testing
 	$(VPIP) install -r tests/requirements.txt
 
+test_all:
+	$(BIN)/nosetests tests
+
 test_brain:
 	$(VPYTHON) tests/test_brain_of_minion.py
 
 test_minion:
 	$(VPYTHON) tests/test_minion.py
 
-coverage_brain:
-	$(BIN)/coverage run --rcfile=tests/coveragerc tests/test_brain_of_minion.py
-	$(BIN)/coverage report
-
-coverage_minion:
-	$(BIN)/coverage run --rcfile=tests/coveragerc tests/test_minion.py
+coverage:
+	# $(BIN)/nosetests --with-coverage --cover-package=brain_of_minion tests
+	$(BIN)/nosetests --with-coverage --cover-erase --cover-package=brain_of_minion tests
+	# $(BIN)/coverage run --rcfile=tests/coveragerc $(BIN)/nosetests tests
 	$(BIN)/coverage report
