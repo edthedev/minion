@@ -20,7 +20,5 @@ test_minion:
 	$(VPYTHON) tests/test_minion.py
 
 coverage:
-	# $(BIN)/nosetests --with-coverage --cover-package=brain_of_minion tests
-	$(BIN)/nosetests --with-coverage --cover-erase --cover-package=brain_of_minion tests
-	# $(BIN)/coverage run --rcfile=tests/coveragerc $(BIN)/nosetests tests
+	$(BIN)/nosetests --with-coverage --cover-erase --cover-package=minion --cover-package=brain_of_minion tests
 	$(BIN)/coverage report
