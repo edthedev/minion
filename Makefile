@@ -14,11 +14,15 @@ test_all:
 	$(BIN)/nosetests tests
 
 test_brain:
-	$(VPYTHON) tests/test_brain_of_minion.py
+	$(BIN)/nosetests tests.test_brain_of_minion
 
 test_minion:
-	$(VPYTHON) tests/test_minion.py
+	$(BIN)/nosetests tests.test_minion
 
 coverage:
 	$(BIN)/nosetests --with-coverage --cover-erase --cover-package=minion --cover-package=brain_of_minion tests
 	$(BIN)/coverage report
+
+html_coverage:
+	$(BIN)/coverage html
+	open htmlcov/index.html
