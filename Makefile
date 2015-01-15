@@ -10,7 +10,7 @@ env_for_testing:
 requirements_for_testing: env_for_testing
 	$(VPIP) install -r tests/requirements.txt
 
-test_all:
+test:
 	$(BIN)/nosetests tests
 
 test_brain:
