@@ -565,8 +565,7 @@ if __name__ == '__main__':
 
     # Parse the input arguments; see docopt manual on github.com
     args = docopt(__doc__, version=VERSION)
-    print args
-    #_LOGGER.debug(args)
+    # _LOGGER.debug(args)
     CONFIG_FILE = args['--config']
     _LOGGER.info('Using config file %s', CONFIG_FILE)
 # brain.CONFIG_FILE = CONFIG_FILE
