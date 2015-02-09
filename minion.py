@@ -348,7 +348,7 @@ def minion_recent(args):
     ''' Show N most recent notes'''
     try:
         days_back = int(args['--days'])
-    except (ValueError,TypeError):
+    except (ValueError, TypeError):
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
 
     match_files = get_match_files(args, days=days_back)
@@ -534,7 +534,7 @@ def minion_folders(args):
     for item in match_files:
         count += 1
         print brain.to_bar(count, total)
-        files_to_open = brain.doInboxInteractive(item)
+        _ = brain.doInboxInteractive(item)
 
 def minion_tags(args):
     # Rid of this. Concept of 'tags' does not play well with the
@@ -543,7 +543,6 @@ def minion_tags(args):
     # So what is 'poorly tagged'? Too short of a name? Too many common words?
 
     # A 'tag cloud' would be pretty awesome...
-    boring = ['the', 'this']
     notes_home = brain.get_notes_home()
     all_files = brain.find_files()
     word_count = dict()
@@ -567,8 +566,7 @@ if __name__ == '__main__':
     # Parse the input arguments; see docopt manual on github.com
     args = docopt(__doc__, version=VERSION)
     print args
-# PROBLEM: No args here...?!
-    _LOGGER.debug(args)
+    #_LOGGER.debug(args)
     CONFIG_FILE = args['--config']
     _LOGGER.info('Using config file %s', CONFIG_FILE)
 # brain.CONFIG_FILE = CONFIG_FILE
