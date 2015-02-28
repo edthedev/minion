@@ -17,7 +17,7 @@ Minion is meant to be a first step on that path. Minion simplifies storing, tagg
 
 ## Installation
 
-See either [Command Line Install](https://github.com/edthedev/minion/wiki/Install) or [Vim Plugin Install](https://github.com/edthedev/minion/wiki/Install_Vim_Plugin).
+See either [Command Line Install](https://github.com/edthedev/minion/wiki/Install) or [Vim Plugin Install](https://github.com/edthedev/minion/wiki/Install_Vim_Plugin) or [Antigen Plugin Install](https://github.com/edthedev/minion/wiki/Antigen)
 
 ## Usage
 
