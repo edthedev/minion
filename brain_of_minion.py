@@ -613,6 +613,10 @@ def get_windows_path(cygwin_path):
 
     return w_path
 
+def clean_filename_for_editor(filename):
+    ''' Cleanup unacceptable characters in filenames before
+        passing to the editor. '''
+    return filename.replace(' ', '\ ').replace('(', '\(').replace(')','\)')
 
 def open_file(program, file_list, line=0):
     ''' Use the selected program to open the selected files.
@@ -634,7 +638,7 @@ def open_file(program, file_list, line=0):
 
     # escape spaces in the filenames, but only if not launching cmd on CygWin
     if not program.startswith('cmd'):
-        file_list = [fi.replace(' ', '\ ') for fi in file_list]
+        file_list = [clean_filename_for_editor(fi) for fi in file_list]
 
     # insert filenames placeholder to the command line if not already there
     if "%s" not in program:

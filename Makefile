@@ -1,6 +1,32 @@
 BASEDIR=$(PWD)
-VPYTHON=$(BASEDIR)/tests/ENV/bin/python
+VPYTHON=$(BASEDIR)/ENV/bin/python
+VPIP=$(BASEDIR)/ENV/bin/pip
+BIN=$(BASEDIR)/ENV/bin
 export PYTHONPATH=$(BASEDIR)
 
+env_for_testing:
+	virtualenv ENV
+
+requirements_for_testing: env_for_testing
+	$(VPIP) install -r tests/requirements.txt
+
 test:
-	$(VPYTHON) tests/test_brain_of_minion.py
+	$(BIN)/nosetests tests
+
+test_brain:
+	$(BIN)/nosetests tests.test_brain_of_minion
+
+test_minion:
+	$(BIN)/nosetests tests.test_minion
+
+coverage:
+	$(BIN)/nosetests --with-coverage --cover-erase --cover-package=minion --cover-package=brain_of_minion tests
+	$(BIN)/coverage report
+
+html_coverage:
+	$(BIN)/coverage html
+	# For Mac:
+	open htmlcov/index.html
+	# For Linux:
+	# firefox htmlcov/index.html
+
