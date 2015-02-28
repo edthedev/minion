@@ -1,7 +1,9 @@
 #!/bin/zsh
 
 # For backwards compatability.
-alias minion="python ~/.antigen/repos/https-COLON--SLASH--SLASH-github.com-SLASH-edthedev-SLASH-minion.git/bin/minion.py"
+export MINIONPATH="$HOME/.antigen/repos/https-COLON--SLASH--SLASH-github.com-SLASH-edthedev-SLASH-minion.git"
+export PYTHONPATH=$PYTHONPATH:$MINIONPATH
+alias minion="python $MINIONPATH/bin/minion.py"
 
 # Create default config if missing.
 if [ ! -f ~/.minion ]; then
