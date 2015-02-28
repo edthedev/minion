@@ -14,6 +14,7 @@ Usage:
     minion last [options]
     minion list [options] <text> ...
     minion log [options] <log> <comment> ...
+    minion make_config [options]
     minion note [options] <text> ...
     minion open [options] <text> ...
     minion openall [options] <text> ...
@@ -535,6 +536,10 @@ def minion_folders(args):
         count += 1
         print brain.to_bar(count, total)
         _ = brain.doInboxInteractive(item)
+
+def minion_make_config(args):
+    ''' Create the default config file. '''
+    brain.get_settings(config_file = args['--config'])
 
 def minion_tags(args):
     # Rid of this. Concept of 'tags' does not play well with the

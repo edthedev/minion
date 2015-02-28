@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Create default config if missing.
+if [ ! -f ~/.minion ]; then
+	minion make_config
+fi
+
 # For backwards compatability.
 alias minion="minion.py"
 

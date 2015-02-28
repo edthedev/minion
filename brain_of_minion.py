@@ -71,7 +71,10 @@ if 'CYGWIN' in platform.platform():
 ################################################################################
 
 def _settings_parser(default_notes_dir='~/minion/notes'):
-    ''' Create the parser for the settings file. '''
+    ''' Create the parser for the settings file. 
+
+    Include sensible default values.
+    '''
 
     # Default notes settings
     settings = SafeConfigParser()
@@ -102,8 +105,13 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
 
 
 def get_settings(config_file=CONFIG_FILE):
+    ''' Fetch all settings from config file.
+    If config file does not exist, 
+    create it will default settings.
+    '''
     minion_file = os.path.expanduser(config_file)
 
+    # Parser with sensible defaults
     settings = _settings_parser()
 
     # Load if available, write defaults if not.
@@ -111,6 +119,7 @@ def get_settings(config_file=CONFIG_FILE):
         settings.read([minion_file])
     else:  # pragma: no cover
         f = open(minion_file, 'w')
+        # Write the sensible defaults to the missing file.
         settings.write(f)
         f.close()
 
