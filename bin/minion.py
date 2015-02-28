@@ -14,6 +14,7 @@ Usage:
     minion last [options]
     minion list [options] <text> ...
     minion log [options] <log> <comment> ...
+    minion make_config [options]
     minion note [options] <text> ...
     minion open [options] <text> ...
     minion openall [options] <text> ...
@@ -108,18 +109,19 @@ CLEAN_STRAYS_MESSAGE = '''*~*~*~*~*~*~*~*
 # Set up Logging
 ###############################################################################
 _LOGGER = logging.getLogger(__name__)
-# log_to_file = logging.FileHandler('minion.log')
+log_to_file = logging.FileHandler('minion.log')
 log_to_console = logging.StreamHandler()
-# log_to_file.setLevel(logging.DEBUG)
+log_to_file.setLevel(logging.DEBUG)
 log_to_console.setLevel(logging.ERROR)
 _LOGGER.addHandler(log_to_console)
+_LOGGER.addHandler(log_to_file)
 _LOGGER.setLevel(logging.DEBUG)
 
 ###############################################################################
 # HELPER FUNCTIONS
 ###############################################################################
 
-def get_match_files(days=None):
+def get_match_files(args, days=None):
     matches = brain.find_files(
         filter=args['<text>'],
         archives=args['--archives'],
@@ -191,87 +193,40 @@ def format_2_cols(tuple_list):
 # ENTRY POINT FUNCTIONS
 ###############################################################################
 
-def minion_template():
+# Methods that creates notes. 
+# ----------------------------
+
+def minion_template(args):
     '''Create a Minion note from a specialized template.'''
-    params = PARAMS
     # Use the template specified on the command line
+    params = get_params(args)
     templates = args['<template>']
     if len(templates) != 1:
         print 'Please specify exactly one template.'
     params['note_template'] = templates[0]
     brain.new_note_interactive(**params)
 
-
-def minion_remind():
+def minion_remind(args):
     '''Set a quick reminder.'''
-    params = PARAMS
     # Don't open it, just make it.
+    params = get_params(args)
     params['quick'] = True
     brain.new_note_interactive(**params)
 
-
-def minion_here():
+def minion_here(args):
     '''Create a Minion note in the current working directory.'''
-    params = PARAMS
+    params = get_params(args)
     # Use current directory
     params['notes_dir'] = os.curdir
     brain.new_note_interactive(**params)
 
-
-def minion_note():
+def minion_note(args):
     '''Create a Minion note.'''
     # It's the most common use, so use the default PARAMS exactly.
-    brain.new_note_interactive(**PARAMS)
+    params = get_params(args)
+    brain.new_note_interactive(**params)
 
-
-def minion_sort():
-    '''Interactively sort all matches.'''
-    match_files = get_match_files()
-    if len(match_files) == 0:
-        print CLEAN_SORT_MESSAGE
-    else:
-        brain.sort_files_interactive(match_files)
-
-
-def minion_open():
-    match_files = get_match_files()
-
-    if len(match_files) > 0:
-        (_, filename) = brain.select_file(match_files, args['--max'])
-        brain.open_in_editor(filename)
-    else:
-        brain.display_output(title=search_filter, output=match_files)
-
-
-def minion_openall():
-    match_files = get_match_files()
-    brain.open_files(match_files, max=args['--max'])
-
-
-def minion_strays():
-    ''' Run an interactive sort on the contents of any folders that
-        only have one or two items.
-    '''
-    match_files = brain.list_stray_files()
-    total = len(match_files)
-    if total == 0:
-        print CLEAN_STRAYS_MESSAGE
-        sys.exit()
-    else:
-        # print brain.getOutput('cal')
-        brain.sort_files_interactive(match_files)
-
-
-def minion_view():
-    ''' Dump the contents of the chosen file(s) to standard out. '''
-    match_files = get_match_files()
-    print "Outputting contents of %(number)d matches to search terms \
-        '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
-    for filename in match_files:
-        brain.file_to_stdout(filename)
-
-
-def minion_log():
+def minion_log(args):
     '''Add a quick additional line to an existing (or new) Minion file.'''
 
     # Find the log file.
@@ -294,10 +249,63 @@ def minion_log():
     brain.log_line_to_file(**params)
 
 
-def minion_dates():
+
+# Methods organize notes. 
+# ----------------------------
+
+def minion_sort(params):
+    '''Interactively sort all matches.'''
+    match_files = get_match_files(args)
+    if len(match_files) == 0:
+        print CLEAN_SORT_MESSAGE
+    else:
+        brain.sort_files_interactive(match_files)
+
+def minion_strays(args):
+    ''' Run an interactive sort on the contents of any folders that
+        only have one or two items.
+    '''
+    match_files = brain.list_stray_files()
+    total = len(match_files)
+    if total == 0:
+        print CLEAN_STRAYS_MESSAGE
+        sys.exit()
+    else:
+        # print brain.getOutput('cal')
+        brain.sort_files_interactive(match_files)
+
+# Methods access notes. 
+# ----------------------------
+
+def minion_open(args):
+    match_files = get_match_files(args)
+    search_filter = args['<text>']
+
+    if len(match_files) > 0:
+        (_, filename) = brain.select_file(match_files, args['--max'])
+        brain.open_in_editor(filename)
+    else:
+        brain.display_output(title=search_filter, output=match_files)
+
+
+def minion_openall(args):
+    match_files = get_match_files(args)
+    brain.open_files(match_files, max=args['--max'])
+
+
+
+def minion_view(args):
+    ''' Dump the contents of the chosen file(s) to standard out. '''
+    match_files = get_match_files(args)
+    print "Outputting contents of %(number)d matches to search terms \
+        '%(terms)s'.".format(number=len(match_files), terms=args['<text>'])
+    for filename in match_files:
+        brain.file_to_stdout(filename)
+
+def minion_dates(args):
     '''Display all notes with dates in them and filtered by keywords.'''
     events = dict()
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     for filename in match_files:
         content = brain.get_file_content(filename)
         dates = brain.get_unique_dates(content)
@@ -337,14 +345,14 @@ def minion_dates():
     print
 
 
-def minion_recent():
+def minion_recent(args):
     ''' Show N most recent notes'''
     try:
         days_back = int(args['--days'])
-    except ValueError:
+    except (ValueError, TypeError):
         days_back = int(brain.get_setting('notes', 'default_recent_days'))
 
-    match_files = get_match_files(days=days_back)
+    match_files = get_match_files(args, days=days_back)
     recent_files = brain.list_recent(match_files)
     print "Notes modified in last %s days (most recent last):" % days_back
     brain.display_output(
@@ -353,7 +361,7 @@ def minion_recent():
         raw_files=args['--files'])
 
 
-def minion_last():
+def minion_last(args):
     ''' Open the most recently modified file. '''
     filename = brain.get_last_modified(archives=args['--archives'])
     brain.open_in_editor(filename)
@@ -362,55 +370,49 @@ def minion_last():
 # MAIN SCRIPT
 ###############################################################################
 
-# Parse the input arguments; see docopt manual on github.com
-args = docopt(__doc__, version=VERSION)
-_LOGGER.debug(args)
+CONFIG_FILE = ''
 
-CONFIG_FILE = args['--config']
-_LOGGER.info('Using config file %s', CONFIG_FILE)
-# brain.CONFIG_FILE = CONFIG_FILE
-
-brain.GLOBAL_SETTINGS = brain.get_settings(CONFIG_FILE)
-
-# Search terms to filter by.
-search_filter = args['<text>']
-if args['<text>'] == ['all']:
-    args['<text>'] = []
+PARAMS = {}
 
 ###############################################################################
 # Shared parameters
 #
 #   These parameters are used by many function calls below.
 ###############################################################################
-PARAMS = {
-    'topic_fragments': args['<text>'],
-    'notes_dir': None,
-    'note_template': None,
-    'quick': False
-}
+
+def get_params(args):
+    ''' Return some parameters common to many methods. '''
+    PARAMS = {
+        'topic_fragments': args['<text>'],
+        'notes_dir': None,
+        'note_template': None,
+        'quick': False
+    }
 
 # Assign folder per command line parameter
-if args['--folder']:
-    folder = os.path.expanduser(args['--folder'])
-    notes_home = brain.get_notes_home()
-    PARAMS['notes_dir'] = os.path.join(notes_home, folder)
+    if args['--folder']:
+        folder = os.path.expanduser(args['--folder'])
+        notes_home = brain.get_notes_home()
+        PARAMS['notes_dir'] = os.path.join(notes_home, folder)
 
-if args['--template']:
-    PARAMS['note_template'] = args['--template']
+    if args['--template']:
+        PARAMS['note_template'] = args['--template']
 
-if args['--quick']:
-    PARAMS['quick'] = True
+    if args['--quick']:
+        PARAMS['quick'] = True
 
+    return PARAMS
 
 # *************************************************************
 # Everything after this point requires searching for matches...
 # *************************************************************
 
 # Collect stories
-if args['collect']:
+def minion_collect(args):
+    search_filter = args['<text>']
     if '<year>' in args:
         YEAR = args['<year>']
-        match_files = get_match_files()
+        match_files = get_match_files(args)
         collected_matches = brain.limit_to_year(YEAR, match_files)
         collection_title = 'Collected-%s-%s' % (YEAR, ' '.join(search_filter))
 
@@ -447,23 +449,24 @@ if args['collect']:
     f.close()
     brain.display_output('Created Collection', collected_filename)
 
+def minion_command(args):
+    if args['<command>'] and args['<filename>']:
+        brain.apply_command_to_file(
+            args['<filename>'],
+            args['<command>'])
 
-if args['command'] and args['<command>'] and args['<filename>']:
-    brain.apply_command_to_file(
-        args['<filename>'],
-        args['<command>'])
-
-if args['count']:
+def minion_count(args):
     search_terms = "%s: %s" % (
         os.path.basename(brain.get_notes_home()), ','.join(args['<text>'])
     )
-    match_files = get_match_files()
+    match_files = get_match_files(args)
     count = len(match_files)
     print "%d - %s" % (count, search_terms)
     sys.exit()
 
 # List the results
-if args['find'] or args['list']:
+def minion_find(args):
+    search_filter = args['<text>']
     find_any = False
     if args['find']:
         find_any = True
@@ -493,23 +496,26 @@ if args['find'] or args['list']:
 
     sys.exit(0)
 
-if args['favorites']:
+def minion_list(args):
+    minion_find(args)
+
+def minion_favorites(args):
     print brain.print_favorites_summary()
 
-if args['summary']:
+def minion_summary(args):
     summary = brain.get_folder_summary(archives=args['--archives'])
     limit = int(args['--max'])
     summary = summary[:limit]
     output = format_2_cols(summary)
     print output
 
-if args['folder']:
+def minion_folder(args):
     # Do interactive inbox search, but for directories, not files
     print "Not implemented yet."
 
-if args['folders']:
+def minion_folders(args):
     updated_files = []
-    # match_files = get_match_files()
+    # match_files = get_match_files(args)
     match_files = brain.find_files()
     # All poorly used folders
     too_few = 5
@@ -529,16 +535,19 @@ if args['folders']:
     for item in match_files:
         count += 1
         print brain.to_bar(count, total)
-        files_to_open = brain.doInboxInteractive(item)
+        _ = brain.doInboxInteractive(item)
 
-if args['tags']:
+def minion_make_config(args):
+    ''' Create the default config file. '''
+    brain.get_settings(config_file = args['--config'])
+
+def minion_tags(args):
     # Rid of this. Concept of 'tags' does not play well with the
     #       filesystem.
     # Switch to simply using any word as a 'tag'.
     # So what is 'poorly tagged'? Too short of a name? Too many common words?
 
     # A 'tag cloud' would be pretty awesome...
-    boring = ['the', 'this']
     notes_home = brain.get_notes_home()
     all_files = brain.find_files()
     word_count = dict()
@@ -558,6 +567,20 @@ if args['tags']:
 
 # Run all the things!!!!
 if __name__ == '__main__':
+
+    # Parse the input arguments; see docopt manual on github.com
+    args = docopt(__doc__, version=VERSION)
+    # _LOGGER.debug(args)
+    CONFIG_FILE = args['--config']
+    _LOGGER.info('Using config file %s', CONFIG_FILE)
+# brain.CONFIG_FILE = CONFIG_FILE
+    brain.GLOBAL_SETTINGS = brain.get_settings(CONFIG_FILE)
+
+# Search terms to filter by.
+    search_filter = args['<text>']
+    if args['<text>'] == ['all']:
+        args['<text>'] = []
+
     # Run any method named in the keyword args.
     # Cool hack: use DocOpt args to call methods in this file.
     # Note that this only avails those methods whose name matches a documented
@@ -568,6 +591,6 @@ if __name__ == '__main__':
         if (argname in args) and args[argname]:
             if hasattr(locals()[method], '__call__'):
                 # print "Running {}".format(method)
-                locals()[method]()
+                locals()[method](args)
 
-sys.exit(0)
+    sys.exit(0)

@@ -71,7 +71,10 @@ if 'CYGWIN' in platform.platform():
 ################################################################################
 
 def _settings_parser(default_notes_dir='~/minion/notes'):
-    ''' Create the parser for the settings file. '''
+    ''' Create the parser for the settings file. 
+
+    Include sensible default values.
+    '''
 
     # Default notes settings
     settings = SafeConfigParser()
@@ -102,8 +105,13 @@ def _settings_parser(default_notes_dir='~/minion/notes'):
 
 
 def get_settings(config_file=CONFIG_FILE):
+    ''' Fetch all settings from config file.
+    If config file does not exist, 
+    create it will default settings.
+    '''
     minion_file = os.path.expanduser(config_file)
 
+    # Parser with sensible defaults
     settings = _settings_parser()
 
     # Load if available, write defaults if not.
@@ -111,6 +119,7 @@ def get_settings(config_file=CONFIG_FILE):
         settings.read([minion_file])
     else:  # pragma: no cover
         f = open(minion_file, 'w')
+        # Write the sensible defaults to the missing file.
         settings.write(f)
         f.close()
 
@@ -613,6 +622,10 @@ def get_windows_path(cygwin_path):
 
     return w_path
 
+def clean_filename_for_editor(filename):
+    ''' Cleanup unacceptable characters in filenames before
+        passing to the editor. '''
+    return filename.replace(' ', '\ ').replace('(', '\(').replace(')','\)')
 
 def open_file(program, file_list, line=0):
     ''' Use the selected program to open the selected files.
@@ -634,7 +647,7 @@ def open_file(program, file_list, line=0):
 
     # escape spaces in the filenames, but only if not launching cmd on CygWin
     if not program.startswith('cmd'):
-        file_list = [fi.replace(' ', '\ ') for fi in file_list]
+        file_list = [clean_filename_for_editor(fi) for fi in file_list]
 
     # insert filenames placeholder to the command line if not already there
     if "%s" not in program:
