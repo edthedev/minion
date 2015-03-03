@@ -75,6 +75,8 @@ Command descriptions:
 # Licensed under the GPLv2.
 # Created: 2011-04-28
 
+# A life is like a garden. Perfect moments can be had, but not preserved, except in memory.  LLAP - Leonard Nimoy
+
 ###############################################################################
 # IMPORTS
 ###############################################################################
