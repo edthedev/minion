@@ -60,7 +60,8 @@ if len(match_files) > 0:
         vim.command('echom "Skipping non-text file %(item)s."' % {'item': item})
     else: 
         # Escape spaces in file names.
-        item = item.replace(' ', '\ ')
+        item = vim.eval("fnameescape(\"" + item + "\")")
+
         # Open the item in a new buffer.
         vim.command("badd %(item)s" % {'item':item})
         # Switch to the next buffer, in case we ran from an empty Vim window.
@@ -101,7 +102,7 @@ for item in match_files:
         continue
 
     # Escape spaces in file names.
-    item = item.replace(' ', '\ ')
+    item = vim.eval("fnameescape(\"" + item + "\")")
 
     # Open the item in a new buffer.
     vim.command("badd %(item)s" % {'item':item})
@@ -188,7 +189,7 @@ new_filename = brain.rename_file(**args)
 
 # Open it in the new location.
 # Escape spaces in file names.
-new_filename = new_filename.replace(' ', '\ ')
+new_filename = vim.eval("fnameescape(\"" + new_filename + "\")")
 vim.command("badd %(item)s" % {'item':new_filename})
 vim.command("echom 'Your buffer may have moved in the list.'")
 
@@ -207,7 +208,7 @@ args = {
     'topic':vim.eval("a:keywords"),
 }
 (filename, last_line) = brain.create_new_note(**args)
-filename = filename.replace(' ', '\ ')
+filename = vim.eval("fnameescape(\"" + filename + "\")")
 
 # Open it in the new location.
 vim.command("e %(item)s" % {'item':filename})
@@ -229,7 +230,7 @@ args = {
 filename, last_line = brain.create_new_note(**args)
 
 # Escape spaces
-filename = filename.replace(' ', '\ ')
+filename = vim.eval("fnameescape(\"" + filename + "\")")
 
 # Open it the found/new file.
 vim.command("e %(item)s" % {'item':filename})
