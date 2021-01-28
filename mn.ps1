@@ -24,7 +24,8 @@ Recommended for your PowerShell profile:
 
 #>
 param(
-	[switch]$today = $false
+	[switch]$today = $false,
+	[string]$title
 )
 
 function JournalToday() {
@@ -44,4 +45,15 @@ function JournalToday() {
 
 if($today){
 	JournalToday
+}
+
+if($title){
+	$ymSlug = Get-Date -Format "yyyy/MM/dd"
+	$folder = "~/Journal/$ymSlug"
+	if(-Not(Test-Path -Path $folder)) {
+		$_ = New-Item -Type directory -path $folder -Force
+	}
+	$titleSlug = $title.replace(' ','_')
+	$fileName = "$folder/$titleSlug.md"
+	Write-Output "$fileName"
 }

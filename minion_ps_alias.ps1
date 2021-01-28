@@ -23,4 +23,10 @@ function New-JournalToday() {
 	# gvim "$(mn -today)"
 	vim "$(mn -today)"
 }
+
+function New-JournalNote($title) {
+	vim "$(mn -Title $title)"
+}
+
 New-Alias today New-JournalToday
+New-Alias note New-JournalNote
