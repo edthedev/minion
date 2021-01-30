@@ -28,6 +28,18 @@ param(
 	[string]$title
 )
 
+$prettyDate = Get-Date -Format "yyyy MMMM dd"
+$today_template = @'
+# {0} Journal"
+
+## Self Care
+
+## Investment
+
+## Fun
+'@
+$today_body = $today_template -f $prettyDate
+
 function JournalToday() {
 	$daySlug = Get-Date -Format "dd"
 	$ymSlug = Get-Date -Format "yyyy/MM"
@@ -39,6 +51,7 @@ function JournalToday() {
 	}
 	if(-Not(Test-Path -Path $fileName)) {
 		$_ = New-Item -Type file -path $fileName -Force
+		Add-Content -Path $fileName -Value $today_body
 	}
 	Write-Output "$fileName"
 }
