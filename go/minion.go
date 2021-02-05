@@ -6,23 +6,21 @@ import (
 )
 
 func main() {
-	  usage := `Naval Fate.
+	  usage := `Minion. Your command line personal assistance.
 
 Usage:
-  naval_fate ship new <name>...
-  naval_fate ship <name> move <x> <y> [--speed=<kn>]
-  naval_fate ship shoot <x> <y>
-  naval_fate mine (set|remove) <x> <y> [--moored|--drifting]
-  naval_fate -h | --help
-  naval_fate --version
+	minion tags - list all tags
+	minion list - list all files matching keywords
+	minion -h | --help
+  minion --version
 
 Options:
   -h --help     Show this screen.
   --version     Show version.
-  --speed=<kn>  Speed in knots [default: 10].
-  --moored      Moored (anchored) mine.
-  --drifting    Drifting mine.`
+	-d --days=<days>         Show notes modified last N days .
+	-m --max=<max>           Maximum results to display. [default: 10]
+	-y --year=<year>         Limit results to those created in the given year. [default: current year]`
 
-	  arguments, _ := docopt.ParseDoc(usage)
+		arguments, _ := docopt.ParseDoc(usage)
 	  fmt.Println(arguments)
 }
