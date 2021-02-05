@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 + Basic `today` and `note` functionality via `PowerShell` on Windows.
 + Cleaned up the root directory - may require updates to your `.bashrc` if you referenced files in the root directly. See the new `profile` directory.
 
+### Planned
+
++ Change default notes directory to `~/Journal` for compatibilty with [VSCode Journal Plugin][1]
+
+[1]: https://marketplace.visualstudio.com/items?itemName=pajoma.vscode-journal
+
 ### Removed
 
 This will probably be a compatibility breaking release as I revise and revisit a older code.
