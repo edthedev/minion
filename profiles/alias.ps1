@@ -8,7 +8,7 @@ Quick commands for Minion use from PowerShell.
 In your PowerShell Profile:
 
 ```powershell
-. C:\src\minion\minion_ps_alias.ps1
+. C:\src\minion\profiles\alias.ps1
 ```
 
 #>
