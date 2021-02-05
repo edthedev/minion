@@ -13,10 +13,17 @@ In your PowerShell Profile:
 
 #>
 Write-Host "Adding aliases for Minion..."
+
+if(! $IsWindows) {
+	# Bootstrap for older PowerShell
+	$IsWindows = ($env:OS -eq "Windows_NT")
+}
+
 if($IsWindows){
-	New-Alias mn c:\src\minion\mn.ps1
+	New-Alias mn c:\src\minion\bin\mn.ps1
 }else{
-	New-Alias mn ~/src/minion/mn.ps1
+	Write-Host "??? $IsWindows ???"
+	New-Alias mn ~/src/minion/bin/mn.ps1
 }
 
 function New-JournalToday() {
