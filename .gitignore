@@ -5,7 +5,10 @@ htmlcov
 *.*~
 *.swp
 *~
+
+# Go Language
 *.exe
+__debug_bin
 
 # Packages
 *.egg
