@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+
 	// "io/ioutil"
 	"log"
 	"os"
@@ -14,11 +15,13 @@ func main() {
 	listFlag := flag.Bool("list", false, "List the files.")
 	flag.Parse()
 
-	fmt.Printf("List: %s, Find: %s", *listFlag, "...garbage...")
+	var rootPath string = `C:\Users\edthe\Journal`
+
+	fmt.Printf("List: %t, Find: %s", *listFlag, "...garbage...")
 
 	if *listFlag {
 		var err error
-		err = filepath.Walk("c:\\src\\minion", func(path string, info os.FileInfo, err error) error {
+		err = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 			println(info.Name())
 			return nil
 		})
