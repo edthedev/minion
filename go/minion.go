@@ -20,7 +20,7 @@ func searchInFile(fileName string, searchString string) bool {
 
 	fileContent := string(data)
 
-	found = strings.contains(fileContent, searchString)
+	found = strings.Contains(fileContent, searchString)
 	return found
 
 }
@@ -41,9 +41,9 @@ func main() {
 		err = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 			// println(info.Name())
 
-			found := searchInFile(info.path, "test")
+			found := searchInFile(path, "test")
 			if found {
-				results.append(info.path)
+				results = append(results, path)
 			}
 
 			return nil
