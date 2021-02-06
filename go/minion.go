@@ -3,14 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-
-	// "io/ioutil"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-func searchInFile(fileName string, searchString string) {
+func searchInFile(fileName string, searchString string) bool {
 	var found bool
 
 	data, err := ioutil.ReadFile(fileName)
@@ -35,13 +35,14 @@ func main() {
 	fmt.Printf("List: %t, Find: %s", *listFlag, "...garbage...")
 
 	if *listFlag {
-		var results := []str{}
+		var results = []string{}
 
 		var err error
 		err = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 			// println(info.Name())
 
-			if searchInFile(info.path, "test") {
+			found := searchInFile(info.path, "test")
+			if found {
 				results.append(info.path)
 			}
 
