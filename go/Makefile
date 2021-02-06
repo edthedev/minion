@@ -2,7 +2,10 @@
 go:
 	go run minion.go
 
-install:
+install_go:
+	choco install golang
+
+libs:
 	go get github.com/docopt/docopt-go
 
 build:

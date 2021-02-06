@@ -4,6 +4,7 @@ htmlcov
 *.py[co]
 *.*~
 *.swp
+*~
 
 # Packages
 *.egg
