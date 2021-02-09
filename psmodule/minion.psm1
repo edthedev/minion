@@ -33,6 +33,8 @@ Recommended for your PowerShell profile:
 > }
 > New-Alias today Invoke-JournalToday
 
+See profile/alias.ps1 for more examples.
+
 #>
 param(
 	[switch]$today = $false,
