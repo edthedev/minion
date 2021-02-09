@@ -26,9 +26,13 @@ if($IsWindows){
 	New-Alias mn ~/src/minion/bin/mn.ps1
 }
 
+## TODO: Clean this up by converting the script into a module.
 function New-JournalToday() {
-	# gvim "$(mn -today)"
 	vim "$(mn -today)"
+}
+
+function New-JournalTomorrow() {
+	vim "$(mn -tomorrow)"
 }
 
 function New-JournalNote($title) {
@@ -36,4 +40,5 @@ function New-JournalNote($title) {
 }
 
 New-Alias today New-JournalToday
+New-Alias tomorrow New-JournalTomorrow
 New-Alias note New-JournalNote
