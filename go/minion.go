@@ -27,6 +27,7 @@ func searchInFile(fileName string, searchString string) bool {
 
 func main() {
 
+	searchPtr := flag.String("text", "test", "Text to search for.")
 	listFlag := flag.Bool("list", false, "List the files.")
 	flag.Parse()
 
@@ -34,21 +35,20 @@ func main() {
 	var notMarkdown int = 0
 	var matchCount int = 0
 
-	fmt.Printf("List: %t, Find: %s", *listFlag, "...garbage...")
+	fmt.Printf("List: %t, Find: %s.", *listFlag, *searchPtr)
+	fmt.Println("")
 
 	if *listFlag {
 		var results = []string{}
 
-		fmt.Println("Aardvark.")
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 
-			fmt.Println("Doggie.")
 			if filepath.Ext(path) != ".md" {
 				notMarkdown += 1
 				return nil
 			}
 
-			found := searchInFile(path, "test")
+			found := searchInFile(path, *searchPtr)
 			if found {
 				// fmt.Printf("Found a match in: %s", path)
 				matchCount += 1
