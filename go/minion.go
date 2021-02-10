@@ -27,15 +27,16 @@ func searchInFile(fileName string, searchString string) bool {
 
 func main() {
 
-	searchPtr := flag.String("text", "test", "Text to search for.")
+	searchFlag := flag.String("search", "test", "Text to search for.")
 	listFlag := flag.Bool("list", false, "List the files.")
+	maxFlag := flag.Int("max", 5, "Maximum number of files to list.")
 	flag.Parse()
 
 	var rootPath string = `C:\Users\delaport\Journal`
 	var notMarkdown int = 0
 	var matchCount int = 0
 
-	fmt.Printf("List: %t, Find: %s.", *listFlag, *searchPtr)
+	fmt.Printf("List: %t, Find: %s.", *listFlag, *searchFlag)
 	fmt.Println("")
 
 	if *listFlag {
@@ -48,7 +49,7 @@ func main() {
 				return nil
 			}
 
-			found := searchInFile(path, *searchPtr)
+			found := searchInFile(path, *searchFlag)
 			if found {
 				// fmt.Printf("Found a match in: %s", path)
 				matchCount += 1
@@ -64,7 +65,7 @@ func main() {
 		}
 		fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
 
-		if(matchCount > 5) {
+		if(matchCount > *maxFlag) {
 			fmt.Printf("Found %d matches.", matchCount)
 		} else {
 			fmt.Println(results)
