@@ -12,7 +12,7 @@ In your PowerShell Profile:
 ```
 
 #>
-Write-Host "Adding aliases for Minion..."
+Write-Host "+ Added aliases for Minion..."
 
 if(! $IsWindows) {
 	# Bootstrap for older PowerShell
@@ -22,7 +22,6 @@ if(! $IsWindows) {
 if($IsWindows){
 	New-Alias mn c:\src\minion\bin\mn.ps1
 }else{
-	Write-Host "??? $IsWindows ???"
 	New-Alias mn ~/src/minion/bin/mn.ps1
 }
 
