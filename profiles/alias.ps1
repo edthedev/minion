@@ -12,27 +12,19 @@ In your PowerShell Profile:
 ```
 
 #>
-Write-Host "+ Added aliases for Minion..."
 
-if(! $IsWindows) {
-	# Bootstrap for older PowerShell
-	$IsWindows = ($env:OS -eq "Windows_NT")
+function Invoke-JournalToday() {
+  vim "$(Get-JournalToday)"
 }
 
-if($IsWindows){
-	New-Alias mn c:\src\minion\bin\mn.ps1
-}else{
-	New-Alias mn ~/src/minion/bin/mn.ps1
-}
-
-function New-JournalToday() {
-	# gvim "$(mn -today)"
-	vim "$(mn -today)"
+function Invoke-JournalTomorrow() {
+  vim "$(Get-JournalTomorrow)"
 }
 
 function New-JournalNote($title) {
-	vim "$(mn -Title $title)"
+  vim "$(Get-JournalNote $title)"
 }
 
-New-Alias today New-JournalToday
+New-Alias today Invoke-JournalToday
+New-Alias tomorrow Invoke-JournalTomorrow
 New-Alias note New-JournalNote

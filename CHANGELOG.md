@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-+ Basic `today` and `note` functionality via `PowerShell` on Windows.
++ Basic `today`, `tomorrow` and `note` functionality via `PowerShell` on Windows.
++ Added alias examples for PowerShell.
 + Cleaned up the root directory - may require updates to your `.bashrc` if you referenced files in the root directly. See the new `profile` directory.
 
 ### Planned
@@ -19,7 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-This will probably be a compatibility breaking release as I revise and revisit a older code.
++ Python2 modules deprecated.
+
+### Coming Up
+
++ Search functionality via Go code is in progress.
++ May deprecate Bash alias commands - depending if we can find a co-maintainer for those.
 
 ## [1.9.2] - 2014-12-12
 
