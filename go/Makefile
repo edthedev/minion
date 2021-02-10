@@ -1,9 +1,10 @@
 
+# https://github.com/trstringer/cli-debugging-cheatsheets/blob/master/go.md
+#
 go:
 	go run minion.go --list
 
 debug:
-	# https://github.com/trstringer/cli-debugging-cheatsheets/blob/master/go.md
 	dlv debug -- --list
 
 install_go:
