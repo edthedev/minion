@@ -27,8 +27,8 @@ func searchInFile(fileName string, searchString string) bool {
 
 func main() {
 
-	searchFlag := flag.String("search", "test", "Text to search for.")
-	listFlag := flag.Bool("list", false, "List the files.")
+	searchFlag := flag.String("search", "", "Text to search for.")
+	// listFlag := flag.Bool("list", false, "List the files.")
 	maxFlag := flag.Int("max", 5, "Maximum number of files to list.")
 	flag.Parse()
 
@@ -36,10 +36,11 @@ func main() {
 	var notMarkdown int = 0
 	var matchCount int = 0
 
-	fmt.Printf("List: %t, Find: %s.", *listFlag, *searchFlag)
+	// fmt.Printf("List: %t, Find: %s.", *listFlag, *searchFlag)
+	fmt.Printf("List: %t, Find: %s.", "--default to list--", *searchFlag)
 	fmt.Println("")
 
-	if *listFlag {
+	if (*searchFlag != "") {
 		var results = []string{}
 
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
@@ -74,18 +75,6 @@ func main() {
 			// fmt.Println(results)
 		}
 
-
 	}
-
-	/*
-		files, err := ioutil.ReadDir("c:\\src\\minion")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		for _, f := range files {
-			fmt.Println(f.Name())
-		}
-	*/
 
 }
