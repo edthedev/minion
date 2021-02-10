@@ -15,7 +15,7 @@ func searchInFile(fileName string, searchString string) bool {
 
 	data, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		fmt.Printf("Unable to read file: %s", fileName)
+		fmt.Printf("Unable to read file: %s - %s", fileName, err)
 	}
 
 	fileContent := string(data)
@@ -30,30 +30,56 @@ func main() {
 	listFlag := flag.Bool("list", false, "List the files.")
 	flag.Parse()
 
-	var rootPath string = `C:\Users\edthe\Journal`
+	var rootPath string = `C:\Users\delaport\Journal`
+	var notMarkdown int = 0
 
 	fmt.Printf("List: %t, Find: %s", *listFlag, "...garbage...")
 
 	if *listFlag {
-		var results = []string{}
+		// var results = []string{}
 
-		var err error
-		err = filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
-			// println(info.Name())
+		fmt.Println("Aardvark.")
+		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
+			fmt.Println("Bobcat.")
+			/*if(info == nil){
+				fmt.Printf("Info nil at %s", path)
+				return nil
+			}*/
 
-			found := searchInFile(path, "test")
-			if found {
-				results = append(results, path)
+			/*
+			fmt.Println("Catterpillar.")
+			if(info.IsDir()) {
+				fmt.Printf("Is a directory: %s", path)
+				return nil
+			}*/
+
+			fmt.Println("Doggie.")
+			if filepath.Ext(path) != ".md" {
+				// fmt.Printf("Is not markdown: %s", path)
+				notMarkdown += 1
+				return nil
 			}
+
+			fmt.Println("Elephant.")
+			found := searchInFile(path, "test")
+			fmt.Println("Fly.")
+			if found {
+				fmt.Printf("Found a match in: %s", path)
+				// results = append(results, path)
+			} else {
+				fmt.Printf("Found no match in: %s", path)
+			}
+			fmt.Println("Housefly.")
 
 			return nil
 		})
-
-		fmt.Println(results)
-
-		if err != nil {
-			log.Fatal(err)
+		if walkErr != nil {
+			log.Fatal(walkErr)
 		}
+		fmt.Printf("Is not markdown: %d", notMarkdown)
+
+		// fmt.Println(results)
+
 	}
 
 	/*
