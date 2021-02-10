@@ -27,9 +27,7 @@ func searchInFile(fileName string, searchString string) bool {
 }
 
 
-func searchForTags(tagRegex regexp.Regexp, fileName string) bool {
-	var found bool
-	
+func searchForTags(tagRegex regexp.Regexp, fileName string) []string {
 
 	data, err := ioutil.ReadFile(fileName)
 	if err != nil {
@@ -37,11 +35,7 @@ func searchForTags(tagRegex regexp.Regexp, fileName string) bool {
 	}
 	fileContent := string(data)
 
-	fmt.Println(tagRegex.FindAllString(fileContent, -1))
-
-	found = strings.Contains(fileContent, "NEVERMIND")
-	return found
-
+	return tagRegex.FindAllString(fileContent, -1)
 }
 
 
@@ -71,6 +65,9 @@ func main() {
 			}
 
 			found := searchForTags(*tagRegex, path)
+			fmt.Println(found)
+
+			/* 
 			if found {
 				// fmt.Printf("Found a match in: %s", path)
 				matchCount += 1
@@ -78,6 +75,7 @@ func main() {
 			} else {
 				// fmt.Printf("Found no match in: %s", path)
 			}
+			*/
 
 			return nil
 		})
