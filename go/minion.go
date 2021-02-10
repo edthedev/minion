@@ -32,7 +32,7 @@ func main() {
 	maxFlag := flag.Int("max", 5, "Maximum number of files to list.")
 	flag.Parse()
 
-	var rootPath string = `C:\Users\delaport\Journal`
+	var rootPath string = `C:\Users\delaport\Journal\2021`
 	var notMarkdown int = 0
 	var matchCount int = 0
 
@@ -68,7 +68,10 @@ func main() {
 		if(matchCount > *maxFlag) {
 			fmt.Printf("Found %d matches.", matchCount)
 		} else {
-			fmt.Println(results)
+		  for _, item := range results {
+				fmt.Println(item)
+			}
+			// fmt.Println(results)
 		}
 
 
