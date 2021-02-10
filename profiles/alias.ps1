@@ -19,26 +19,26 @@ if(! $IsWindows) {
 	$IsWindows = ($env:OS -eq "Windows_NT")
 }
 
-if($IsWindows){
-	New-Alias mn c:\src\minion\bin\mn.ps1
-}else{
-	Write-Host "??? $IsWindows ???"
-	New-Alias mn ~/src/minion/bin/mn.ps1
-}
+# if($IsWindows){
+	# New-Alias mn c:\src\minion\bin\mn.ps1
+# }else{
+	# Write-Host "??? $IsWindows ???"
+	# New-Alias mn ~/src/minion/bin/mn.ps1
+# }
 
 ## TODO: Clean this up by converting the script into a module.
-function New-JournalToday() {
-	vim "$(mn -today)"
+function Invoke-JournalToday() {
+  vim "$(Get-JournalToday)"
 }
 
-function New-JournalTomorrow() {
-	vim "$(mn -tomorrow)"
+function Invoke-JournalTomorrow() {
+  vim "$(Get-JournalTomorrow)"
 }
 
 function New-JournalNote($title) {
-	vim "$(mn -Title $title)"
+  vim "$(Get-JournalNote $title)"
 }
 
-New-Alias today New-JournalToday
-New-Alias tomorrow New-JournalTomorrow
+New-Alias today Invoke-JournalToday
+New-Alias tomorrow Invoke-JournalTomorrow
 New-Alias note New-JournalNote

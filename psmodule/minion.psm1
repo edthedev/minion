@@ -3,24 +3,37 @@
 <#
 .SYNOPSIS
 
-Quick script to help with rapid journaling.
+Quick functions to help with rapid journaling.
 
 .EXAMPLE
 
 In PowerShell to start a new note for today:
 
-> vim $(~/src/minion/mn.ps1 -today)
+> vim $(Get-JournalToday)
+
+.EXAMPLE
+
+In PowerShell to start a new note with a title:
+
+> vim $(Get-JournalNote -Title "This is my title")
+
+.EXAMPLE
+
+In PowerShell to start a new note for tomorrow:
+
+> vim $(Get-JournalTommorow)
 
 .NOTES
 
 Recommended for your PowerShell profile:
 
-> New-Alias mn ~/src/minion/mn.ps1
+> Import-Module c:\src\minion\modules\minion.psm1
+> function Invoke-JournalToday {
+>     vim $(Get-JournalToday)
+> }
+> New-Alias today Invoke-JournalToday
 
-.EXAMPLE
-
-> vim $(mn today)
-
+See profile/alias.ps1 for more examples.
 
 #>
 param(
@@ -29,7 +42,13 @@ param(
 	[string]$title
 )
 
-$prettyDate = Get-Date -Format "yyyy MMMM dd"
+
+function Get-JournalTemplate() {
+	param(
+		[string]$date
+	)
+	$prettyDate = '{0:yyyy MMMM dd}' -f $date
+	$prettyDate = Get-Date -Format "yyyy MMMM dd"
 $today_template = @'
 # {0} Journal"
 
@@ -39,7 +58,10 @@ $today_template = @'
 
 ## Fun
 '@
-$today_body = $today_template -f $prettyDate
+
+	$body = $today_template -f $prettyDate
+	return $body
+}
 
 function Get-JournalFile() {
 	param(
@@ -53,7 +75,6 @@ function Get-JournalFile() {
 	New-JournalFile -folder $folder -fileName $fileName
 
 	return $fileName
-
 }
 
 <#
@@ -66,13 +87,15 @@ Add template content if it does not already exist.
 function New-JournalFile() {
 	param(
 	[string]$folder,
-	[string]$fileName
+	[string]$fileName,
+	[DateTime]$date
 	)
 	if(-Not(Test-Path -Path $folder)) {
 		$_ = New-Item -Type directory -path $folder -Force
 	}
 	if(-Not(Test-Path -Path $fileName)) {
 		$_ = New-Item -Type file -path $fileName -Force
+		$today_body = Get-JournalTemplate -Date $date
 		Add-Content -Path $fileName -Value $today_body
 	}
 }
@@ -83,10 +106,10 @@ function New-JournalFile() {
 Open journal file for today.
 
 #>
-function JournalToday() {
+function Get-JournalToday() {
 	$date = Get-Date -f 'yyyy-MM-dd'
 	$fileName = Get-JournalFile -Date $date
-	Write-Output "$fileName"
+	return "$fileName"
 }
 
 <#
@@ -95,22 +118,16 @@ function JournalToday() {
 Open journal file for tomrrow.
 
 #>
-function JournalTomorrow() {
+function Get-JournalTomorrow() {
 	$date = (Get-Date).AddDays(1) -f 'yyyy-MM-dd'
 	$fileName = Get-JournalFile -Date $date
-	Write-Output "$fileName"
+	return "$fileName"
 }
 
-
-if($today){
-	JournalToday
-}
-if($tomorrow){
-	JournalTomorrow
-}
-
-
-if($title){
+function Get-JournalNote() {
+	param(
+	[string]$title
+	)
 	$ymSlug = Get-Date -Format "yyyy/MM/dd"
 	$folder = "~/Journal/$ymSlug"
 	if(-Not(Test-Path -Path $folder)) {
@@ -118,5 +135,14 @@ if($title){
 	}
 	$titleSlug = $title.replace(' ','_')
 	$fileName = "$folder/$titleSlug.md"
-	Write-Output "$fileName"
+	return "$fileName"
+
 }
+
+
+Export-ModuleMember -Function Get-JournalFile
+Export-ModuleMember -Function Get-JournalToday
+Export-ModuleMember -Function Get-JournalTomorrow
+Export-ModuleMember -Function Get-JournalNote
+
+
