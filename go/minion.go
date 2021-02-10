@@ -32,53 +32,44 @@ func main() {
 
 	var rootPath string = `C:\Users\delaport\Journal`
 	var notMarkdown int = 0
+	var matchCount int = 0
 
 	fmt.Printf("List: %t, Find: %s", *listFlag, "...garbage...")
 
 	if *listFlag {
-		// var results = []string{}
+		var results = []string{}
 
 		fmt.Println("Aardvark.")
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
-			fmt.Println("Bobcat.")
-			/*if(info == nil){
-				fmt.Printf("Info nil at %s", path)
-				return nil
-			}*/
-
-			/*
-			fmt.Println("Catterpillar.")
-			if(info.IsDir()) {
-				fmt.Printf("Is a directory: %s", path)
-				return nil
-			}*/
 
 			fmt.Println("Doggie.")
 			if filepath.Ext(path) != ".md" {
-				// fmt.Printf("Is not markdown: %s", path)
 				notMarkdown += 1
 				return nil
 			}
 
-			fmt.Println("Elephant.")
 			found := searchInFile(path, "test")
-			fmt.Println("Fly.")
 			if found {
-				fmt.Printf("Found a match in: %s", path)
-				// results = append(results, path)
+				// fmt.Printf("Found a match in: %s", path)
+				matchCount += 1
+				results = append(results, path)
 			} else {
-				fmt.Printf("Found no match in: %s", path)
+				// fmt.Printf("Found no match in: %s", path)
 			}
-			fmt.Println("Housefly.")
 
 			return nil
 		})
 		if walkErr != nil {
 			log.Fatal(walkErr)
 		}
-		fmt.Printf("Is not markdown: %d", notMarkdown)
+		fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
 
-		// fmt.Println(results)
+		if(matchCount > 5) {
+			fmt.Printf("Found %d matches.", matchCount)
+		} else {
+			fmt.Println(results)
+		}
+
 
 	}
 
