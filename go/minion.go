@@ -51,7 +51,7 @@ func main() {
 	listFlag := flag.Bool("tags", false, "List any tags that look like [<text>].")
 	maxFlag := flag.Int("max", 5, "Maximum number of files or tags to list.")
 	flag.Parse()
-	tagRegex, _ := regexp.Compile("p([a-z]+)ch")
+	tagRegex, _ := regexp.Compile(`\[\S\S+\]`) // How we find tags.
 
 	var rootPath string = `C:\Users\delaport\Journal\2021`
 	var notMarkdown int = 0
