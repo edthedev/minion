@@ -21,6 +21,10 @@ function Invoke-JournalTomorrow() {
   vim "$(Get-JournalTomorrow)"
 }
 
+function Invoke-JournalYesterday() {
+  vim "$(Get-JournalYesterday)"
+}
+
 function New-JournalNote($title) {
   vim "$(Get-JournalNote $title)"
 }
