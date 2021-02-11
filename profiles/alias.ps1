@@ -27,4 +27,5 @@ function New-JournalNote($title) {
 
 New-Alias today Invoke-JournalToday
 New-Alias tomorrow Invoke-JournalTomorrow
+New-Alias yesterday Invoke-JournalYesterday
 New-Alias note New-JournalNote

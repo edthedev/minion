@@ -124,11 +124,30 @@ function Get-JournalTomorrow() {
 	return "$fileName"
 }
 
+<#
+.SYNOPSIS
+
+Open journal file for yesterday.
+
+#>
+function Get-JournalYesterday() {
+	$date = (Get-Date).AddDays(-1) -f 'yyyy-MM-dd'
+	$fileName = Get-JournalFile -Date $date
+	return "$fileName"
+}
+
+<#
+.SYNOPSIS
+
+Open journal file for the given title.
+Store it in a folder named for this month.
+
+#>
 function Get-JournalNote() {
 	param(
 	[string]$title
 	)
-	$ymSlug = Get-Date -Format "yyyy/MM/dd"
+	$ymSlug = Get-Date -Format "yyyy/MM"
 	$folder = "~/Journal/$ymSlug"
 	if(-Not(Test-Path -Path $folder)) {
 		$_ = New-Item -Type directory -path $folder -Force
@@ -143,6 +162,7 @@ function Get-JournalNote() {
 Export-ModuleMember -Function Get-JournalFile
 Export-ModuleMember -Function Get-JournalToday
 Export-ModuleMember -Function Get-JournalTomorrow
+Export-ModuleMember -Function Get-JournalYesterday
 Export-ModuleMember -Function Get-JournalNote
 
 
