@@ -1,6 +1,9 @@
 
 # https://github.com/trstringer/cli-debugging-cheatsheets/blob/master/go.md
 #
+build:
+	go build minion.go
+
 go:
 	go run minion.go --list
 
@@ -15,7 +18,4 @@ setup:
 
 libs:
 	go get github.com/docopt/docopt-go
-
-build:
-	go build minion.go
 
