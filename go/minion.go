@@ -51,9 +51,9 @@ func main() {
 	var notMarkdown int = 0
 	var matchCount int = 0
 
-	fmt.Printf("List: %t, Find: %s.", *listFlag, *searchFlag)
+	// fmt.Printf("List: %t, Find: %s.", *listFlag, *searchFlag)
 	// fmt.Printf("List: %t, Find: %s.", "--default to list--", *searchFlag)
-	fmt.Println("")
+	// fmt.Println("")
 	if ( *listFlag ) {
 		var results = []string{}
 
@@ -82,7 +82,7 @@ func main() {
 		if walkErr != nil {
 			log.Fatal(walkErr)
 		}
-		fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
+		// fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
 
 		if(matchCount > *maxFlag) {
 			fmt.Printf("Found %d matches.", matchCount)
@@ -119,7 +119,7 @@ func main() {
 		if walkErr != nil {
 			log.Fatal(walkErr)
 		}
-		fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
+		// fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
 
 		if(matchCount > *maxFlag) {
 			fmt.Printf("Found %d matches.", matchCount)

@@ -25,8 +25,19 @@ function Invoke-JournalYesterday() {
   vim "$(Get-JournalYesterday)"
 }
 
-function New-JournalNote($title) {
+function New-JournalNote() {
+	param(
+		[string]$title
+	)
   vim "$(Get-JournalNote $title)"
+}
+
+function Open-JournalNote() {
+	param(
+		[string]$tag
+	)
+	$fileName = "$(minion.exe -search $tag)"
+	vim $fileName
 }
 
 New-Alias today Invoke-JournalToday
