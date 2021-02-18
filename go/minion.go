@@ -65,6 +65,7 @@ func main() {
 			}
 
 			found := searchForTags(*tagRegex, path)
+			// TODO: Add a flag the removes line breaks, to allow files to be passed to Vim
 			fmt.Println(found)
 
 			/* 
