@@ -32,7 +32,7 @@ function New-JournalNote() {
   vim "$(Get-JournalNote $title)"
 }
 
-function Open-JournalNote() {
+function Open-JournalNotes() {
 	param(
 		[string]$tag
 	)
