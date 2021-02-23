@@ -126,7 +126,10 @@ func main() {
 			fmt.Printf("Found %d matches.", matchCount)
 		} else {
 		  for _, item := range results {
-				fmt.Println(item)
+				// fmt.Println(item)
+				// Print space separated for Vim command line input.
+				fmt.Printf(item)
+				fmt.Printf(" ")
 			}
 			// fmt.Println(results)
 		}
