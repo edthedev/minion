@@ -40,7 +40,11 @@ function Open-JournalNotes() {
 	vim $fileName
 }
 
+# Quick notes with vim.
 New-Alias today Invoke-JournalToday
 New-Alias tomorrow Invoke-JournalTomorrow
 New-Alias yesterday Invoke-JournalYesterday
 New-Alias note New-JournalNote
+
+# Commands for within Vim
+
