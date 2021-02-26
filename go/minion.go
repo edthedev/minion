@@ -128,8 +128,9 @@ func main() {
 		  for _, item := range results {
 				// fmt.Println(item)
 				// Print space separated for Vim command line input.
-				fmt.Printf(item)
-				fmt.Printf(" ")
+				// var escaped string
+				// escaped = strings.Replace(item, `\`, "/", -1)
+				fmt.Printf("%s ", item)
 			}
 			// fmt.Println(results)
 		}

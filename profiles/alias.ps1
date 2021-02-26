@@ -12,6 +12,7 @@ In your PowerShell Profile:
 ```
 
 #>
+$editor = "vim"
 
 function Invoke-JournalToday() {
   vim "$(Get-JournalToday)"
@@ -32,13 +33,15 @@ function New-JournalNote() {
   vim "$(Get-JournalNote $title)"
 }
 
+<#
 function Open-JournalNotes() {
 	param(
 		[string]$tag
 	)
-	$fileName = "$(minion.exe -search $tag)"
-	vim $fileName
+	$fileNames = "$(minion.exe -search $tag)"
+	vim $fileNames
 }
+#>
 
 # Quick notes with vim.
 New-Alias today Invoke-JournalToday
@@ -47,4 +50,11 @@ New-Alias yesterday Invoke-JournalYesterday
 New-Alias note New-JournalNote
 
 # Commands for within Vim
+function Find-JournalNotes() {
+	param(
+		[string]$tag
+	)
+	$fileNames = "$(minion.exe -search $tag)"
+	return $fileNames
+}
 
