@@ -50,11 +50,13 @@ function Get-JournalTemplate() {
 	$prettyDate = '{0:yyyy MMMM dd}' -f $date
 	$prettyDate = Get-Date -Format "yyyy MMMM dd"
 $today_template = @'
-# {0} Journal"
+# {0} Plan"
 
 ## Self Care
 
-## Investment
+## Strategic Investment
+
+## Operational Commitment
 
 ## Fun
 '@
