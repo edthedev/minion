@@ -68,12 +68,15 @@ Command descriptions:
     template - start a note from a specialized template. Try 'week' and
             'journal' to get started.
 """
-
 # #babyTeddySays: m'0']..p p j\[ ''
+# #babyDeeDeeSays: /..........................
+
 
 # Copyright 2011-2014 Edward Delaporte <edthedev@gmail.com>
 # Licensed under the GPLv2.
 # Created: 2011-04-28
+
+# A life is like a garden. Perfect moments can be had, but not preserved, except in memory.  LLAP - Leonard Nimoy
 
 ###############################################################################
 # IMPORTS
