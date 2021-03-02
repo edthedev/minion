@@ -6,25 +6,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
++ Removed Python2 code.
+
+## [2.0.0] - 2021-03-02
+
 ### Added
 
 + Basic `today`, `tomorrow` and `note` functionality via `PowerShell` on Windows.
 + Added alias examples for PowerShell.
 + Cleaned up the root directory - may require updates to your `.bashrc` if you referenced files in the root directly. See the new `profile` directory.
-
-### Planned
-
 + Change default notes directory to `~/Journal` for compatibilty with [VSCode Journal Plugin][1]
++ Added simple Go executable for basic searches.
 
 [1]: https://marketplace.visualstudio.com/items?itemName=pajoma.vscode-journal
 
 ### Removed
 
 + Python2 modules deprecated.
-
-### Coming Up
-
-+ Search functionality via Go code is in progress.
 + May deprecate Bash alias commands - depending if we can find a co-maintainer for those.
 
 ## [1.9.2] - 2014-12-12
