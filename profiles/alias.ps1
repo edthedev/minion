@@ -12,21 +12,8 @@ In your PowerShell Profile:
 ```
 
 #>
-Write-Host "Adding aliases for Minion..."
+$editor = "vim"
 
-if(! $IsWindows) {
-	# Bootstrap for older PowerShell
-	$IsWindows = ($env:OS -eq "Windows_NT")
-}
-
-# if($IsWindows){
-	# New-Alias mn c:\src\minion\bin\mn.ps1
-# }else{
-	# Write-Host "??? $IsWindows ???"
-	# New-Alias mn ~/src/minion/bin/mn.ps1
-# }
-
-## TODO: Clean this up by converting the script into a module.
 function Invoke-JournalToday() {
   vim "$(Get-JournalToday)"
 }
@@ -35,10 +22,39 @@ function Invoke-JournalTomorrow() {
   vim "$(Get-JournalTomorrow)"
 }
 
-function New-JournalNote($title) {
+function Invoke-JournalYesterday() {
+  vim "$(Get-JournalYesterday)"
+}
+
+function New-JournalNote() {
+	param(
+		[string]$title
+	)
   vim "$(Get-JournalNote $title)"
 }
 
+<#
+function Open-JournalNotes() {
+	param(
+		[string]$tag
+	)
+	$fileNames = "$(minion.exe -search $tag)"
+	vim $fileNames
+}
+#>
+
+# Quick notes with vim.
 New-Alias today Invoke-JournalToday
 New-Alias tomorrow Invoke-JournalTomorrow
+New-Alias yesterday Invoke-JournalYesterday
 New-Alias note New-JournalNote
+
+# Commands for within Vim
+function Find-JournalNotes() {
+	param(
+		[string]$tag
+	)
+	$fileNames = "$(minion.exe -search $tag)"
+	return $fileNames
+}
+

@@ -291,7 +291,7 @@ convey the exclusion of warranty; and each file should have at least
 the "copyright" line and a pointer to where the full notice is found.
 
     Vim bindings and Python scripts that make editing ReStructuredText files faster.
-    Copyright (C) 2013  Edward Delaporte
+    Copyright (C) 2013-2021  Edward Delaporte
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
