@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 + Removed Python2 code.
 
+## [Planned]
+
++ Use the ENV variable for MINION_HOME if it is set.
++ Use the templates directory when making new notes.
++ Create a Pester test suite for the PowerShell functions.
++ Create a GitHub action that runs a Pester test suite.
++ Maybe: Update the `minion.vim` plugin to use only the PowerShell functions.
+
 ## [2.0.0] - 2021-03-02
 
 ### Added
