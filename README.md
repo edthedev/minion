@@ -1,6 +1,5 @@
 ## What is Minion?
 
-[![Build Status](https://travis-ci.org/edthedev/minion.svg?branch=develop)](https://travis-ci.org/edthedev/minion)
 
 Minion automates the boring parts of file management to let authors focus on writing. Deciding what to name a file, where to put it, and trying to find it later are all steps that can be delegated - to Minion.
 
