@@ -12,6 +12,7 @@ from collections import defaultdict
 import logging
 import platform
 import sys
+import glob
 
 LOGGER = logging.getLogger(__name__)
 
@@ -1328,13 +1329,22 @@ def get_template_content(template):
     }
     template_file_name = "%(type)s_template%(ext)s" % data
     template_file = os.path.join(data['directory'], template_file_name)
-    # TODO: Recover gracefully if the expected template is missing.
-    f = open(template_file, 'r')
-    template_text = f.readlines()
-    f.close()
-    template_text = ''.join(template_text)
-    return template_text
+    # Recover gracefully if the expected template is missing.
+    if not os.path.exists(template_file):
+        print(data)
+        print(template_file)
+        data['template_names'] = (', '.join([os.path.basename(fn).split('_')[0]
+           for fn in glob.glob(
+               os.path.join('%(directory)s' % data,
+                            '*%(ext)s' % data))]))
 
+        raise UserWarning("Template '%(type)s' not found. Possible names are %(template_names)s." % data)
+    else:
+        f = open(template_file, 'r')
+        template_text = f.readlines()
+        f.close()
+        template_text = ''.join(template_text)
+        return template_text
 
 def write_template_to_file(topic, filename, note_template):
     ''' Add templated pre-content to the new note.'''
