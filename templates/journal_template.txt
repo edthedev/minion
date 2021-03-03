@@ -1,3 +1,13 @@
 Journal {topic} {today}
 {underline}
 :date: {today}
+
+# {0} Plan"
+
+## Self Care
+
+## Strategic Investment
+
+## Operational Commitment
+
+## Fun
