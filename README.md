@@ -1,5 +1,6 @@
 ## What is Minion?
 
+
 Minion automates the boring parts of file management to let authors focus on writing. Deciding what to name a file, where to put it, and trying to find it later are all steps that can be delegated - to Minion.
 
 ## The Philosophy of Minion 
@@ -17,13 +18,28 @@ Minion is meant to be a first step on that path. Minion simplifies storing, tagg
 
 ## Installation
 
-See either [Command Line Install](https://github.com/edthedev/minion/wiki/Install) or [Vim Plugin Install](https://github.com/edthedev/minion/wiki/Install_Vim_Plugin) or [Antigen Plugin Install](https://github.com/edthedev/minion/wiki/Antigen)
++ Install PowerShell.
++ Clone the source.
++ See `profiles` and `psmodules` for PowerShell integration.
++ Optionally compile `go/minion.go` for additional search capabilities.
 
 ## Usage
 
-See [Command Line Use](https://github.com/edthedev/minion/wiki/Command_Line_Use) or [Vim Plugin Use](https://github.com/edthedev/minion/wiki/Vim_Plugin_Use).
+After setting up your PowerShell profile to import the module: 
 
-## Developer Stuff
+```powershell
+C:\src\minion\psmodule [cleanup +0 ~1 -0 !]> get-command -Module minion
 
-[![Build Status](https://travis-ci.org/edthedev/minion.svg?branch=develop)](https://travis-ci.org/edthedev/minion)
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Function        Get-JournalFile                                    0.0        minion
+Function        Get-JournalNote                                    0.0        minion
+Function        Get-JournalToday                                   0.0        minion
+Function        Get-JournalTomorrow                                0.0        minion
+Function        Get-JournalYesterday                               0.0        minion
+```
+
+```powershell
+Get-Help Invoke-JournalNote
+```
 
