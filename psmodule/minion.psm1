@@ -52,9 +52,7 @@ function Get-JournalTemplate() {
 	$prettyDate = Get-Date -Format "yyyy MMMM dd"
 	# $template = Get-Content -Path $env:minion\templates\journal_template.txt
 	$template = @"
-Journal {0}
-
-# {0} Plan"
+# {0} Plan
 
 ## Self Care
 
