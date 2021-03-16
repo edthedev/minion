@@ -1,6 +1,5 @@
-Journal {topic} {today}
-{underline}
-:date: {today}
+Journal {0}
+:date: {0}
 
 # {0} Plan"
 

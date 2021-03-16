@@ -27,7 +27,8 @@ In PowerShell to start a new note for tomorrow:
 
 Recommended for your PowerShell profile:
 
-> Import-Module c:\src\minion\modules\minion.psm1
+> $env:minion = "c:\src\minion"
+> Import-Module $env:minion\modules\minion.psm1
 > function Invoke-JournalToday {
 >     vim $(Get-JournalToday)
 > }
@@ -49,8 +50,21 @@ function Get-JournalTemplate() {
 	)
 	$prettyDate = '{0:yyyy MMMM dd}' -f $date
 	$prettyDate = Get-Date -Format "yyyy MMMM dd"
-	$template = Get-Content -Path ../journal_template.txt
-	$body = $template -f $prettyDate
+	# $template = Get-Content -Path $env:minion\templates\journal_template.txt
+	$template = @"
+Journal {0}
+
+# {0} Plan"
+
+## Self Care
+
+## Strategic Investment
+
+## Operational Commitment
+
+## Fun
+"@
+	$body = $template -f $prettyDate, $prettyDate
 	return $body
 }
 
@@ -87,7 +101,8 @@ function New-JournalFile() {
 	if(-Not(Test-Path -Path $fileName)) {
 		$_ = New-Item -Type file -path $fileName -Force
 		$today_body = Get-JournalTemplate -Date $date
-		Add-Content -Path $fileName -Value $today_body
+		# Add-Content -Path $fileName -Value $today_body
+		Set-Content -Path $fileName -Value $today_body
 	}
 }
 
