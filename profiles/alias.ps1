@@ -33,6 +33,7 @@ function New-JournalNote() {
   vim "$(Get-JournalNote $title)"
 }
 
+
 <#
 function Open-JournalNotes() {
 	param(
@@ -48,6 +49,7 @@ New-Alias today Invoke-JournalToday
 New-Alias tomorrow Invoke-JournalTomorrow
 New-Alias yesterday Invoke-JournalYesterday
 New-Alias note New-JournalNote
+New-Alias todo Get-JournalTodos
 
 # Commands for within Vim
 function Find-JournalNotes() {
