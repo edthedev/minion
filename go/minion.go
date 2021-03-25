@@ -41,7 +41,7 @@ func searchForTags(tagRegex regexp.Regexp, fileName string) []string {
 
 func searchForMatchesByLine(tagRegex regexp.Regexp, fileName string) []string {
 
-	file, err := os.Open("/path/to/file.txt")
+	file, err := os.Open(fileName)
 	if err != nil {
 		fmt.Printf("Unable to read file: %s - %s", fileName, err)
 	}

@@ -7,6 +7,9 @@ build:
 go:
 	go run minion.go --list
 
+todo:
+	go run minion.go -todo
+
 debug:
 	dlv debug -- --list
 
