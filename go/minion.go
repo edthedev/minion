@@ -70,7 +70,7 @@ func main() {
 
 	tagRegex, _ := regexp.Compile(`\[\S\S+\]`) // How we find tags.
 	// todoRegex, _ := regexp.Compile(`^+\w\[\w\].+$`) // How we find todos.
-	todoRegex, _ := regexp.Compile(`(^\+\W[\W+].+$)`) // How we find todos
+	todoRegex, _ := regexp.Compile(`(^\+\W\[\W+\].+$)`) // How we find todos
 	// doneRegex, _ := regexp.Compile(`\[x\]|\[\/\]`) // How we find done items.
 
 	var rootPath string = `C:\Users\delaport\Journal\2021`
