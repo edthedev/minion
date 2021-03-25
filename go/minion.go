@@ -89,7 +89,8 @@ func main() {
 				return nil
 			}
 
-			found := searchForTags(*tagRegex, path)
+			var found = []string{}
+			found = searchForTags(*tagRegex, path)
 			// TODO: Add a flag the removes line breaks, to allow files to be passed to Vim
 			fmt.Println(found)
 
@@ -119,9 +120,17 @@ func main() {
 				return nil
 			}
 
-			found := searchForMatchesByLine(*todoRegex, path)
-			// TODO: Add a flag the removes line breaks, to allow files to be passed to Vim
-			fmt.Println(found)
+			var found = []string{}
+			found = searchForMatchesByLine(*todoRegex, path)
+			// fmt.Println(found)
+			var todo string
+			
+			for _, todo = range found {
+				fmt.Println(todo)
+				fmt.Println("")
+			}
+
+
 
 			/* 
 			if found {
