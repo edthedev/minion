@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Planned]
 
++ Make the 'note' command print out the filename created.
 + Use the ENV variable for MINION_HOME if it is set.
 + Use the templates directory when making new notes.
 + Create a Pester test suite for the PowerShell functions.
