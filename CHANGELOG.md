@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-+ Removed Python2 code.
 
 ## [Planned]
 
@@ -15,7 +14,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 + Use the templates directory when making new notes.
 + Create a Pester test suite for the PowerShell functions.
 + Create a GitHub action that runs a Pester test suite.
-+ Maybe: Update the `minion.vim` plugin to use only the PowerShell functions.
++ Maybe: Recreate the `minion.vim` plugin - using only the shell functions.
+
+## [3.0.0] - 2021-03-25
+
+### Added
+
++ `minion.exe -todo` command to list `+ [ ] ...` todo lines in Journal files.
+
+### Removed
+
++ Python2 code.
 
 ## [2.0.0] - 2021-03-02
 
