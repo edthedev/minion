@@ -22,9 +22,14 @@ Get a quick count of todo (+ [ ] foo) lines in Journal files.
 
 function Get-JournalTodos() {
 	param(
-		[int]$Max = 20
+		[switch]$all = $false,
+		[int]$maximum = 20
 	)
-	minion.exe -todo | Select-Object -Last $Max
+	if($all) {
+		minion.exe -todo
+	} else {
+		minion.exe -todo | Select-Object -Last $maximum
+	}
 }
 
 function Measure-JournalTodos() {
