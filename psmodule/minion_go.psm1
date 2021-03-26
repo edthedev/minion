@@ -28,7 +28,8 @@ function Get-JournalTodos() {
 }
 
 function Measure-JournalTodos() {
-		minion.exe -todo | Measure-Object -Line
+	$count = (minion.exe -todo | Measure-Object -Line).Lines
+	Write-Output "$count Todo Items in Journal"
 }
 
 Export-ModuleMember -Function Get-JournalTodos
