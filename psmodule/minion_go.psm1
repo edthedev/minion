@@ -29,6 +29,17 @@ function Get-JournalTodos() {
 
 function Measure-JournalTodos() {
 	$count = (minion.exe -todo | Measure-Object -Line).Lines
+	if($count -gt 10) {
+		$data = [math]::Floor($count / 10)
+	} else 
+	{
+		$data = $count
+	}
+	
+	if ("$env:todochart".Length -eq 0) {
+		$env:todochart = ""
+	}
+	$env:todochart += "|$data"
 	Write-Output "$count Todo Items in Journal"
 }
 
