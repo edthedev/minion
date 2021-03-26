@@ -6,6 +6,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
++ `Measure-JournalTodos` displays the current count of open `+ [ ]` items in Journal notes.
++ `chart` command displays a chart of Todo item counts during this terminal session.
 
 ## [Planned]
 
