@@ -37,9 +37,9 @@ function Measure-JournalTodos() {
 	}
 	
 	if ("$env:todochart".Length -eq 0) {
-		$env:todochart = ""
+		$env:chart = ""
 	}
-	$env:todochart += "|$data"
+	$env:chart += "|$data"
 	Write-Output "$count Todo Items in Journal"
 }
 
