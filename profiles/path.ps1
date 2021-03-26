@@ -1,2 +1,3 @@
-$ENV:PATH+=";c:\src\minion\go" # Flag to ensure my profile kicked in.
+$ENV:PATH+=";c:\src\minion\go" 
+$ENV:PATH+=";c:\src\minion\go\chart" 
 Write-Host "+ Added minion command to path."
