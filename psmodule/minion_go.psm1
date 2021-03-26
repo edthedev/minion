@@ -32,6 +32,39 @@ function Get-JournalTodos() {
 	}
 }
 
+<#
+.SYNOPSIS
+
+Count the number of open Todo items in notes in the Journal folder.
+
+.EXAMPLE
+> Measure-JournalTodos
+
+57 Todo Items in Journal
+
+.EXAMPLE
+
+This example requires go/chart/chart.go to be compiled and on the path.
+
+> chart
+
+ 15.00 ┼ ╭╮
+ 14.00 ┤ │╰╮
+ 13.00 ┤ │ │
+ 12.00 ┤ │ │
+ 11.00 ┤ │ ╰╮
+ 10.00 ┤ │  │
+  9.00 ┤ │  │
+  8.00 ┤ │  ╰╮
+  7.00 ┤ │   │
+  6.00 ┤ │   ╰─╮
+  5.00 ┤ │     ╰
+  4.00 ┤ │
+  3.00 ┤ │
+  2.00 ┤ │
+  1.00 ┤ │
+  0.00 ┼─╯
+#>
 function Measure-JournalTodos() {
 	$count = (minion.exe -todo | Measure-Object -Line).Lines
 	if($count -gt 10) {
