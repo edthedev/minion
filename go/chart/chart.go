@@ -9,6 +9,21 @@ import (
 		"strings"
 		"strconv"
 )
+/*
+
+C:\src\minion\go\chart [main ↑1]> $env:chart
+|23|20|15|12|12|15|15|6|5|0
+
+C:\src\minion\go\chart [main ↑1]> chart
+[0 0 0 23 20 15 12 12 15 15 6 5 0]
+Chart scale is 5
+ 4.00 ┼  ╭─╮
+ 3.00 ┤  │ ╰╮ ╭─╮
+ 2.00 ┤  │  ╰─╯ │
+ 1.00 ┤  │      ╰─╮
+ 0.00 ┼──╯        ╰
+
+*/
 
 func main() {
 	flag.Parse()
