@@ -63,7 +63,8 @@ func main() {
 
 	searchFlag := flag.String("search", "", "Text to search for.")
 	listFlag := flag.Bool("tags", false, "List any tags that look like [<text>].")
-	todoFlag := flag.Bool("todo", false, "List any todo lines.")
+	allTodoFlag:= flag.Bool("alltodo", false, "List all todo lines.")
+	todoFlag := flag.Bool("todo", false, "List today's todo lines.")
 	// doneFlag := flag.Bool("done", false, "List any done lines.")
 	maxFlag := flag.Int("max", 5, "Maximum number of files or tags to list.")
 	flag.Parse()
@@ -111,8 +112,25 @@ func main() {
 			log.Fatal(walkErr)
 		}
 	}
-
 	if ( *todoFlag ) {
+
+		var path = rootPath // TODO: Set this to just today's file.
+		var found = []string{}
+		found = searchForMatchesByLine(*todoRegex, path)
+		var todo string
+		
+		if( len(found) > 0 ){
+			fmt.Println("## ", path)
+			fmt.Println("")
+		}
+		for _, todo = range found {
+			fmt.Println(todo)
+			fmt.Println("")
+		}
+
+	}
+
+	if ( *allTodoFlag ) {
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 
 			if filepath.Ext(path) != ".md" {
@@ -122,7 +140,6 @@ func main() {
 
 			var found = []string{}
 			found = searchForMatchesByLine(*todoRegex, path)
-			// fmt.Println(found)
 			var todo string
 			
 			if( len(found) > 0 ){
@@ -133,18 +150,6 @@ func main() {
 				fmt.Println(todo)
 				fmt.Println("")
 			}
-
-
-
-			/* 
-			if found {
-				// fmt.Printf("Found a match in: %s", path)
-				matchCount += 1
-				results = append(results, path)
-			} else {
-				// fmt.Printf("Found no match in: %s", path)
-			}
-			*/
 
 			return nil
 		})

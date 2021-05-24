@@ -52,7 +52,7 @@ This example requires go/chart/chart.go to be compiled and on the path.
  1.00 ┤  │
  0.00 ┼──╯
 #>
-function Measure-JournalTodos() {
+function Measure-JournalAllTodos() {
 	$count = (minion.exe -todo | Measure-Object -Line).Lines
 	
 	if ("$env:chart".Length -eq 0) {
@@ -62,6 +62,19 @@ function Measure-JournalTodos() {
 	$env:chart =  "$env:chart|$count"
 	Write-Output "$count Todo Items in Journal"
 }
+
+function Measure-JournalTodayTodos() {
+	$count = (minion.exe -todo | Measure-Object -Line).Lines
+	
+	if ("$env:chart".Length -eq 0) {
+		$env:chart = ""
+	}
+
+	$env:chart =  "$env:chart|$count"
+	Write-Output "$count Todo Items in Journal"
+}
+
+
 
 Export-ModuleMember -Function Get-JournalTodos
 Export-ModuleMember -Function Measure-JournalTodos
