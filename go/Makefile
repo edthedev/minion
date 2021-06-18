@@ -10,6 +10,9 @@ go:
 todo:
 	go run minion.go -todo
 
+todoFile: 
+	go run .\minion.go -todo -file test.md
+
 debug:
 	dlv debug -- --list
 
