@@ -63,5 +63,14 @@ function Measure-JournalTodos() {
 	Write-Output "$count Todo Items in Journal"
 }
 
+
+function Get-JournalTodayTodos() {
+	param(
+		[int]$maximum = 20
+	)
+	minion.exe -todo -file "$(Get-JournalFile)" | Select-Object -Last $maximum
+}
+
 Export-ModuleMember -Function Get-JournalTodos
+Export-ModuleMember -Function Get-JournalTodayTodos
 Export-ModuleMember -Function Measure-JournalTodos

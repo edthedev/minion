@@ -70,9 +70,13 @@ function Get-JournalFile() {
 	param(
 		[DateTime]$date
 	)
-  $daySlug = '{0:dd}' -f $date
-  $ymSlug = '{0:yyyy/MM}' -f $date
-	$folder = "~/Journal/$ymSlug"
+	
+	if(-Not $date) {
+		$date = Get-Date
+	}
+	$daySlug = '{0:dd}' -f $date
+	$ymSlug = '{0:yyyy/MM}' -f $date
+	$folder = "$HOME/Journal/$ymSlug"
 	$fileName = "$folder/$daySlug.md"
 
 	New-JournalFile -folder $folder -fileName $fileName
