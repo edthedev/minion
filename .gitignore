@@ -1,4 +1,5 @@
 # For unit testing
+node_modules/*
 ENV
 htmlcov
 *.py[co]
