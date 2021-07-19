@@ -71,6 +71,14 @@ function Get-JournalTodayTodos() {
 	minion.exe -todo -file "$(Get-JournalFile)" | Select-Object -Last $maximum
 }
 
+function Get-JournalAgenda() {
+	param(
+		[int]$maximum = 15
+	)
+	agenda.exe -path "$(Get-JournalFile)" | Select-Object -Last $maximum
+}
+
 Export-ModuleMember -Function Get-JournalTodos
 Export-ModuleMember -Function Get-JournalTodayTodos
 Export-ModuleMember -Function Measure-JournalTodos
+Export-ModuleMember -Function Get-JournalAgenda

@@ -5,4 +5,4 @@ agenda.exe:
 	go build agenda.go
 
 test:
-	go run agenda.go -fileName $1
+	go run .\agenda.go -path $1
