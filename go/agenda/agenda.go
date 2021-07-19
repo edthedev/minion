@@ -35,7 +35,10 @@ func main() {
 	var found = []string{}
 	found = searchForMatchesByLine(*agendaRegex, *agendaFile)
 	// TODO: Add a flag the removes line breaks, to allow files to be passed to Vim
-	fmt.Println(found)
-	fmt.Println()
 
+	var item string
+	for _, item = range found {
+		fmt.Println(item)
+		fmt.Println("")
+	}
 }
