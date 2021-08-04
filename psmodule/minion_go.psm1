@@ -54,11 +54,15 @@ This example requires go/chart/chart.go to be compiled and on the path.
 #>
 function Measure-JournalTodos() {
 	$count = (minion.exe -todo | Measure-Object -Line).Lines
-	
+	$histFile = "~/.journal.task.count"
+
+	if(Test-Path -Path $histFile) {
+		$env:chart = Get-Content -Path $histFile
+	}
 	if ("$env:chart".Length -eq 0) {
 		$env:chart = ""
 	}
-
+	Add-Content -Path $histFile -Value "|$count"
 	$env:chart =  "$env:chart|$count"
 	Write-Output "$count Todo Items in Journal"
 }
