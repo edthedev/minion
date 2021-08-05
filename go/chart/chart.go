@@ -37,7 +37,7 @@ func main() {
 	if datastring == "" {
 		datastring = "| 1| 2| 3| 4| 3| 2| 1"
 	}
-	fmt.Println(datastring)
+	// fmt.Println(datastring)
 	strData := strings.Split(datastring, "|")
 
 	// Turn it into numbers.
@@ -51,8 +51,7 @@ func main() {
 		}
 		data = append(data, dataItem)
 	}
-	fmt.Println(data)
-	// fmt.Println("Big Item ", bigItem)
+	// fmt.Println(data)
 
 	// Clean it for display size.
 	sizedData := []float64{}
