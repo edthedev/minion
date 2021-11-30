@@ -28,12 +28,13 @@ Chart scale is 5
 */
 
 func main() {
+	envVar := flag.String("var", "chart", "Environment variable to chart from.")
 	flag.Parse()
 
 	data := []float64{0, 0}
 
 	// Pull data from the environment variable.
-	datastring := os.Getenv("chart")
+	datastring := os.Getenv(*envVar)
 	if datastring == "" {
 		datastring = "| 1| 2| 3| 4| 3| 2| 1"
 	}
