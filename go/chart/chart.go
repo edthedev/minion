@@ -27,6 +27,14 @@ Chart scale is 5
 
 */
 
+func GetLatest(datastring string, max int) (res []string) {
+	strData := strings.Split(datastring, "|")
+	if len(strData) < max {
+		return strData
+	}
+	return strData[len(strData)-max:]
+}
+
 func main() {
 	envVar := flag.String("var", "chart", "Environment variable to chart from.")
 	flag.Parse()
@@ -36,10 +44,11 @@ func main() {
 	// Pull data from the environment variable.
 	datastring := os.Getenv(*envVar)
 	if datastring == "" {
-		datastring = "| 1| 2| 3| 4| 3| 2| 1"
+		datastring = "|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"
+		datastring = datastring + "|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"
+		datastring = datastring + "|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"
 	}
-	// fmt.Println(datastring)
-	strData := strings.Split(datastring, "|")
+	strData := GetLatest(datastring, 73)
 
 	// Turn it into numbers.
 	var item string
