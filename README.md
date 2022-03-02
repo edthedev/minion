@@ -28,7 +28,7 @@ Minion is compatible with other tools that use Markdown files.
 After setting up your PowerShell profile to import the module: 
 
 ```powershell
-C:\src\minion\psmodule [cleanup +0 ~1 -0 !]> get-command -Module minion
+$ Get-Command -Module minion
 
 CommandType     Name                                               Version    Source
 -----------     ----                                               -------    ------
@@ -37,6 +37,15 @@ Function        Get-JournalNote                                    0.0        mi
 Function        Get-JournalToday                                   0.0        minion
 Function        Get-JournalTomorrow                                0.0        minion
 Function        Get-JournalYesterday                               0.0        minion
+
+$ Get-Command -Module minion_go
+
+CommandType     Name                                               Version    Source
+-----------     ----                                               -------    ------
+Function        Get-JournalAgenda                                  0.0        minion_go
+Function        Get-JournalTodayTodos                              0.0        minion_go
+Function        Get-JournalTodos                                   0.0        minion_go
+Function        Measure-JournalTodos                               0.0        minion_go
 ```
 
 ```powershell
