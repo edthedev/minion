@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Planned]
 
-- [ ] Update todo item format to `- [ ]` to comply with Markdown lint tools.
+## [3.1.1] - 2022-03-01
+
+- Update todo item format to `- [ ]` to comply with Markdown lint tools.
 
 ## [3.1.0] - 2022-03-01
 

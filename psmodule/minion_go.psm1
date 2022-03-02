@@ -8,13 +8,13 @@ This tool is for quick text searching across Journal notes.
 
 .EXAMPLE
 
-List Todo (+ [] foo) lines in Journal files.
+List Todo (- [] foo) lines in Journal files.
 
 > Get-JournalTodos -Max 10
 >
 .EXAMPLE
 
-Get a quick count of todo (+ [ ] foo) lines in Journal files.
+Get a quick count of todo (- [ ] foo) lines in Journal files.
 
 > Get-JournalTodos -Max 10
 

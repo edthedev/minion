@@ -8,8 +8,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 	"regexp"
+	"strings"
 )
 
 func searchInFile(fileName string, searchString string) bool {
@@ -26,7 +26,6 @@ func searchInFile(fileName string, searchString string) bool {
 	return found
 
 }
-
 
 func searchForTags(tagRegex regexp.Regexp, fileName string) []string {
 
@@ -56,9 +55,6 @@ func searchForMatchesByLine(tagRegex regexp.Regexp, fileName string) []string {
 	return results
 }
 
-
-
-
 func main() {
 
 	searchFlag := flag.String("search", "", "Text to search for.")
@@ -69,9 +65,8 @@ func main() {
 	maxFlag := flag.Int("max", 5, "Maximum number of files or tags to list.")
 	flag.Parse()
 
-	tagRegex, _ := regexp.Compile(`\[\S\S+\]`) // How we find tags.
-	// todoRegex, _ := regexp.Compile(`^+\w\[\w\].+$`) // How we find todos.
-	todoRegex, _ := regexp.Compile(`(^\+\W\[\W+\].+$)`) // How we find todos
+	tagRegex, _ := regexp.Compile(`\[\S\S+\]`)          // How we find tags.
+	todoRegex, _ := regexp.Compile(`(^\-\W\[\W+\].+$)`) // How we find todos
 	// doneRegex, _ := regexp.Compile(`\[x\]|\[\/\]`) // How we find done items.
 
 	var rootPath string = `C:\Users\delaport\Journal\2021`
@@ -82,11 +77,11 @@ func main() {
 	// fmt.Printf("List: %t, Find: %s.", "--default to list--", *searchFlag)
 	// fmt.Println("")
 
-	if ( *todoFile != "") {
+	if *todoFile != "" {
 		rootPath = *todoFile
 	}
 
-	if ( *listFlag ) {
+	if *listFlag {
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 
 			if filepath.Ext(path) != ".md" {
@@ -99,14 +94,14 @@ func main() {
 			// TODO: Add a flag the removes line breaks, to allow files to be passed to Vim
 			fmt.Println(found)
 
-			/* 
-			if found {
-				// fmt.Printf("Found a match in: %s", path)
-				matchCount += 1
-				results = append(results, path)
-			} else {
-				// fmt.Printf("Found no match in: %s", path)
-			}
+			/*
+				if found {
+					// fmt.Printf("Found a match in: %s", path)
+					matchCount += 1
+					results = append(results, path)
+				} else {
+					// fmt.Printf("Found no match in: %s", path)
+				}
 			*/
 
 			return nil
@@ -117,7 +112,7 @@ func main() {
 		}
 	}
 
-	if ( *todoFlag ) {
+	if *todoFlag {
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
 
 			if filepath.Ext(path) != ".md" {
@@ -129,8 +124,8 @@ func main() {
 			found = searchForMatchesByLine(*todoRegex, path)
 			// fmt.Println(found)
 			var todo string
-			
-			if( len(found) > 0 ){
+
+			if len(found) > 0 {
 				fmt.Println("## ", path)
 				fmt.Println("")
 			}
@@ -139,16 +134,14 @@ func main() {
 				fmt.Println("")
 			}
 
-
-
-			/* 
-			if found {
-				// fmt.Printf("Found a match in: %s", path)
-				matchCount += 1
-				results = append(results, path)
-			} else {
-				// fmt.Printf("Found no match in: %s", path)
-			}
+			/*
+				if found {
+					// fmt.Printf("Found a match in: %s", path)
+					matchCount += 1
+					results = append(results, path)
+				} else {
+					// fmt.Printf("Found no match in: %s", path)
+				}
 			*/
 
 			return nil
@@ -159,9 +152,7 @@ func main() {
 		}
 	}
 
-
-
-	if (*searchFlag != "") {
+	if *searchFlag != "" {
 		var results = []string{}
 
 		walkErr := filepath.Walk(rootPath, func(path string, info os.FileInfo, err error) error {
@@ -187,10 +178,10 @@ func main() {
 		}
 		// fmt.Printf("Skipped %d non markdown (.md) files. ", notMarkdown)
 
-		if(matchCount > *maxFlag) {
+		if matchCount > *maxFlag {
 			fmt.Printf("Found %d matches.", matchCount)
 		} else {
-		  for _, item := range results {
+			for _, item := range results {
 				// fmt.Println(item)
 				// Print space separated for Vim command line input.
 				// var escaped string
