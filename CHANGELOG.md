@@ -1,4 +1,5 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -6,17 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-+ `Measure-JournalTodos` displays the current count of open `+ [ ]` items in Journal notes.
-+ `chart` command displays a chart of Todo item counts during this terminal session.
-
 ## [Planned]
 
-+ Make the 'note' command print out the filename created.
-+ Use the ENV variable for MINION_HOME if it is set.
-+ Use the templates directory when making new notes.
-+ Create a Pester test suite for the PowerShell functions.
-+ Create a GitHub action that runs a Pester test suite.
-+ Maybe: Recreate the `minion.vim` plugin - using only the shell functions.
+- [ ] Update todo item format to `- [ ]` to comply with Markdown lint tools.
+
+## [3.1.0]
+
++ `Measure-JournalTodos` displays the current count of open `+ [ ]` items in Journal notes.
++ `chart` command displays a chart of Todo item counts during this terminal session.
 
 ## [3.0.0] - 2021-03-25
 
