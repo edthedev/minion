@@ -26,9 +26,9 @@ function Get-JournalTodos() {
 		[int]$maximum = 20
 	)
 	if($all) {
-		minion.exe -todo
+		todolist.exe
 	} else {
-		minion.exe -todo | Select-Object -Last $maximum
+		todolist.exe | Select-Object -Last $maximum
 	}
 }
 
@@ -53,7 +53,7 @@ This example requires go/chart/chart.go to be compiled and on the path.
  0.00 ┼──╯
 #>
 function Measure-JournalTodos() {
-	$count = (minion.exe -todo | Measure-Object -Line).Lines
+	$count = (todolist.exe | Measure-Object -Line).Lines
 	$histFile = "~/.journal.task.count"
 
 	if(Test-Path -Path $histFile) {
@@ -72,7 +72,7 @@ function Get-JournalTodayTodos() {
 	param(
 		[int]$maximum = 20
 	)
-	minion.exe -todo -file "$(Get-JournalFile)" | Select-Object -Last $maximum
+	todolist.exe -file "$(Get-JournalFile)" | Select-Object -Last $maximum
 }
 
 function Get-JournalAgenda() {
