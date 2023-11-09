@@ -1,5 +1,13 @@
 # Minion
 
+## Archived
+
+I have replaced this tool in my own workflow.
+
+- For journaling and quick notes, I recommend [VSCode Journal](https://marketplace.visualstudio.com/items?itemName=pajoma.vscode-journal).
+- For finding `todo` items in my journal, I use [my Go Todolist](https://github.com/edthedev/todolist).
+- For a daily agenda view, I use [my Go agenda tool](https://github.com/edthedev/agenda).
+
 ## What is Minion?
 
 Minion automates the boring parts of file management to let authors focus on writing. Deciding what to name a file, where to put it, and trying to find it later are all steps that can be delegated - to Minion.
