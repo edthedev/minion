@@ -10,12 +10,12 @@ https://codeberg.org/EdTheDev/minion
 The new version is almost entirely written in`bash` and has been tested on Linux Mint and MacOSX.
 
 - For journaling and quick notes, I ~~recommend [VSCode Journal](https://marketplace.visualstudio.com/items?itemName=pajoma.vscode-journal).~~ now use [Minion](https://codeberg.org/EdTheDev), again.
-- For finding `todo` items in my journal, I use (still) [my Go Todolist](https://github.com/edthedev/todolist).
-- For a daily agenda view, I use (still) [my Go agenda tool](https://github.com/edthedev/agenda).
+- For finding `todo` items in my journal, I (still) use [my Go Todolist](https://github.com/edthedev/todolist).
+- For a daily agenda view, I (still) use [my Go agenda tool](https://github.com/edthedev/agenda).
 
 ## What is Minion?
 
-> (While this is an archive of the Python and PowerShell versions, most of this talk about viaion will be roughly correct foe the new [Bash version of Minion](
+> (While this is an archive of the Python and PowerShell versions, most of this talk about vision will be roughly correct for the new [Bash version of Minion](
 https://codeberg.org/EdTheDev).)
 
 Minion automates the boring parts of file management to let authors focus on writing. Deciding what to name a file, where to put it, and trying to find it later are all steps that can be delegated - to Minion.
